@@ -1,0 +1,31 @@
+import uuid
+from utils.supabase_client import supabase
+
+BUCKET = "new_app"
+
+def save_photos(quickscan_name, photos):
+    safe_name = quickscan_name.replace(" ", "_")
+
+    for item in photos:
+        file = item["file"]
+        beschrijving = item["beschrijving"]
+        soortgroepen_foto = item["soortgroepen"]   # this is a list
+
+        # Create unique filename
+        unique_id = str(uuid.uuid4())
+        filename = f"quickscan/fotos/{safe_name}_{unique_id}.jpg"
+
+        # Upload photo to Supabase bucket
+        supabase.storage.from_(BUCKET).upload(
+            filename,
+            file.read(),
+            file_options={"content-type": "image/jpeg", "x-upsert": "true"}
+        )
+
+        # Save metadata in database
+        supabase.table("new_app_quickscan_fotos").insert({
+            "quickscan_naam": safe_name,
+            "foto_pad": filename,
+            "beschrijving": beschrijving,
+            "soortgroep": soortgroepen_foto,   # list stored in JSONB
+        }).execute()
