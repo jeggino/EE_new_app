@@ -20,5 +20,13 @@ def save_quickscan(name, description, geojson):
     supabase.table("new_app_quickscan").insert({
         "name": safe_name,
         "description": description,
-        "geometry_path": filename
+        "geometry_path": filename,
+        "datum": datum.isoformat(),
+        "veldwerker": veldwerker,
+        "starttijd": starttijd.strftime("%H:%M:%S"),
+        "eindtijd": eindtijd.strftime("%H:%M:%S"),
+        "temperatuur": temperatuur,
+        "windsnelheid": windsnelheid,
+        "regen": regen
     }).execute()
+
