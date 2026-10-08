@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.auth import check_password
-
-st.set_page_config(page_title="Quickscan", page_icon="🗺️")
+from utils.geometry_tools import draw_geometry
+from utils.quickscan_tools import save_quickscan
 
 if check_password():
 
@@ -11,18 +11,18 @@ if check_password():
 
     with tab_create:
         st.subheader("Nieuwe Quickscan")
-        st.write("Hier kun je een nieuwe Quickscan aanmaken.")
 
-        st.info("Teken hier de geometrie.")
-        st.info("Voer hier de projectgegevens in.")
-        st.info("Upload hier foto's met beschrijving.")
+        geojson = draw_geometry()
+
+        project_name = st.text_input("Projectnaam")
+        description = st.text_area("Beschrijving")
+
+        if st.button("Project opslaan"):
+            save_quickscan(project_name, description, geojson)
+            st.success("Quickscan succesvol opgeslagen.")
+            st.rerun()
 
     with tab_edit:
         st.subheader("Quickscan bewerken")
-        st.write("Selecteer een bestaande Quickscan om te bewerken.")
-
-        st.info("Hier komt een lijst met bestaande Quickscans.")
-        st.info("Hier kun je de geometrie aanpassen.")
-        st.info("Hier kun je de projectgegevens aanpassen.")
-        st.info("Hier kun je foto's bekijken, toevoegen of verwijderen.")
+        st.info("Hier komt de lijst met bestaande Quickscans.")
 
