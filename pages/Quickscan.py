@@ -92,7 +92,8 @@ if check_password():
                 eindtijd,
                 temperatuur,
                 windsnelheid,
-                regen
+                regen,
+                species_results
             )
         
             st.success("Quickscan succesvol opgeslagen.")
