@@ -1,5 +1,6 @@
 import streamlit as st
-from utils.auth import check_password
+from utils.auth import check_password, logout
+
 
 st.set_page_config(page_title="Ecologisch Advies - Home", page_icon="🌿",initial_sidebar_state="collapsed")
 
