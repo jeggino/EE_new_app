@@ -44,6 +44,9 @@ if check_password():
             if not geojson:
                 st.error("Teken eerst een geometrie.")
                 st.stop()
+
+            st.write("DEBUG:", project_name, description, geojson, datum, veldwerker)
+
         
             save_quickscan(
                 project_name,
