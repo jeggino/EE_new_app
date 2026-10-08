@@ -8,7 +8,7 @@ def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,te
         st.error("Teken eerst een geometrie.")
         st.stop()
 
-    if not project_name:
+    if not naam:
         st.error("Projectnaam ontbreekt.")
         st.stop()
 
