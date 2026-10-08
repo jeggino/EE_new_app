@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+import geopandas as gpd
 import ast
 
 import requests
