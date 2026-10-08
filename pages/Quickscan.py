@@ -311,7 +311,7 @@ if check_password():
         data = supabase.storage.from_("new_app").download(qs["geometry_path"])
         quickscan_geojson = json.loads(data.decode("utf-8"))
         
-        qs_gdf = gpd.GeoDataFrame.from_features(quickscan_geojson).set_crs(4326)
+        qs_gdf = gpd.read_file(quickscan_geojson).set_crs(4326)
 
         centroid = qs_gdf.geometry.centroid.iloc[0]
 
