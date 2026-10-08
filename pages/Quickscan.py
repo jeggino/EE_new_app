@@ -45,7 +45,8 @@ if check_password():
                 st.error("Teken eerst een geometrie.")
                 st.stop()
 
-            st.write("DEBUG:", project_name, description, geojson, datum, veldwerker)
+            st.write("DEBUG:", project_name, description, geojson, datum, veldwerker, starttijd, eindtijd, temperatuur, windsnelheid, regen)
+
 
         
             save_quickscan(
