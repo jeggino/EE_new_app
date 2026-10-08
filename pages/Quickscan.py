@@ -18,7 +18,7 @@ if check_password():
 
     st.title("Quickscan")
 
-    tab_create, tab_edit = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken"])
+    tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
 
     with tab_create:
         st.subheader("Nieuwe Quickscan")
@@ -166,4 +166,35 @@ if check_password():
     with tab_edit:
         st.subheader("Quickscan bewerken")
         st.info("Hier komt de lijst met bestaande Quickscans.")
+
+    
+    with tab_view:
+        st.header("Quickscan bekijken")
+    
+        # Load the most recent quickscan
+        result = supabase.table("new_app_quickscan") \
+            .select("*") \
+            .order("id", desc=True) \
+            .limit(1) \
+            .execute()
+    
+        if not result.data:
+            st.info("Nog geen Quickscan opgeslagen.")
+        else:
+            qs = result.data[0]
+    
+            st.subheader("Projectinformatie")
+            st.write(f"**Naam:** {qs['name']}")
+            st.write(f"**Datum:** {qs['datum']}")
+            st.write(f"**Veldwerker:** {qs['veldwerker']}")
+            st.write(f"**Opmerking:** {qs['description']}")
+    
+            st.subheader("Weersomstandigheden")
+            st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
+            st.write(f"**Wind:** {qs['windsnelheid']} Bft")
+            st.write(f"**Regen:** {qs['regen']}")
+    
+            st.subheader("Soortgeschiktheid")
+            st.json(qs["soorten"])
+
 
