@@ -76,42 +76,37 @@ if check_password():
             if value:  # True or list
                 beschikbare_soortgroepen.append(group)
                 
-        photos_to_upload = []
         
-        # Counter for number of photos
-        num_photos = st.session_state.get("num_photos", 1)
+        add_photo = st.toggle("Wil je een foto toevoegen?")
         
-        for i in range(num_photos):
-            st.write(f"Foto {i+1}")
-        
+        while add_photo:
             photo = st.file_uploader(
                 "Upload een foto",
                 type=["jpg", "jpeg", "png"],
-                key=f"photo_{i}"
-            )
-        
-            beschrijving = st.text_area(
-                "Schrijf een beschrijving voor deze foto",
-                key=f"beschrijving_{i}"
-            )
-        
-            soortgroepen_foto = st.multiselect(
-                "Voor welke soortgroepen is dit habitat potentieel geschikt?",
-                beschikbare_soortgroepen,
-                key=f"soortgroepen_{i}"
+                key=f"photo_{len(photos_to_upload)}"
             )
         
             if photo:
+        
+                beschrijving = st.text_area("Schrijf een beschrijving voor deze foto")
+        
+                # MULTISELECT with only the groups the user selected earlier
+                soortgroepen_foto = st.multiselect(
+                    "Voor welke soortgroepen is dit habitat potentieel geschikt?",
+                    beschikbare_soortgroepen,
+                    key=f"species_photo_{len(photos_to_upload)}"
+                )
+        
                 photos_to_upload.append({
                     "file": photo,
                     "beschrijving": beschrijving,
                     "soortgroepen": soortgroepen_foto
                 })
         
-        # Button to add another photo
-        if st.button("Nog een foto toevoegen"):
-            st.session_state.num_photos = num_photos + 1
-            st.experimental_rerun()
+                st.success("Foto toegevoegd.")
+        
+            add_photo = st.toggle("Nog een foto toevoegen?")
+
 
 
 
