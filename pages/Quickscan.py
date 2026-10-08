@@ -184,10 +184,10 @@ if check_password():
             qs = result.data[0]
     
             st.subheader("Projectinformatie")
-            st.write(f"**Naam:** {qs['name']}")
+            st.write(f"**Naam:** {qs['naam']}")
             st.write(f"**Datum:** {qs['datum']}")
             st.write(f"**Veldwerker:** {qs['veldwerker']}")
-            st.write(f"**Opmerking:** {qs['description']}")
+            st.write(f"**Opmerking:** {qs['opmerking']}")
     
             st.subheader("Weersomstandigheden")
             st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
@@ -196,5 +196,6 @@ if check_password():
     
             st.subheader("Soortgeschiktheid")
             st.json(qs["soorten"])
+
 
 
