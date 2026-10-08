@@ -28,8 +28,8 @@ def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,e
         "geometry_path": filename,
         "datum": datum.isoformat(),
         "veldwerker": veldwerker,
-        "starttijd": starttijd.strftime("%H:%M:%S"),
-        "eindtijd": eindtijd.strftime("%H:%M:%S"),
+        "starttijd": starttijd.strftime("%H:%M"),
+        "eindtijd": eindtijd.strftime("%H:%M"),
         "temperatuur": temperatuur,
         "windsnelheid": windsnelheid,
         "regen": regen
