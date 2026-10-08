@@ -26,7 +26,7 @@ def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,e
         "name": project_name.replace(" ", "_"),
         "description": description,
         "geometry_path": filename,
-        "datum": datum.isoformat(),
+        "datum": str(datum),
         "veldwerker": veldwerker,
         "starttijd": str(starttijd),
         "eindtijd": str(eindtijd),
