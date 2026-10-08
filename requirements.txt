@@ -1,1 +1,18 @@
 streamlit
+
+# Map + drawing tools
+folium
+streamlit-folium
+
+# Supabase client
+supabase
+
+# Utilities
+python-dotenv
+pandas
+numpy
+requests
+
+
+# GeoJSON handling (pure Python, safe)
+geojson
