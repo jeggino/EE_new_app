@@ -76,25 +76,30 @@ if check_password():
             if value:  # True or list
                 beschikbare_soortgroepen.append(group)
                 
+                
+        photos_to_upload = []
         
-        add_photo = st.toggle("Wil je een foto toevoegen?")
+        add_photo = st.toggle("Wil je een foto toevoegen?", key="add_photo_first")
         
         while add_photo:
+            index = len(photos_to_upload)
+        
             photo = st.file_uploader(
                 "Upload een foto",
                 type=["jpg", "jpeg", "png"],
-                key=f"photo_{len(photos_to_upload)}"
+                key=f"photo_{index}"
             )
         
             if photo:
+                beschrijving = st.text_area(
+                    "Schrijf een beschrijving voor deze foto",
+                    key=f"beschrijving_{index}"
+                )
         
-                beschrijving = st.text_area("Schrijf een beschrijving voor deze foto")
-        
-                # MULTISELECT with only the groups the user selected earlier
                 soortgroepen_foto = st.multiselect(
                     "Voor welke soortgroepen is dit habitat potentieel geschikt?",
                     beschikbare_soortgroepen,
-                    key=f"species_photo_{len(photos_to_upload)}"
+                    key=f"soortgroepen_{index}"
                 )
         
                 photos_to_upload.append({
@@ -105,7 +110,12 @@ if check_password():
         
                 st.success("Foto toegevoegd.")
         
-            add_photo = st.toggle("Nog een foto toevoegen?")
+            # IMPORTANT: give this toggle a UNIQUE key
+            add_photo = st.toggle(
+                "Nog een foto toevoegen?",
+                key=f"add_photo_{index}"
+            )
+
 
 
 
