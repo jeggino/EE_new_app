@@ -333,9 +333,15 @@ if check_password():
             st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
             
 
+        import folium
+        from streamlit_folium import st_folium
+        
+        # Center map on centroid
         m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
         
-        # Quickscan polygon
+        # -----------------------------
+        # Quickscan polygon (groen)
+        # -----------------------------
         folium.GeoJson(
             qs_gdf,
             name="Quickscan gebied",
@@ -346,7 +352,9 @@ if check_password():
             }
         ).add_to(m)
         
-        # 3 km buffer
+        # -----------------------------
+        # 3 km buffer (blauw)
+        # -----------------------------
         folium.GeoJson(
             buffer,
             name="3 km buffer",
@@ -357,11 +365,31 @@ if check_password():
             }
         ).add_to(m)
         
-        # Natura2000 intersecties
+        # -----------------------------
+        # Natura2000 volledige dataset (rood)
+        # -----------------------------
+        folium.GeoJson(
+            n2000,
+            name="Natura2000",
+            style_function=lambda x: {
+                "color": "red",
+                "weight": 1,
+                "fillOpacity": 0.1
+            },
+            tooltip=folium.GeoJsonTooltip(
+                fields=["NAAM_N2K", "STATUS", "BESCHERMIN"],
+                aliases=["Naam", "Status", "Bescherming"],
+                sticky=True
+            )
+        ).add_to(m)
+        
+        # -----------------------------
+        # Natura2000 intersecties (geel)
+        # -----------------------------
         if len(intersections) > 0:
             folium.GeoJson(
                 intersections,
-                name="Natura2000 intersectie",
+                name="Intersectie",
                 style_function=lambda x: {
                     "color": "yellow",
                     "weight": 3,
@@ -369,22 +397,18 @@ if check_password():
                 }
             ).add_to(m)
         
+        # -----------------------------
         # Centroid marker
+        # -----------------------------
         folium.Marker(
             location=[centroid.y, centroid.x],
             icon=folium.Icon(color="red")
         ).add_to(m)
 
-        # -----------------------------
-        # Add Rosa dei Venti image (bottom-left)
-        # -----------------------------
-        import base64
-        from pathlib import Path
-        
-        logo_path = "utils/pictures/pngwing.com.png"
-        
-        with open(logo_path, "rb") as f:
-            encoded = base64.b64encode(f.read()).decode()
+
+
+
+
         
         
         
