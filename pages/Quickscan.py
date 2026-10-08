@@ -333,6 +333,19 @@ if check_password():
             st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
             
 
+
+        # -----------------------------
+        # Add Rosa dei Venti image (bottom-left)
+        # -----------------------------
+        import base64
+        from pathlib import Path
+        
+        logo_path = "utils/pictures/pngwing.com.png"
+        
+        with open(logo_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+
+        
         import folium
         from streamlit_folium import st_folium
         
