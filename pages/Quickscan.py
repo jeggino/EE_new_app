@@ -25,12 +25,12 @@ from utils.media_tools import save_photos
 
 if check_password():
 
-    st.title("Quickscan")
+    st.title("Quickscan",text_alignment="center",)
 
     tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
 
     with tab_create:
-        st.subheader("Nieuwe Quickscan")
+        st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
         geojson = draw_geometry()
 
@@ -178,7 +178,7 @@ if check_password():
 
     
     with tab_view:
-        st.header("Quickscan bekijken")
+        st.header("Quickscan bekijken",text_alignment="center",)
     
         # Load all quickscans
         all_qs = supabase.table("new_app_quickscan") \
