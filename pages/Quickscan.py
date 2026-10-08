@@ -66,6 +66,13 @@ if check_password():
 
 
         st.subheader("Foto's")
+
+        # Only show species groups that were selected earlier
+        beschikbare_soortgroepen = []
+        
+        for group, value in soorten_results.items():
+            if value:  # True or list
+                beschikbare_soortgroepen.append(group)
         
         photos_to_upload = []
         
@@ -79,22 +86,26 @@ if check_password():
             )
         
             if photo:
+        
                 beschrijving = st.text_area("Schrijf een beschrijving voor deze foto")
-                soortgroep = st.selectbox(
-                    "Voor welke soortgroep is dit habitat potentieel geschikt?",
-                    list(SPECIES_GROUPS.keys()),
+        
+                # MULTISELECT with only the groups the user selected earlier
+                soortgroepen_foto = st.multiselect(
+                    "Voor welke soortgroepen is dit habitat potentieel geschikt?",
+                    beschikbare_soortgroepen,
                     key=f"species_photo_{len(photos_to_upload)}"
                 )
         
                 photos_to_upload.append({
                     "file": photo,
                     "beschrijving": beschrijving,
-                    "soortgroep": soortgroep
+                    "soortgroepen": soortgroepen_foto
                 })
         
                 st.success("Foto toegevoegd.")
         
             add_photo = st.toggle("Nog een foto toevoegen?")
+
 
 
 
