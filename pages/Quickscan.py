@@ -40,7 +40,6 @@ if check_password():
             ["Geen", "Licht", "Matig", "Hevig"]
         )
 
-naam
         if st.button("Project opslaan"):
         
             if not geojson:
