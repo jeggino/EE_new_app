@@ -2,7 +2,8 @@ SPECIES_GROUPS = {
     "vaatplanten": None,
     "vlinders": None,
     "vogels": [
-        "huismus/spreeuw",
+        "huismus",
+        "spreeuw",
         "gierzwaluw",
         "huiszwaluw",
         "boerenzwaluw",
