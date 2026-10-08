@@ -3,6 +3,8 @@ import streamlit as st
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pandas as pd
+
 from utils.auth import check_password
 from utils.geometry_tools import draw_geometry
 from utils.quickscan_tools import save_quickscan
@@ -207,7 +209,24 @@ if check_password():
         st.write(f"**Regen:** {qs['regen']}")
     
         st.subheader("Soortgeschiktheid")
-        st.json(qs["soorten"])
+
+        
+        soorten = qs["soorten"]
+        
+        rows = []
+        
+        for group, value in soorten.items():
+            if value is True:
+                rows.append([group, "Geschikt", "—"])
+            elif value is False:
+                rows.append([group, "Niet geschikt", "—"])
+            elif isinstance(value, list):
+                rows.append([group, "Geschikt", ", ".join(value)])
+        
+        df = pd.DataFrame(rows, columns=["Soortgroep", "Geschiktheid", "Soorten"])
+        
+        st.table(df)
+        
     
         # Photos
         st.subheader("Foto's")
