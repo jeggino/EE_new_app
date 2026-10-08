@@ -286,9 +286,9 @@ if check_password():
                 }
             ).add_to(m)
         
-            # Fit map to GeoJSON bounds
-            folium.GeoJson(geojson_data).add_to(m)
-            m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
+            # # Fit map to GeoJSON bounds
+            # folium.GeoJson(geojson_data).add_to(m)
+            # m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
         
             # Show map
             st_folium(m, width=700, height=500)
