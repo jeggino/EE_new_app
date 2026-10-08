@@ -634,11 +634,7 @@ if check_password():
         doc.add_paragraph(f"Wind: {qs['windsnelheid']} Bft")
         doc.add_paragraph(f"Regen: {qs['regen']}")
         
-        doc.add_heading("Soortgeschiktheid", level=2)
-        doc.add_paragraph(json.dumps(qs["soorten"], indent=4))
-        
-        doc.add_heading("Conclusie", level=2)
-        doc.add_paragraph(conclusion_text)
+
         
         # Voeg foto toe (als aanwezig)
         if "foto_path" in qs:
