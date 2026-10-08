@@ -11,7 +11,7 @@ if check_password():
     with col2:
         st.image("utils/pictures/signal-2026-08-31-14-39-37-051 (1).jpg", use_column_width=True)
 
-    st.title("Welkom bij de Elsken Ecologie Advies Applicatie")
+    st.title("Welkom bij de Elsken Ecologie Advies Applicatie",text_alignment="center",)
 
     st.write(
         """
