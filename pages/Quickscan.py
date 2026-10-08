@@ -58,11 +58,11 @@ if check_password():
                         species_list,
                         key=f"species_{group}"
                     )
-                    species_results[group] = selected
+                    soorten_results[group] = selected
                 else:
-                    species_results[group] = True
+                    soorten_results[group] = True
             else:
-                species_results[group] = False
+                soorten_results[group] = False
 
 
         if st.button("Project opslaan"):
@@ -93,7 +93,7 @@ if check_password():
                 temperatuur,
                 windsnelheid,
                 regen,
-                species_results
+                soorten_results
             )
         
             st.success("Quickscan succesvol opgeslagen.")
