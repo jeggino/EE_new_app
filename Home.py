@@ -8,7 +8,7 @@ if check_password():
     st.markdown(
         """
         <div style="text-align: center;">
-            <img src="https://raw.githubusercontent.com/<your-username>/<your-repo>/main/utils/pictures/signal-2026-08-31-14-39-37-051%20%281%29.jpg"
+            <img src="utils/pictures/signal-2026-08-31-14-39-37-051 (1).jpg"
                  alt="Ecologisch Advies"
                  style="width: 300px; border-radius: 10px;">
         </div>
