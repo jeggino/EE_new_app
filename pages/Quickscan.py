@@ -41,6 +41,10 @@ if check_password():
                 st.error("Voer een projectnaam in.")
                 st.stop()
         
+            if not geojson:
+                st.error("Teken eerst een geometrie.")
+                st.stop()
+        
             save_quickscan(
                 project_name,
                 description,
@@ -53,6 +57,7 @@ if check_password():
                 windsnelheid,
                 regen
             )
+
 
 
             st.success("Quickscan succesvol opgeslagen.")
