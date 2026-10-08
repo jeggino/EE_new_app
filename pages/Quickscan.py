@@ -81,20 +81,20 @@ if check_password():
                 st.error("Projectnaam bestaat al. Kies een andere naam.")
                 st.stop()
         
-        
-            save_quickscan(
-                naam,
-                opmerking,
-                geojson,
-                datum,
-                veldwerker,
-                starttijd,
-                eindtijd,
-                temperatuur,
-                windsnelheid,
-                regen,
-                soorten_results
-            )
+            with st.spinner("Quickscan wordt opgeslagen…"):
+                save_quickscan(
+                    naam,
+                    opmerking,
+                    geojson,
+                    datum,
+                    veldwerker,
+                    starttijd,
+                    eindtijd,
+                    temperatuur,
+                    windsnelheid,
+                    regen,
+                    soorten_results
+                )
         
             st.success("Quickscan succesvol opgeslagen.")
 
