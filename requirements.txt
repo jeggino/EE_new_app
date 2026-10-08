@@ -1,11 +1,10 @@
-streamlit
-supabase
+streamlit==1.32.0
+supabase==2.4.0
+python-dotenv
 pandas
-
-
-# Geospatial tools
+numpy
+requests
 streamlit-folium
 folium
-geojson
-shapely
+Pillow
 
