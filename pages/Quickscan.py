@@ -214,7 +214,8 @@ if check_password():
         st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
         st.write(f"**Wind:** {qs['windsnelheid']} Bft")
         st.write(f"**Regen:** {qs['regen']}")
-    
+        
+        "---"
         st.subheader("Soortgeschiktheid")
 
         
@@ -235,7 +236,7 @@ if check_password():
         st.table(df)
         
     
-        # Photos
+        "---"
         st.subheader("Foto's")
         fotos = supabase.table("new_app_quickscan_fotos") \
             .select("*") \
@@ -258,9 +259,9 @@ if check_password():
                     soorten_list = ast.literal_eval(soorten_list)
         
                 st.write(f"**Potentieel geschikt voor:** {', '.join(soorten_list)}")
-                st.markdown("---")
+               
 
-
+        "---"
         st.markdown("""
         ### Extra GIS‑analyse: afstand tot Natura 2000‑gebieden
         
@@ -513,7 +514,7 @@ if check_password():
         
                 st_folium(m, width=700, height=500)
 
-        
+        "---"
         st.markdown("""
         ### Conclusie van de Quickscan
         
@@ -600,7 +601,7 @@ if check_password():
 
 
 
-
+        "---"
         from docx import Document
         from docx.shared import Inches
         import io
