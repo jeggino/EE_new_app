@@ -275,12 +275,12 @@ if check_password():
         Klik op de knop hieronder om de analyse uit te voeren.
         """)
 
-        run_analysis = st.selectbox(
-            "Wil je controleren of het onderzoeksgebied binnen 3 km van een Natura 2000‑gebied ligt?",
-            ["Nee", "Ja"]
+        run_analysis = st.toggle(
+            "Wil je controleren of het onderzoeksgebied binnen 3 km van een Natura 2000‑gebied ligt?"
         )
 
-        if run_analysis == "Ja":
+
+        if run_analysis:
             with st.spinner("GIS‑analyse wordt uitgevoerd..."):
         
                 # -----------------------------
