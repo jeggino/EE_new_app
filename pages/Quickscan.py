@@ -17,6 +17,24 @@ if check_password():
         project_name = st.text_input("Projectnaam")
         description = st.text_area("Beschrijving")
 
+        st.subheader("Veldgegevens")
+        
+        datum = st.date_input("Datum")
+        veldwerker = st.text_input("Veldwerker")
+        starttijd = st.time_input("Starttijd")
+        eindtijd = st.time_input("Eindtijd")
+        
+        temperatuur = st.number_input("Temperatuur (°C)", step=0.1)
+        windsnelheid = st.selectbox(
+            "Windsnelheid",
+            ["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"]
+        )
+        regen = st.selectbox(
+            "Regen",
+            ["Geen", "Licht", "Matig", "Hevig"]
+        )
+
+
         if st.button("Project opslaan"):
             save_quickscan(project_name, description, geojson)
             st.success("Quickscan succesvol opgeslagen.")
