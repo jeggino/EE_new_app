@@ -20,9 +20,9 @@ if check_password():
         Gebruik de **zijbalk** om te navigeren tussen de verschillende modules.  
         Elke module bevat duidelijke stappen om je werk efficiënt en overzichtelijk te maken.
 
-        - **Quickscan** – Maak projecten aan, teken geometrieën en upload foto’s  
-        - **Inventarisatie** – Registreer soorten, locaties en veldnotities  
-        - **Control** – Voer controles uit en bekijk eerdere resultaten  
+        - **Quickscan** – In deze sectie kun je alle gegevens voor de Quickscan invoeren, bewerken en opnieuw ophalen. Je beheert hier de volledige projectinformatie, inclusief veldgegevens, foto’s en soortgeschiktheid. Daarnaast is het mogelijk om een conclusie te schrijven of te actualiseren. Zodra alle informatie compleet is, kun je een automatisch gegenereerd .doc‑rapport downloaden waarin alle ingevoerde gegevens, inclusief de conclusie en projectfoto’s, zijn samengevoegd. 
+        - **Inventarisatie** – In deze sectie kun je nieuwe projecten voor de inventarisatie aanmaken of bestaande projecten uit de Quickscan overnemen. Je vult hier alle relevante inventarisatiegegevens in, zoals het type inventarisatie, het aantal rondes, de benodigde uren en de toegewezen veldwerkers. Ook kun je de contactpersoon voor het project registreren. Daarnaast is het mogelijk om aanvullende survey‑informatie toe te voegen, zodat de veldwerker volledig zelfstandig kan werken en alle benodigde instructies en projectdetails direct beschikbaar heeft.  
+        - **Control** – In deze sectie kun je de voortgang en resultaten van elk inventarisatie‑ of Quickscan‑project volgen. Je ziet hier in één overzicht of er roest‑ of nestlocaties zijn gevonden, of de dagverslagen volledig zijn ingevuld en of alle stappen van het protocol correct zijn uitgevoerd. Deze module maakt het mogelijk om de kwaliteit van het veldwerk te bewaken en direct actie te ondernemen wanneer afwijkingen, ontbrekende gegevens of urgente ecologische bevindingen worden vastgesteld.  
 
         Je blijft ingelogd zolang je de browser open houdt.
         """
