@@ -264,38 +264,37 @@ if check_password():
         # Geometry
         st.subheader("Gebied op kaart")
         
-        geojson_url = supabase.storage.from_("new_app").get_public_url(qs["geometry_path"])
-        
-        import requests
         import json
         import folium
         from streamlit_folium import st_folium
         
         try:
-            # Load GeoJSON correctly
-            response = requests.get(geojson_url)
-            geojson_data = json.loads(response.text)
+            # Download GeoJSON from Supabase
+            data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+            geojson_data = json.loads(data.decode("utf-8"))
         
-            # Determine center of geometry
-            coords = geojson_data["features"][0]["geometry"]["coordinates"]
+            # Extract coordinates for centering
+            feature = geojson_data["features"][0]
+            geom_type = feature["geometry"]["type"]
+            coords = feature["geometry"]["coordinates"]
         
-            # Handle Polygon vs LineString vs Point
-            def get_center(coords):
-                if geojson_data["features"][0]["geometry"]["type"] == "Polygon":
+            # Compute center
+            def get_center(geom_type, coords):
+                if geom_type == "Polygon":
                     poly = coords[0]
                     avg_lat = sum([p[1] for p in poly]) / len(poly)
                     avg_lon = sum([p[0] for p in poly]) / len(poly)
                     return avg_lat, avg_lon
-                elif geojson_data["features"][0]["geometry"]["type"] == "LineString":
+                elif geom_type == "LineString":
                     avg_lat = sum([p[1] for p in coords]) / len(coords)
                     avg_lon = sum([p[0] for p in coords]) / len(coords)
                     return avg_lat, avg_lon
-                else:  # Point
+                elif geom_type == "Point":
                     return coords[1], coords[0]
         
-            lat, lon = get_center(coords)
+            lat, lon = get_center(geom_type, coords)
         
-            # Create map centered on geometry
+            # Create map
             m = folium.Map(location=[lat, lon], zoom_start=15)
         
             # Add GeoJSON layer
@@ -309,11 +308,12 @@ if check_password():
                 }
             ).add_to(m)
         
-            # Display map
+            # Show map
             st_folium(m, width=700, height=500)
         
         except Exception as e:
             st.error(f"Kon de geometrie niet laden: {e}")
+
 
 
     
