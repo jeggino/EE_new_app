@@ -36,5 +36,48 @@ if check_password():
     st.page_link("pages/Inventarisatie.py", label="Inventarisatie", icon="📋")
     st.page_link("pages/Control.py", label="Control", icon="🔍")
 
+    st.markdown("""
+    <div style="display:flex; gap:40px;">
+    
+    <a href="/Quickscan" target="_self" style="text-decoration:none;">
+        <div style="text-align:center; padding:20px;">
+            <span style="font-size:60px;">🗺️</span><br>
+            <span style="font-size:22px; font-weight:bold;">Quickscan</span>
+        </div>
+    </a>
+    
+    <a href="/Inventarisatie" target="_self" style="text-decoration:none;">
+        <div style="text-align:center; padding:20px;">
+            <span style="font-size:60px;">📋</span><br>
+            <span style="font-size:22px; font-weight:bold;">Inventarisatie</span>
+        </div>
+    </a>
+    
+    <a href="/Control" target="_self" style="text-decoration:none;">
+        <div style="text-align:center; padding:20px;">
+            <span style="font-size:60px;">🔍</span><br>
+            <span style="font-size:22px; font-weight:bold;">Control</span>
+        </div>
+    </a>
+    
+    </div>
+    """, unsafe_allow_html=True)
+
+
+    # col1, col2, col3 = st.columns(3)
+    
+    # with col1:
+    #     st.image("icons/quickscan.png", width=120)
+    #     st.page_link("pages/Quickscan.py", label="Quickscan")
+    
+    # with col2:
+    #     st.image("icons/inventarisatie.png", width=120)
+    #     st.page_link("pages/Inventarisatie.py", label="Inventarisatie")
+    
+    # with col3:
+    #     st.image("icons/control.png", width=120)
+    #     st.page_link("pages/Control.py", label="Control")
+
+
 
 
