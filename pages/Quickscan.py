@@ -8,6 +8,8 @@ from utils.geometry_tools import draw_geometry
 from utils.quickscan_tools import save_quickscan
 from utils.supabase_client import supabase
 from utils.species_groups import SPECIES_GROUPS
+from utils.media_tools import save_photos
+
 
 
 
@@ -126,6 +128,7 @@ if check_password():
                 st.stop()
         
             with st.spinner("Quickscan wordt opgeslagen…"):
+            
                 save_quickscan(
                     naam,
                     opmerking,
@@ -139,9 +142,11 @@ if check_password():
                     regen,
                     soorten_results
                 )
-
-        
-            st.success("Quickscan succesvol opgeslagen.")
+            
+                if photos_to_upload:
+                    save_photos(naam, photos_to_upload)
+            
+            st.success("Quickscan succesvol opgeslagen!")
 
 
     with tab_edit:
