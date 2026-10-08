@@ -2,7 +2,20 @@ import json
 import streamlit as st
 from utils.supabase_client import supabase, BUCKET
 
-def save_quickscan(name, description, geojson):
+def save_quickscan(
+    project_name,
+    description,
+    geojson,
+    datum,
+    veldwerker,
+    starttijd,
+    eindtijd,
+    temperatuur,
+    windsnelheid,
+    regen
+):
+
+
 
     if not geojson:
         st.error("Teken eerst een geometrie.")
