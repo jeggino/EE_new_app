@@ -6,6 +6,10 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 import ast
 
+import requests
+import folium
+from streamlit_folium import st_folium
+
 
 from utils.auth import check_password
 from utils.geometry_tools import draw_geometry
@@ -252,52 +256,63 @@ if check_password():
                 if isinstance(soorten_list, str):
                     soorten_list = ast.literal_eval(soorten_list)
         
-                st.write(f"**Soorten:** {', '.join(soorten_list)}")
+                st.write(f"**Potentieel geschikt voor:** {', '.join(soorten_list)}")
                 st.markdown("---")
 
 
     
         # Geometry
         st.subheader("Gebied op kaart")
-    
+        
         geojson_url = supabase.storage.from_("new_app").get_public_url(qs["geometry_path"])
-
-        import requests
-        import json
-    
+        
+        
         try:
             geojson_data = requests.get(geojson_url).json()
-            st.map(geojson_data)
-        except:
-            st.error("Kon de geometrie niet laden.")
+        
+            # Create a folium map centered on the geometry
+            m = folium.Map(location=[52.5, 5.75], zoom_start=10)  # default NL center
+        
+            # Add the GeoJSON layer
+            folium.GeoJson(
+                geojson_data,
+                name="Gebied"
+            ).add_to(m)
+        
+            # Display the map
+            st_folium(m, width=700, height=500)
+        
+        except Exception as e:
+            st.error(f"Kon de geometrie niet laden: {e}")
+
     
     
-            st.subheader("Download PDF")
-        
-            pdf_text = f"""
-            Quickscan Rapport
-            -----------------
-        
-            Naam: {qs['naam']}
-            Datum: {qs['datum']}
-            Veldwerker: {qs['veldwerker']}
-            Opmerking: {qs['opmerking']}
-        
-            Weersomstandigheden:
-            - Temperatuur: {qs['temperatuur']} °C
-            - Wind: {qs['windsnelheid']} Bft
-            - Regen: {qs['regen']}
-        
-            Soortgeschiktheid:
-            {json.dumps(qs['soorten'], indent=4)}
-            """
-        
-            st.download_button(
-                "Download Quickscan PDF",
-                pdf_text,
-                file_name=f"{qs['naam']}.txt",  # you can convert to PDF later
-                mime="text/plain"
-            )
+        st.subheader("Download PDF")
+    
+        pdf_text = f"""
+        Quickscan Rapport
+        -----------------
+    
+        Naam: {qs['naam']}
+        Datum: {qs['datum']}
+        Veldwerker: {qs['veldwerker']}
+        Opmerking: {qs['opmerking']}
+    
+        Weersomstandigheden:
+        - Temperatuur: {qs['temperatuur']} °C
+        - Wind: {qs['windsnelheid']} Bft
+        - Regen: {qs['regen']}
+    
+        Soortgeschiktheid:
+        {json.dumps(qs['soorten'], indent=4)}
+        """
+    
+        st.download_button(
+            "Download Quickscan PDF",
+            pdf_text,
+            file_name=f"{qs['naam']}.txt",  # you can convert to PDF later
+            mime="text/plain"
+        )
 
 
 
