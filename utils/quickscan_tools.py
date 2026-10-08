@@ -8,6 +8,11 @@ def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,e
         st.error("Teken eerst een geometrie.")
         st.stop()
 
+    if not project_name:
+        st.error("Projectnaam ontbreekt.")
+        st.stop()
+
+
     safe_name = project_name.replace(" ", "_")
     filename = f"quickscan/geometries/{safe_name}.geojson"
 
