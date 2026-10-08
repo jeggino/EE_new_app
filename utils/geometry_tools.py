@@ -11,12 +11,20 @@ def draw_geometry():
     if "confirm_multipolygon" not in st.session_state:
         st.session_state.confirm_multipolygon = False
 
-    m = folium.Map(location=[52.37, 4.90], zoom_start=12)
+    m = folium.Map(location=[52.37, 4.90], zoom_start=12,zoom_control=False)
 
     Draw(
-        draw_options={"polygon": True, "rectangle": True},
+        draw_options={
+            "polyline": False,
+            "polygon": True,
+            "circle": False,
+            "rectangle": False,
+            "marker": False,
+            "circlemarker": False
+        },
         edit_options={"edit": False, "remove": True},
     ).add_to(m)
+
 
     Fullscreen().add_to(m)
     Geocoder(add_marker=True).add_to(m)
