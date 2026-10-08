@@ -262,293 +262,487 @@ if check_password():
 
 
     
-        st.subheader("Gebied op kaart")
+        # st.subheader("Gebied op kaart")
         
-        import json
-        import folium
-        from streamlit_folium import st_folium
+        # import json
+        # import folium
+        # from streamlit_folium import st_folium
         
-        try:
-            # Download GeoJSON from Supabase
-            data = supabase.storage.from_("new_app").download(qs["geometry_path"])
-            geojson_data = json.loads(data.decode("utf-8"))
+        # try:
+        #     # Download GeoJSON from Supabase
+        #     data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+        #     geojson_data = json.loads(data.decode("utf-8"))
         
-            # Create a map (centered on NL)
-            m = folium.Map(location=[52.5, 5.75], zoom_start=10)
+        #     # Create a map (centered on NL)
+        #     m = folium.Map(location=[52.5, 5.75], zoom_start=10)
         
-            # Add GeoJSON directly — Folium handles centering automatically
-            folium.GeoJson(
-                geojson_data,
-                name="Gebied",
-                style_function=lambda x: {
-                    "color": "green",
-                    "weight": 3,
-                    "fillOpacity": 0.3
-                }
-            ).add_to(m)
+        #     # Add GeoJSON directly — Folium handles centering automatically
+        #     folium.GeoJson(
+        #         geojson_data,
+        #         name="Gebied",
+        #         style_function=lambda x: {
+        #             "color": "green",
+        #             "weight": 3,
+        #             "fillOpacity": 0.3
+        #         }
+        #     ).add_to(m)
         
-            # # Fit map to GeoJSON bounds
-            # folium.GeoJson(geojson_data).add_to(m)
-            # m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
+        #     # # Fit map to GeoJSON bounds
+        #     # folium.GeoJson(geojson_data).add_to(m)
+        #     # m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
         
-            # Show map
-            st_folium(m, width=700, height=500)
+        #     # Show map
+        #     st_folium(m, width=700, height=500)
         
-        except Exception as e:
-            st.error(f"Kon de geometrie niet laden: {e}")
+        # except Exception as e:
+        #     st.error(f"Kon de geometrie niet laden: {e}")
 
         st.subheader("EXTA GIS ANALYSSY")
 
-        url = (
-            "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
-            "service=WFS&version=2.0.0&request=GetFeature&"
-            "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
-            "outputFormat=application/json"
+        st.markdown("""
+        ### Extra GIS‑analyse: afstand tot Natura 2000‑gebieden
+        
+        Met deze aanvullende analyse wordt gecontroleerd of het onderzoeksgebied zich binnen een straal van **3 kilometer** van een Natura 2000‑gebied bevindt.  
+        De tool berekent automatisch:
+        
+        - het **centroid** van het Quickscan‑gebied  
+        - een **buffer van 3 km** rond dit punt  
+        - de **intersectie** met alle Natura 2000‑gebieden  
+        - een **kaartvisualisatie** met alle relevante lagen  
+        
+        Klik op de knop hieronder om de analyse uit te voeren.
+        """)
+
+        run_analysis = st.selectbox(
+            "Wil je controleren of het onderzoeksgebied binnen 3 km van een Natura 2000‑gebied ligt?",
+            ["Nee", "Ja"]
         )
+
+        if run_analysis == "Ja":
+            with st.spinner("GIS‑analyse wordt uitgevoerd..."):
         
-        n2000 = gpd.read_file(url).to_crs(4326)
-
-        data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+                # -----------------------------
+                # 1. Natura2000 dataset laden
+                # -----------------------------
+                url = (
+                    "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
+                    "service=WFS&version=2.0.0&request=GetFeature&"
+                    "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
+                    "outputFormat=application/json"
+                )
+                n2000 = gpd.read_file(url).to_crs(4326)
         
-        qs_gdf = gpd.read_file(data).set_crs(4326)
+                # -----------------------------
+                # 2. Quickscan geometrie laden
+                # -----------------------------
+                data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+                qs_gdf = gpd.read_file(data).set_crs(4326)
+        
+                # -----------------------------
+                # 3. Centroid + buffer
+                # -----------------------------
+                centroid = qs_gdf.geometry.centroid.iloc[0]
+        
+                centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
+                buffer_m = centroid_m.buffer(3000)  # 3 km
+                buffer = buffer_m.to_crs(4326)
+        
+                # -----------------------------
+                # 4. Intersectie met Natura2000
+                # -----------------------------
+                intersections = gpd.overlay(
+                    n2000,
+                    gpd.GeoDataFrame(geometry=buffer, crs=4326),
+                    how="intersection"
+                )
+        
+                if len(intersections) > 0:
+                    gebieden = intersections["NAAM_N2K"].unique().tolist()
+                else:
+                    gebieden = []
+        
+                # -----------------------------
+                # 5. Resultaten tonen
+                # -----------------------------
+                if gebieden:
+                    st.success("Intersectie met de volgende Natura2000‑gebieden:")
+                    for g in gebieden:
+                        st.write(f"- **{g}**")
+                else:
+                    st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
+        
+                # -----------------------------
+                # 6. Folium kaart bouwen
+                # -----------------------------
+                import folium
+                from streamlit_folium import st_folium
+        
+                m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
+        
+                # Quickscan polygon
+                folium.GeoJson(
+                    qs_gdf,
+                    name="Quickscan gebied",
+                    style_function=lambda x: {
+                        "color": "green",
+                        "weight": 3,
+                        "fillOpacity": 0.3
+                    }
+                ).add_to(m)
+        
+                # 3 km buffer
+                folium.GeoJson(
+                    buffer,
+                    name="3 km buffer",
+                    style_function=lambda x: {
+                        "color": "blue",
+                        "weight": 2,
+                        "fillOpacity": 0.05
+                    }
+                ).add_to(m)
+        
+                # Natura2000 dataset
+                folium.GeoJson(
+                    n2000,
+                    name="Natura2000",
+                    style_function=lambda x: {
+                        "color": "red",
+                        "weight": 1,
+                        "fillOpacity": 0.1
+                    },
+                    tooltip=folium.GeoJsonTooltip(
+                        fields=["NAAM_N2K", "STATUS", "BESCHERMIN"],
+                        aliases=["Naam", "Status", "Bescherming"],
+                        sticky=True
+                    )
+                ).add_to(m)
+        
+                # Intersecties
+                if len(intersections) > 0:
+                    folium.GeoJson(
+                        intersections,
+                        name="Intersectie",
+                        style_function=lambda x: {
+                            "color": "yellow",
+                            "weight": 3,
+                            "fillOpacity": 0.4
+                        }
+                    ).add_to(m)
+        
+                # Centroid marker
+                folium.Marker(
+                    location=[centroid.y, centroid.x],
+                    icon=folium.Icon(color="red")
+                ).add_to(m)
+        
+                # Legenda + windroos
+                import base64
+                from pathlib import Path
+                from branca.element import Element
+        
+                logo_path = "utils/pictures/pngwing.com.png"
+                with open(logo_path, "rb") as f:
+                    encoded = base64.b64encode(f.read()).decode()
+        
+                logo_html = f"""
+                <div id="map-logo" style="
+                    position: fixed;
+                    bottom: 15px;
+                    left: 15px;
+                    z-index: 999999;
+                    background: rgba(255,255,255,0.7);
+                    padding: 10px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+                ">
+                    <img src="data:image/jpeg;base64,{encoded}" style="width:75px;">
+                </div>
+                """
+                m.get_root().html.add_child(Element(logo_html))
+        
+                # Legenda
+                legend_html = """
+                <div id="map-legend" style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 999999;
+                    background: rgba(255,255,255,0.9);
+                    padding: 14px 18px;
+                    border-radius: 10px;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+                    font-family: Arial;
+                    font-size: 14px;
+                    width: 190px;
+                ">
+                    <b>Legenda</b><br><br>
+                    <div><span style="color:red;">■</span> Natura2000‑gebied</div>
+                    <div><span style="color:yellow;">■</span> Overlap</div>
+                    <div><span style="color:blue;">■</span> 3 km buffer</div>
+                    <div><span style="color:green;">■</span> Quickscan gebied</div>
+                </div>
+                """
+                m.get_root().html.add_child(Element(legend_html))
+        
+                st_folium(m, width=700, height=500)
 
-        centroid = qs_gdf.geometry.centroid.iloc[0]
 
-        centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
-        buffer_m = centroid_m.buffer(3000)  # 3 km
-        buffer = buffer_m.to_crs(4326)
 
-        intersections = gpd.overlay(n2000, gpd.GeoDataFrame(geometry=buffer, crs=4326), how="intersection")
 
-        if len(intersections) > 0:
-            gebieden = intersections["NAAM_N2K"].unique().tolist()
-        else:
-            gebieden = []
 
-        if gebieden:
-            st.success("Intersectie met de volgende Natura2000‑gebieden:")
-            for g in gebieden:
-                st.write(f"- **{g}**")
-        else:
-            st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
+
+
+
+        # url = (
+        #     "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
+        #     "service=WFS&version=2.0.0&request=GetFeature&"
+        #     "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
+        #     "outputFormat=application/json"
+        # )
+        
+        # n2000 = gpd.read_file(url).to_crs(4326)
+
+        # data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+        
+        # qs_gdf = gpd.read_file(data).set_crs(4326)
+
+        # centroid = qs_gdf.geometry.centroid.iloc[0]
+
+        # centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
+        # buffer_m = centroid_m.buffer(3000)  # 3 km
+        # buffer = buffer_m.to_crs(4326)
+
+        # intersections = gpd.overlay(n2000, gpd.GeoDataFrame(geometry=buffer, crs=4326), how="intersection")
+
+        # if len(intersections) > 0:
+        #     gebieden = intersections["NAAM_N2K"].unique().tolist()
+        # else:
+        #     gebieden = []
+
+        # if gebieden:
+        #     st.success("Intersectie met de volgende Natura2000‑gebieden:")
+        #     for g in gebieden:
+        #         st.write(f"- **{g}**")
+        # else:
+        #     st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
             
 
 
-        # -----------------------------
-        # Add Rosa dei Venti image (bottom-left)
-        # -----------------------------
-        import base64
-        from pathlib import Path
+        # # -----------------------------
+        # # Add Rosa dei Venti image (bottom-left)
+        # # -----------------------------
+        # import base64
+        # from pathlib import Path
         
-        logo_path = "utils/pictures/pngwing.com.png"
+        # logo_path = "utils/pictures/pngwing.com.png"
         
-        with open(logo_path, "rb") as f:
-            encoded = base64.b64encode(f.read()).decode()
+        # with open(logo_path, "rb") as f:
+        #     encoded = base64.b64encode(f.read()).decode()
 
         
-        import folium
-        from streamlit_folium import st_folium
+        # import folium
+        # from streamlit_folium import st_folium
         
-        # Center map on centroid
-        m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
+        # # Center map on centroid
+        # m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
         
-        # -----------------------------
-        # Quickscan polygon (groen)
-        # -----------------------------
-        folium.GeoJson(
-            qs_gdf,
-            name="Quickscan gebied",
-            style_function=lambda x: {
-                "color": "green",
-                "weight": 3,
-                "fillOpacity": 0.3
-            }
-        ).add_to(m)
+        # # -----------------------------
+        # # Quickscan polygon (groen)
+        # # -----------------------------
+        # folium.GeoJson(
+        #     qs_gdf,
+        #     name="Quickscan gebied",
+        #     style_function=lambda x: {
+        #         "color": "green",
+        #         "weight": 3,
+        #         "fillOpacity": 0.3
+        #     }
+        # ).add_to(m)
         
-        # -----------------------------
-        # 3 km buffer (blauw)
-        # -----------------------------
-        folium.GeoJson(
-            buffer,
-            name="3 km buffer",
-            style_function=lambda x: {
-                "color": "blue",
-                "weight": 2,
-                "fillOpacity": 0.05
-            }
-        ).add_to(m)
+        # # -----------------------------
+        # # 3 km buffer (blauw)
+        # # -----------------------------
+        # folium.GeoJson(
+        #     buffer,
+        #     name="3 km buffer",
+        #     style_function=lambda x: {
+        #         "color": "blue",
+        #         "weight": 2,
+        #         "fillOpacity": 0.05
+        #     }
+        # ).add_to(m)
         
-        # -----------------------------
-        # Natura2000 volledige dataset (rood)
-        # -----------------------------
-        folium.GeoJson(
-            n2000,
-            name="Natura2000",
-            style_function=lambda x: {
-                "color": "red",
-                "weight": 1,
-                "fillOpacity": 0.1
-            },
-            tooltip=folium.GeoJsonTooltip(
-                fields=["NAAM_N2K", "STATUS", "BESCHERMIN"],
-                aliases=["Naam", "Status", "Bescherming"],
-                sticky=True
-            )
-        ).add_to(m)
+        # # -----------------------------
+        # # Natura2000 volledige dataset (rood)
+        # # -----------------------------
+        # folium.GeoJson(
+        #     n2000,
+        #     name="Natura2000",
+        #     style_function=lambda x: {
+        #         "color": "red",
+        #         "weight": 1,
+        #         "fillOpacity": 0.1
+        #     },
+        #     tooltip=folium.GeoJsonTooltip(
+        #         fields=["NAAM_N2K", "STATUS", "BESCHERMIN"],
+        #         aliases=["Naam", "Status", "Bescherming"],
+        #         sticky=True
+        #     )
+        # ).add_to(m)
         
-        # -----------------------------
-        # Natura2000 intersecties (geel)
-        # -----------------------------
-        if len(intersections) > 0:
-            folium.GeoJson(
-                intersections,
-                name="Intersectie",
-                style_function=lambda x: {
-                    "color": "yellow",
-                    "weight": 3,
-                    "fillOpacity": 0.4
-                }
-            ).add_to(m)
+        # # -----------------------------
+        # # Natura2000 intersecties (geel)
+        # # -----------------------------
+        # if len(intersections) > 0:
+        #     folium.GeoJson(
+        #         intersections,
+        #         name="Intersectie",
+        #         style_function=lambda x: {
+        #             "color": "yellow",
+        #             "weight": 3,
+        #             "fillOpacity": 0.4
+        #         }
+        #     ).add_to(m)
         
-        # -----------------------------
-        # Centroid marker
-        # -----------------------------
-        folium.Marker(
-            location=[centroid.y, centroid.x],
-            icon=folium.Icon(color="red")
-        ).add_to(m)
+        # # -----------------------------
+        # # Centroid marker
+        # # -----------------------------
+        # folium.Marker(
+        #     location=[centroid.y, centroid.x],
+        #     icon=folium.Icon(color="red")
+        # ).add_to(m)
 
-
-
-
-
-        
-        
-        
-        from branca.element import Element
-        
-        logo_html = f"""
-        <style>
-        #map-logo {{
-            position: fixed;
-            bottom: 15px;      /* bottom-left */
-            left: 15px;
-            z-index: 999999;
-            background: rgba(255, 255, 255, 0.7);  /* white semi-transparent box */
-            padding: 10px 10px;                    /* bigger box */
-            border-radius: 10px;
-            backdrop-filter: blur(3px);            /* frosted-glass effect */
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        }}
-        
-        #map-logo img {{
-            width: 75px;       /* bigger image (~1.7 cm) */
-            height: auto;
-            display: block;
-        }}
-        </style>
-        
-        <div id="map-logo">
-            <img src="data:image/jpeg;base64,{encoded}">
-        </div>
-        """
-        
-        m.get_root().html.add_child(Element(logo_html))
-        
-        
-        from branca.element import Element
-        
-        legend_html = """
-        <style>
-        #map-legend {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 999999;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 14px 18px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            color: #222;
-            width: 190px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .legend-symbol {
-            width: 22px;
-            height: 22px;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-        
-        /* Professionele blauwe marker */
-        .legend-marker {
-            background: url('https://cdn-icons-png.flaticon.com/512/2776/2776067.png');
-            background-size: cover;
-            border-radius: 0;
-        }
-        
-        /* 1 km buffer (blauwe cirkel) */
-        .legend-circle {
-            background: none;
-            border: 3px solid #0066ff;
-            border-radius: 50%;
-        }
-        
-        /* Overlap (geel) */
-        .legend-yellow {
-            background: #FFD700;
-            border: 2px solid #C9A000;
-            border-radius: 4px;
-        }
-        
-        /* Natura2000 (rood) */
-        .legend-red {
-            background: orange;
-            border: 2px solid #B22222;
-            border-radius: 4px;
-        }
-        </style>
-        
-        <div id="map-legend">
-        
-            <div class="legend-item">
-                <div class="legend-symbol legend-marker"></div>
-                <span><b>Locatie</b></span>
-            </div>
-        
-            <div class="legend-item">
-                <div class="legend-symbol legend-circle"></div>
-                <span><b>3 km buffer</b></span>
-            </div>
-        
-            <div class="legend-item">
-                <div class="legend-symbol legend-yellow"></div>
-                <span><b>Overlap</b></span>
-            </div>
-        
-            <div class="legend-item">
-                <div class="legend-symbol legend-red"></div>
-                <span><b>Natura2000‑gebied</b></span>
-            </div>
-        
-        </div>
-        """
-        
-        m.get_root().html.add_child(Element(legend_html))
 
 
 
 
         
-        st_folium(m, width=700, height=500)
+        
+        
+        # from branca.element import Element
+        
+        # logo_html = f"""
+        # <style>
+        # #map-logo {{
+        #     position: fixed;
+        #     bottom: 15px;      /* bottom-left */
+        #     left: 15px;
+        #     z-index: 999999;
+        #     background: rgba(255, 255, 255, 0.7);  /* white semi-transparent box */
+        #     padding: 10px 10px;                    /* bigger box */
+        #     border-radius: 10px;
+        #     backdrop-filter: blur(3px);            /* frosted-glass effect */
+        #     box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        # }}
+        
+        # #map-logo img {{
+        #     width: 75px;       /* bigger image (~1.7 cm) */
+        #     height: auto;
+        #     display: block;
+        # }}
+        # </style>
+        
+        # <div id="map-logo">
+        #     <img src="data:image/jpeg;base64,{encoded}">
+        # </div>
+        # """
+        
+        # m.get_root().html.add_child(Element(logo_html))
+        
+        
+        # from branca.element import Element
+        
+        # legend_html = """
+        # <style>
+        # #map-legend {
+        #     position: fixed;
+        #     top: 20px;
+        #     right: 20px;
+        #     z-index: 999999;
+        #     background: rgba(255, 255, 255, 0.9);
+        #     padding: 14px 18px;
+        #     border-radius: 10px;
+        #     box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+        #     font-family: 'Arial', sans-serif;
+        #     font-size: 14px;
+        #     color: #222;
+        #     width: 190px;
+        # }
+        
+        # .legend-item {
+        #     display: flex;
+        #     align-items: center;
+        #     margin-bottom: 10px;
+        # }
+        
+        # .legend-symbol {
+        #     width: 22px;
+        #     height: 22px;
+        #     margin-right: 10px;
+        #     flex-shrink: 0;
+        # }
+        
+        # /* Professionele blauwe marker */
+        # .legend-marker {
+        #     background: url('https://cdn-icons-png.flaticon.com/512/2776/2776067.png');
+        #     background-size: cover;
+        #     border-radius: 0;
+        # }
+        
+        # /* 1 km buffer (blauwe cirkel) */
+        # .legend-circle {
+        #     background: none;
+        #     border: 3px solid #0066ff;
+        #     border-radius: 50%;
+        # }
+        
+        # /* Overlap (geel) */
+        # .legend-yellow {
+        #     background: #FFD700;
+        #     border: 2px solid #C9A000;
+        #     border-radius: 4px;
+        # }
+        
+        # /* Natura2000 (rood) */
+        # .legend-red {
+        #     background: orange;
+        #     border: 2px solid #B22222;
+        #     border-radius: 4px;
+        # }
+        # </style>
+        
+        # <div id="map-legend">
+        
+        #     <div class="legend-item">
+        #         <div class="legend-symbol legend-marker"></div>
+        #         <span><b>Locatie</b></span>
+        #     </div>
+        
+        #     <div class="legend-item">
+        #         <div class="legend-symbol legend-circle"></div>
+        #         <span><b>3 km buffer</b></span>
+        #     </div>
+        
+        #     <div class="legend-item">
+        #         <div class="legend-symbol legend-yellow"></div>
+        #         <span><b>Overlap</b></span>
+        #     </div>
+        
+        #     <div class="legend-item">
+        #         <div class="legend-symbol legend-red"></div>
+        #         <span><b>Natura2000‑gebied</b></span>
+        #     </div>
+        
+        # </div>
+        # """
+        
+        # m.get_root().html.add_child(Element(legend_html))
+
+
+
+
+        
+        # st_folium(m, width=700, height=500)
 
 
 
