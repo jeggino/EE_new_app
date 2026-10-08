@@ -7,6 +7,8 @@ from utils.auth import check_password
 from utils.geometry_tools import draw_geometry
 from utils.quickscan_tools import save_quickscan
 from utils.supabase_client import supabase
+from utils.species_groups import SPECIES_GROUPS
+
 
 
 
@@ -41,6 +43,27 @@ if check_password():
             "Regen",
             ["Geen", "Licht", "Matig", "Hevig"]
         )
+
+        st.subheader("Soortgeschiktheid")
+        
+        species_results = {}
+        
+        for group, species_list in SPECIES_GROUPS.items():
+            suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
+        
+            if suitable:
+                if species_list:
+                    selected = st.multiselect(
+                        f"Welke soorten binnen {group}?",
+                        species_list,
+                        key=f"species_{group}"
+                    )
+                    species_results[group] = selected
+                else:
+                    species_results[group] = True
+            else:
+                species_results[group] = False
+
 
         if st.button("Project opslaan"):
         
