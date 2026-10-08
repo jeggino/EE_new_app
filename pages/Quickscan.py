@@ -139,6 +139,7 @@ if check_password():
                     regen,
                     soorten_results
                 )
+
         
             st.success("Quickscan succesvol opgeslagen.")
 
