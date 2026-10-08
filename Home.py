@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.auth import check_password, logout
+from utils.auth import check_password
 
 
 st.set_page_config(page_title="Ecologisch Advies - Home", page_icon="🌿",initial_sidebar_state="collapsed")
@@ -64,8 +64,7 @@ if check_password():
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Logout"):
-        logout()
+
 
 
     # col1, col2, col3 = st.columns(3)
