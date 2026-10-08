@@ -273,11 +273,11 @@ if check_password():
             # Create a folium map centered on the geometry
             m = folium.Map(location=[52.5, 5.75], zoom_start=10)  # default NL center
         
-            # # Add the GeoJSON layer
-            # folium.GeoJson(
-            #     geojson_data,
-            #     name="Gebied"
-            # ).add_to(m)
+            # Add the GeoJSON layer
+            folium.GeoJson(
+                geojson_data,
+                name="Gebied"
+            ).add_to(m)
         
             # Display the map
             st_folium(m, width=700, height=500)
