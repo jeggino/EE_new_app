@@ -21,7 +21,7 @@ def save_quickscan(
         st.error("Teken eerst een geometrie.")
         st.stop()
 
-    safe_name = name.replace(" ", "_")
+    safe_name = project_name.replace(" ", "_")
     filename = f"quickscan/geometries/{safe_name}.geojson"
 
     supabase.storage.from_(BUCKET).upload(
@@ -31,7 +31,7 @@ def save_quickscan(
     )
 
     supabase.table("new_app_quickscan").insert({
-        "name": safe_name,
+        "name": project_name.replace(" ", "_"),,
         "description": description,
         "geometry_path": filename,
         "datum": datum.isoformat(),
