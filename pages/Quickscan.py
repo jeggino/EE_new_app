@@ -261,44 +261,6 @@ if check_password():
                 st.markdown("---")
 
 
-    
-        # st.subheader("Gebied op kaart")
-        
-        # import json
-        # import folium
-        # from streamlit_folium import st_folium
-        
-        # try:
-        #     # Download GeoJSON from Supabase
-        #     data = supabase.storage.from_("new_app").download(qs["geometry_path"])
-        #     geojson_data = json.loads(data.decode("utf-8"))
-        
-        #     # Create a map (centered on NL)
-        #     m = folium.Map(location=[52.5, 5.75], zoom_start=10)
-        
-        #     # Add GeoJSON directly — Folium handles centering automatically
-        #     folium.GeoJson(
-        #         geojson_data,
-        #         name="Gebied",
-        #         style_function=lambda x: {
-        #             "color": "green",
-        #             "weight": 3,
-        #             "fillOpacity": 0.3
-        #         }
-        #     ).add_to(m)
-        
-        #     # # Fit map to GeoJSON bounds
-        #     # folium.GeoJson(geojson_data).add_to(m)
-        #     # m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
-        
-        #     # Show map
-        #     st_folium(m, width=700, height=500)
-        
-        # except Exception as e:
-        #     st.error(f"Kon de geometrie niet laden: {e}")
-
-        st.subheader("EXTA GIS ANALYSSY")
-
         st.markdown("""
         ### Extra GIS‑analyse: afstand tot Natura 2000‑gebieden
         
@@ -551,25 +513,7 @@ if check_password():
         
                 st_folium(m, width=700, height=500)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+   
     
         st.subheader("Download PDF")
     
