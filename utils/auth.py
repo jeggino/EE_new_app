@@ -31,8 +31,8 @@ import time
 
 import streamlit as st
 from supabase import create_client
+from utils.supabase_client import supabase
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def check_password():
     # Als er al een geldige Supabase sessie is → ingelogd blijven
