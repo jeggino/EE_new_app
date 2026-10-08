@@ -21,11 +21,9 @@ if check_password():
         
         datum = st.date_input("Datum")
         veldwerker = st.text_input("Veldwerker")
-        starttijd = st.time_input("Starttijd")
-        st.write(starttijd)
-        
-        eindtijd = st.time_input("Eindtijd")
-        st.write(eindtijd)
+        now_local = datetime.now(ZoneInfo("Europe/Amsterdam")).time()
+        starttijd = st.time_input("Starttijd",value=now_local)
+        eindtijd = st.time_input("Eindtijd",value=now_local)
         
         temperatuur = st.number_input("Temperatuur (°C)", step=0.1)
         windsnelheid = st.selectbox(
