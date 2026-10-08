@@ -517,7 +517,7 @@ if check_password():
         st.markdown("""
         ### Conclusie van de Quickscan
         
-        In dit onderdeel kun je een korte, professionele conclusie toevoegen aan de Quickscan.  
+        In dit onderdeel kun je een conclusie toevoegen aan de Quickscan.  
         Deze conclusie wordt opgeslagen in de database en vormt het eindadvies van de ecologische beoordeling.
         """)
 
@@ -545,7 +545,7 @@ if check_password():
             conclusion_text = st.text_area(
                 "Conclusie:",
                 value=existing_text if existing_text else "",
-                placeholder="Voorbeeld: Het gebouw vertoont duidelijke potentie voor huismussen, vleermuizen en gierzwaluwen..."
+                placeholder="..."
             )
         
             # 3. Opslaan-knop
