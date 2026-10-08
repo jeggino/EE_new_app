@@ -6,6 +6,8 @@ from zoneinfo import ZoneInfo
 from utils.auth import check_password
 from utils.geometry_tools import draw_geometry
 from utils.quickscan_tools import save_quickscan
+from utils.supabase_client import supabase
+
 
 
 if check_password():
