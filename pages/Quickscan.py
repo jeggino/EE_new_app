@@ -541,20 +541,19 @@ if check_password():
                 
             st.markdown("#### Schrijf of bewerk de conclusie")
         
-            # Tekstvak met bestaande tekst indien aanwezig
             conclusion_text = st.text_area(
                 "Conclusie:",
                 value=existing_text if existing_text else "",
                 placeholder="..."
             )
         
-            # Als er al een conclusie bestaat → toon update-knop
             if existing_id:
         
                 st.info("Er is al een conclusie opgeslagen voor dit project.")
         
-                col1, col2 = st.columns(2)
+                col1, col2, col3 = st.columns(3)
         
+                # --- Bijwerken ---
                 with col1:
                     if st.button("Conclusie bijwerken"):
                         if conclusion_text.strip() == "":
@@ -566,7 +565,9 @@ if check_password():
                                 .execute()
         
                             st.success("De conclusie is bijgewerkt.")
+                            st.rerun()   # 🔄 nieuwe reload
         
+                # --- Verwijderen ---
                 with col2:
                     if st.button("Conclusie verwijderen"):
                         supabase.table("new_app_quickscan_conclusions") \
@@ -575,8 +576,13 @@ if check_password():
                             .execute()
         
                         st.warning("De conclusie is verwijderd.")
-            
-            # Als er nog GEEN conclusie bestaat → toon opslaan-knop
+                        st.rerun()   # 🔄 nieuwe reload
+        
+                # --- Handmatige reload ---
+                with col3:
+                    if st.button("Vernieuwen"):
+                        st.rerun()   # 🔄 nieuwe reload
+        
             else:
                 if st.button("Nieuwe conclusie opslaan"):
                     if conclusion_text.strip() == "":
@@ -589,6 +595,8 @@ if check_password():
                             }).execute()
         
                         st.success("De conclusie is succesvol opgeslagen.")
+                        st.rerun()   # 🔄 nieuwe reload
+
 
 
 
