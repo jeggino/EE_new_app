@@ -521,29 +521,58 @@ if check_password():
         Deze conclusie wordt opgeslagen in de database en vormt het eindadvies van de ecologische beoordeling.
         """)
 
-        write_conclusion = st.selectbox(
-            "Wil je een conclusie toevoegen aan deze Quickscan?",
-            ["Nee", "Ja"]
-        )
-
-        if write_conclusion == "Ja":
-            conclusion_text = st.text_area(
-                "Schrijf hier de conclusie:",
-                placeholder="Voorbeeld: Het gebouw vertoont duidelijke potentie voor huismus, vleermuizen en gierzwaluwen..."
-            )
-
-            save_it = st.selectbox(
-                "Wil je deze conclusie opslaan?",
-                ["Nee", "Ja"]
-            )
-
-            if save_it == "Ja" and conclusion_text.strip() != "":
-                supabase.table("new_app_quickscan_conclusions").insert({
-                    "project_naam": qs["naam"],
-                    "conclusie": conclusion_text
-                }).execute()
+        # 1. Vraag of gebruiker een conclusie wil schrijven
+        write_conclusion = st.toggle("Wil je een conclusie toevoegen of bewerken?")
         
-                st.success("De conclusie is succesvol opgeslagen.")
+        # Haal bestaande conclusie op (indien aanwezig)
+        existing = supabase.table("new_app_quickscan_conclusions") \
+            .select("*") \
+            .eq("project_naam", qs["naam"]) \
+            .execute()
+        
+        existing_text = None
+        existing_id = None
+        
+        if existing.data:
+            existing_text = existing.data[0]["conclusie"]
+            existing_id = existing.data[0]["id"]
+        
+        if write_conclusion:
+        
+            st.markdown("#### Schrijf of bewerk de conclusie")
+        
+            # 2. Toon tekstvak (met bestaande tekst indien aanwezig)
+            conclusion_text = st.text_area(
+                "Conclusie:",
+                value=existing_text if existing_text else "",
+                placeholder="Voorbeeld: Het gebouw vertoont duidelijke potentie voor huismussen, vleermuizen en gierzwaluwen..."
+            )
+        
+            # 3. Opslaan-knop
+            if st.button("Conclusie opslaan"):
+        
+                if conclusion_text.strip() == "":
+                    st.error("De conclusie mag niet leeg zijn.")
+                else:
+                    # 4. Update of insert
+                    if existing_id:
+                        # Update bestaande conclusie
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .update({"conclusie": conclusion_text}) \
+                            .eq("id", existing_id) \
+                            .execute()
+        
+                        st.success("De conclusie is bijgewerkt.")
+                    else:
+                        # Nieuwe conclusie opslaan
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .insert({
+                                "project_naam": qs["naam"],
+                                "conclusie": conclusion_text
+                            }).execute()
+        
+                        st.success("De conclusie is succesvol opgeslagen.")
+
 
 
         st.subheader("Download PDF")
