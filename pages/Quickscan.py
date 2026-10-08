@@ -261,7 +261,6 @@ if check_password():
 
 
     
-        # Geometry
         st.subheader("Gebied op kaart")
         
         import json
@@ -271,34 +270,12 @@ if check_password():
         try:
             # Download GeoJSON from Supabase
             data = supabase.storage.from_("new_app").download(qs["geometry_path"])
-            st.write(data)
             geojson_data = json.loads(data.decode("utf-8"))
         
-            # Extract coordinates for centering
-            feature = geojson_data["features"][0]
-            geom_type = feature["geometry"]["type"]
-            coords = feature["geometry"]["coordinates"]
+            # Create a map (centered on NL)
+            m = folium.Map(location=[52.5, 5.75], zoom_start=10)
         
-            # Compute center
-            def get_center(geom_type, coords):
-                if geom_type == "Polygon":
-                    poly = coords[0]
-                    avg_lat = sum([p[1] for p in poly]) / len(poly)
-                    avg_lon = sum([p[0] for p in poly]) / len(poly)
-                    return avg_lat, avg_lon
-                elif geom_type == "LineString":
-                    avg_lat = sum([p[1] for p in coords]) / len(coords)
-                    avg_lon = sum([p[0] for p in coords]) / len(coords)
-                    return avg_lat, avg_lon
-                elif geom_type == "Point":
-                    return coords[1], coords[0]
-        
-            lat, lon = get_center(geom_type, coords)
-        
-            # Create map
-            m = folium.Map(location=[lat, lon], zoom_start=15)
-        
-            # Add GeoJSON layer
+            # Add GeoJSON directly — Folium handles centering automatically
             folium.GeoJson(
                 geojson_data,
                 name="Gebied",
@@ -309,11 +286,16 @@ if check_password():
                 }
             ).add_to(m)
         
+            # Fit map to GeoJSON bounds
+            folium.GeoJson(geojson_data).add_to(m)
+            m.fit_bounds(folium.GeoJson(geojson_data).get_bounds())
+        
             # Show map
             st_folium(m, width=700, height=500)
         
         except Exception as e:
             st.error(f"Kon de geometrie niet laden: {e}")
+
 
 
 
