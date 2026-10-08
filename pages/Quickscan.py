@@ -309,7 +309,6 @@ if check_password():
         n2000 = gpd.read_file(url).to_crs(4326)
 
         data = supabase.storage.from_("new_app").download(qs["geometry_path"])
-        quickscan_geojson = json.loads(data.decode("utf-8"))
         
         qs_gdf = gpd.read_file(data).set_crs(4326)
 
@@ -375,6 +374,142 @@ if check_password():
             location=[centroid.y, centroid.x],
             icon=folium.Icon(color="red")
         ).add_to(m)
+
+        # -----------------------------
+        # Add Rosa dei Venti image (bottom-left)
+        # -----------------------------
+        import base64
+        from pathlib import Path
+        
+        logo_path = "utils/pictures/pngwing.com.png"
+        
+        with open(logo_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+        
+        
+        
+        from branca.element import Element
+        
+        logo_html = f"""
+        <style>
+        #map-logo {{
+            position: fixed;
+            bottom: 15px;      /* bottom-left */
+            left: 15px;
+            z-index: 999999;
+            background: rgba(255, 255, 255, 0.7);  /* white semi-transparent box */
+            padding: 10px 10px;                    /* bigger box */
+            border-radius: 10px;
+            backdrop-filter: blur(3px);            /* frosted-glass effect */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }}
+        
+        #map-logo img {{
+            width: 75px;       /* bigger image (~1.7 cm) */
+            height: auto;
+            display: block;
+        }}
+        </style>
+        
+        <div id="map-logo">
+            <img src="data:image/jpeg;base64,{encoded}">
+        </div>
+        """
+        
+        m.get_root().html.add_child(Element(logo_html))
+        
+        
+        from branca.element import Element
+        
+        legend_html = """
+        <style>
+        #map-legend {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999999;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            color: #222;
+            width: 190px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .legend-symbol {
+            width: 22px;
+            height: 22px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        /* Professionele blauwe marker */
+        .legend-marker {
+            background: url('https://cdn-icons-png.flaticon.com/512/2776/2776067.png');
+            background-size: cover;
+            border-radius: 0;
+        }
+        
+        /* 1 km buffer (blauwe cirkel) */
+        .legend-circle {
+            background: none;
+            border: 3px solid #0066ff;
+            border-radius: 50%;
+        }
+        
+        /* Overlap (geel) */
+        .legend-yellow {
+            background: #FFD700;
+            border: 2px solid #C9A000;
+            border-radius: 4px;
+        }
+        
+        /* Natura2000 (rood) */
+        .legend-red {
+            background: orange;
+            border: 2px solid #B22222;
+            border-radius: 4px;
+        }
+        </style>
+        
+        <div id="map-legend">
+        
+            <div class="legend-item">
+                <div class="legend-symbol legend-marker"></div>
+                <span><b>Locatie</b></span>
+            </div>
+        
+            <div class="legend-item">
+                <div class="legend-symbol legend-circle"></div>
+                <span><b>3 km buffer</b></span>
+            </div>
+        
+            <div class="legend-item">
+                <div class="legend-symbol legend-yellow"></div>
+                <span><b>Overlap</b></span>
+            </div>
+        
+            <div class="legend-item">
+                <div class="legend-symbol legend-red"></div>
+                <span><b>Natura2000‑gebied</b></span>
+            </div>
+        
+        </div>
+        """
+        
+        m.get_root().html.add_child(Element(legend_html))
+
+
+
+
         
         st_folium(m, width=700, height=500)
 
