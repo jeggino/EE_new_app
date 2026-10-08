@@ -2,7 +2,7 @@ import json
 import streamlit as st
 from utils.supabase_client import supabase, BUCKET
 
-def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,eindtijd,temperatuur,windsnelheid,regen):
+def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,temperatuur,windsnelheid,regen):
 
     if not geojson:
         st.error("Teken eerst een geometrie.")
@@ -13,7 +13,7 @@ def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,e
         st.stop()
 
 
-    safe_name = project_name.replace(" ", "_")
+    safe_name = naam.replace(" ", "_")
     filename = f"quickscan/geometries/{safe_name}.geojson"
 
     supabase.storage.from_(BUCKET).upload(
@@ -23,8 +23,8 @@ def save_quickscan(project_name,description,geojson,datum,veldwerker,starttijd,e
     )
 
     supabase.table("new_app_quickscan").insert({
-        "name": project_name.replace(" ", "_"),
-        "description": description,
+        "naam": naam.replace(" ", "_"),
+        "opmerking": description,
         "geometry_path": filename,
         "datum": str(datum),
         "veldwerker": veldwerker,
