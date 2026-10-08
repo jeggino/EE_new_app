@@ -208,7 +208,7 @@ if check_password():
         st.write(f"**Naam:** {qs['naam']}")
         st.write(f"**Datum:** {qs['datum']}")
         st.write(f"**Veldwerker:** {qs['veldwerker']}")
-        st.write(f"**Opmerking:** {qs['opmerking']}")
+        st.write(f"**Beschrijving:** {qs['opmerking']}")
     
         st.subheader("Weersomstandigheden")
         st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
