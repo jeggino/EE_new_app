@@ -46,7 +46,7 @@ if check_password():
 
         st.subheader("Soortgeschiktheid")
         
-        species_results = {}
+        soorten_results = {}
         
         for group, species_list in SPECIES_GROUPS.items():
             suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
