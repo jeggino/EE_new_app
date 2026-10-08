@@ -296,6 +296,93 @@ if check_password():
         except Exception as e:
             st.error(f"Kon de geometrie niet laden: {e}")
 
+        st.subheader("EXTA GIS ANALYSSY")
+
+        url = (
+            "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
+            "service=WFS&version=2.0.0&request=GetFeature&"
+            "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
+            "outputFormat=application/json"
+        )
+        
+        n2000 = gpd.read_file(url).to_crs(4326)
+
+        data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+        quickscan_geojson = json.loads(data.decode("utf-8"))
+        
+        qs_gdf = gpd.GeoDataFrame.from_features(quickscan_geojson).set_crs(4326)
+
+        centroid = qs_gdf.geometry.centroid.iloc[0]
+
+        centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
+        buffer_m = centroid_m.buffer(3000)  # 3 km
+        buffer = buffer_m.to_crs(4326)
+
+        intersections = gpd.overlay(n2000, gpd.GeoDataFrame(geometry=buffer, crs=4326), how="intersection")
+
+        if len(intersections) > 0:
+            gebieden = intersections["NAAM_N2K"].unique().tolist()
+        else:
+            gebieden = []
+
+        if gebieden:
+            st.success("Intersectie met de volgende Natura2000‑gebieden:")
+            for g in gebieden:
+                st.write(f"- **{g}**")
+        else:
+            st.info("Geen intersectie met Natura2000‑gebieden binnen 3 km.")
+            
+
+        m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
+        
+        # Quickscan polygon
+        folium.GeoJson(
+            qs_gdf,
+            name="Quickscan gebied",
+            style_function=lambda x: {
+                "color": "green",
+                "weight": 3,
+                "fillOpacity": 0.3
+            }
+        ).add_to(m)
+        
+        # 3 km buffer
+        folium.GeoJson(
+            buffer,
+            name="3 km buffer",
+            style_function=lambda x: {
+                "color": "blue",
+                "weight": 2,
+                "fillOpacity": 0.05
+            }
+        ).add_to(m)
+        
+        # Natura2000 intersecties
+        if len(intersections) > 0:
+            folium.GeoJson(
+                intersections,
+                name="Natura2000 intersectie",
+                style_function=lambda x: {
+                    "color": "yellow",
+                    "weight": 3,
+                    "fillOpacity": 0.4
+                }
+            ).add_to(m)
+        
+        # Centroid marker
+        folium.Marker(
+            location=[centroid.y, centroid.x],
+            icon=folium.Icon(color="red")
+        ).add_to(m)
+        
+        st_folium(m, width=700, height=500)
+
+
+
+
+
+
+
 
 
 
