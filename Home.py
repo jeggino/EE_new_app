@@ -8,6 +8,7 @@ if check_password():
     st.title("Ecologisch Advies Applicatie")
     st.subheader("Kies een module")
 
-    st.page_link("Quickscan.py", label="Quickscan", icon="🗺️")
-    st.page_link("Inventarisatie.py", label="Inventarisatie", icon="📋")
-    st.page_link("Control.py", label="Control", icon="🔍")
+    st.page_link("pages/Quickscan.py", label="Quickscan", icon="🗺️")
+    st.page_link("pages/Inventarisatie.py", label="Inventarisatie", icon="📋")
+    st.page_link("pages/Control.py", label="Control", icon="🔍")
+
