@@ -36,7 +36,19 @@ if check_password():
 
 
         if st.button("Project opslaan"):
-            save_quickscan(project_name, description, geojson)
+            save_quickscan(
+                project_name,
+                description,
+                geojson,
+                datum,
+                veldwerker,
+                starttijd,
+                eindtijd,
+                temperatuur,
+                windsnelheid,
+                regen
+            )
+
             st.success("Quickscan succesvol opgeslagen.")
             st.rerun()
 
