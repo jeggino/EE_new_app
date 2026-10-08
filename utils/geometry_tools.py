@@ -15,7 +15,7 @@ def draw_geometry():
 
     Draw(
         draw_options={"polygon": True, "rectangle": True},
-        edit_options={"edit": True, "remove": True},
+        edit_options={"edit": False, "remove": True},
     ).add_to(m)
 
     Fullscreen().add_to(m)
