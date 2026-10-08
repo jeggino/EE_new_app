@@ -171,31 +171,88 @@ if check_password():
     with tab_view:
         st.header("Quickscan bekijken")
     
-        # Load the most recent quickscan
-        result = supabase.table("new_app_quickscan") \
-            .select("*") \
-            .order("id", desc=True) \
-            .limit(1) \
+        # Load all quickscans
+        all_qs = supabase.table("new_app_quickscan") \
+            .select("id, naam, datum") \
+            .order("datum", desc=True) \
             .execute()
     
-        if not result.data:
-            st.info("Nog geen Quickscan opgeslagen.")
+        if not all_qs.data:
+            st.info("Nog geen Quickscans beschikbaar.")
+            st.stop()
+    
+        # Dropdown to choose Quickscan
+        qs_names = {f"{qs['naam']} ({qs['datum']})": qs['id'] for qs in all_qs.data}
+    
+        selected_qs_label = st.selectbox("Kies een Quickscan om te bekijken:", list(qs_names.keys()))
+        selected_qs_id = qs_names[selected_qs_label]
+    
+        # Load selected Quickscan
+        qs = supabase.table("new_app_quickscan") \
+            .select("*") \
+            .eq("id", selected_qs_id) \
+            .single() \
+            .execute().data
+
+        st.subheader("Foto's")
+    
+        fotos = supabase.table("new_app_quickscan_fotos") \
+            .select("*") \
+            .eq("quickscan_naam", qs["naam"]) \
+            .execute()
+    
+        if not fotos.data:
+            st.info("Geen foto's toegevoegd.")
         else:
-            qs = result.data[0]
+            for foto in fotos.data:
+                url = supabase.storage.from_("new_app").get_public_url(foto["foto_pad"])
+                st.image(url, caption=foto["beschrijving"])
+                st.write(f"**Soortgroep(en) / Soorten:** {', '.join(foto['soortgroep'])}")
+                st.markdown("---")
+
+        st.subheader("Gebied op kaart")
     
-            st.subheader("Projectinformatie")
-            st.write(f"**Naam:** {qs['naam']}")
-            st.write(f"**Datum:** {qs['datum']}")
-            st.write(f"**Veldwerker:** {qs['veldwerker']}")
-            st.write(f"**Opmerking:** {qs['opmerking']}")
+        geojson_url = supabase.storage.from_("new_app").get_public_url(qs["geometry_pad"])
     
-            st.subheader("Weersomstandigheden")
-            st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
-            st.write(f"**Wind:** {qs['windsnelheid']} Bft")
-            st.write(f"**Regen:** {qs['regen']}")
+        import requests
+        import json
     
-            st.subheader("Soortgeschiktheid")
-            st.json(qs["soorten"])
+        try:
+            geojson_data = requests.get(geojson_url).json()
+            st.map(geojson_data)
+        except:
+            st.error("Kon de geometrie niet laden.")
+
+        st.subheader("Download PDF")
+    
+        pdf_text = f"""
+        Quickscan Rapport
+        -----------------
+    
+        Naam: {qs['naam']}
+        Datum: {qs['datum']}
+        Veldwerker: {qs['veldwerker']}
+        Opmerking: {qs['opmerking']}
+    
+        Weersomstandigheden:
+        - Temperatuur: {qs['temperatuur']} °C
+        - Wind: {qs['windsnelheid']} Bft
+        - Regen: {qs['regen']}
+    
+        Soortgeschiktheid:
+        {json.dumps(qs['soorten'], indent=4)}
+        """
+    
+        st.download_button(
+            "Download Quickscan PDF",
+            pdf_text,
+            file_name=f"{qs['naam']}.txt",  # you can convert to PDF later
+            mime="text/plain"
+        )
+
+
+
+
 
 
 
