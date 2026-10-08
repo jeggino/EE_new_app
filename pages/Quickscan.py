@@ -46,7 +46,7 @@ if check_password():
                 st.error("Teken eerst een geometrie.")
                 st.stop()
 
-            st.write("DEBUG:", project_name, description, geojson, datum, veldwerker, starttijd, eindtijd, temperatuur, windsnelheid, regen)
+            st.write("DEBUG:", project_name, description, datum, veldwerker, starttijd, eindtijd, temperatuur, windsnelheid, regen)
 
 
         
@@ -66,7 +66,7 @@ if check_password():
 
 
             st.success("Quickscan succesvol opgeslagen.")
-            st.rerun()
+            # st.rerun()
 
     with tab_edit:
         st.subheader("Quickscan bewerken")
