@@ -5,18 +5,13 @@ st.set_page_config(page_title="Ecologisch Advies - Home", page_icon="🌿")
 
 if check_password():
 
-    st.markdown(
-        """
-        <div style="text-align: center;">
-            <img src="utils/pictures/signal-2026-08-31-14-39-37-051 (1).jpg"
-                 alt="Ecologisch Advies"
-                 style="width: 300px; border-radius: 10px;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # Center the image using Streamlit columns
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("utils/pictures/signal-2026-08-31-14-39-37-051 (1).jpg", use_column_width=True)
 
     st.title("Welkom bij de Ecologisch Advies Applicatie")
+
     st.write(
         """
         Deze applicatie ondersteunt ecologisch adviseurs bij het uitvoeren van 
@@ -40,5 +35,6 @@ if check_password():
     st.page_link("pages/Quickscan.py", label="Quickscan", icon="🗺️")
     st.page_link("pages/Inventarisatie.py", label="Inventarisatie", icon="📋")
     st.page_link("pages/Control.py", label="Control", icon="🔍")
+
 
 
