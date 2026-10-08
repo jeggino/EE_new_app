@@ -601,32 +601,64 @@ if check_password():
 
 
 
-        st.subheader("Download PDF")
-    
-        pdf_text = f"""
-        Quickscan Rapport
-        -----------------
-    
-        Naam: {qs['naam']}
-        Datum: {qs['datum']}
-        Veldwerker: {qs['veldwerker']}
-        Opmerking: {qs['opmerking']}
-    
-        Weersomstandigheden:
-        - Temperatuur: {qs['temperatuur']} °C
-        - Wind: {qs['windsnelheid']} Bft
-        - Regen: {qs['regen']}
-    
-        Soortgeschiktheid:
-        {json.dumps(qs['soorten'], indent=4)}
-        """
-    
-        st.download_button(
-            "Download Quickscan PDF",
-            pdf_text,
-            file_name=f"{qs['naam']}.txt",  # you can convert to PDF later
-            mime="text/plain"
+        from docx import Document
+        from docx.shared import Inches
+        import io
+        
+        st.subheader("Download Quickscan Rapport (.docx)")
+        
+        # Haal conclusie op
+        conclusion_data = supabase.table("new_app_quickscan_conclusions") \
+            .select("*") \
+            .eq("project_naam", qs["naam"]) \
+            .execute()
+        
+        conclusion_text = (
+            conclusion_data.data[0]["conclusie"]
+            if conclusion_data.data else "Geen conclusie opgeslagen."
         )
+        
+        # Maak Word-document
+        doc = Document()
+        
+        doc.add_heading("Quickscan Rapport", level=1)
+        
+        doc.add_heading("Projectinformatie", level=2)
+        doc.add_paragraph(f"Naam: {qs['naam']}")
+        doc.add_paragraph(f"Datum: {qs['datum']}")
+        doc.add_paragraph(f"Veldwerker: {qs['veldwerker']}")
+        doc.add_paragraph(f"Opmerking: {qs['opmerking']}")
+        
+        doc.add_heading("Weersomstandigheden", level=2)
+        doc.add_paragraph(f"Temperatuur: {qs['temperatuur']} °C")
+        doc.add_paragraph(f"Wind: {qs['windsnelheid']} Bft")
+        doc.add_paragraph(f"Regen: {qs['regen']}")
+        
+        doc.add_heading("Soortgeschiktheid", level=2)
+        doc.add_paragraph(json.dumps(qs["soorten"], indent=4))
+        
+        doc.add_heading("Conclusie", level=2)
+        doc.add_paragraph(conclusion_text)
+        
+        # Voeg foto toe (als aanwezig)
+        if "foto_path" in qs:
+            img_bytes = supabase.storage.from_("new_app").download(qs["foto_path"])
+            doc.add_heading("Foto", level=2)
+            doc.add_picture(io.BytesIO(img_bytes), width=Inches(4))
+        
+        # Document in geheugen opslaan
+        buffer = io.BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        
+        # Download-knop
+        st.download_button(
+            "Download Quickscan Rapport (.docx)",
+            buffer,
+            file_name=f"{qs['naam']}_quickscan.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
 
 
 
