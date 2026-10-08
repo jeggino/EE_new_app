@@ -1,10 +1,7 @@
 streamlit
 supabase
-supabase-py
-python-dotenv
 pandas
-numpy
-requests
+
 
 # Geospatial tools
 streamlit-folium
@@ -12,5 +9,3 @@ folium
 geojson
 shapely
 
-# Optional but useful
-Pillow
