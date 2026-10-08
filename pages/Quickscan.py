@@ -4,6 +4,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+import ast
+
 
 from utils.auth import check_password
 from utils.geometry_tools import draw_geometry
@@ -234,15 +236,26 @@ if check_password():
             .select("*") \
             .eq("quickscan_naam", qs["naam"]) \
             .execute()
-    
+        
         if not fotos.data:
             st.info("Geen foto's toegevoegd.")
         else:
+            import ast
+        
             for foto in fotos.data:
                 url = supabase.storage.from_("new_app").get_public_url(foto["foto_pad"])
                 st.image(url, caption=foto["beschrijving"])
-                st.write(f"**Soorten:** {', '.join(foto['soortgroep'])}")
+        
+                soorten_list = foto["soortgroep"]
+        
+                # Convert JSON string → Python list
+                if isinstance(soorten_list, str):
+                    soorten_list = ast.literal_eval(soorten_list)
+        
+                st.write(f"**Soorten:** {', '.join(soorten_list)}")
                 st.markdown("---")
+
+
     
         # Geometry
         st.subheader("Gebied op kaart")
