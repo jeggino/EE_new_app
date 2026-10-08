@@ -69,12 +69,18 @@ if check_password():
 
         st.subheader("Foto's")
 
-        # Only show species groups that were selected earlier
         beschikbare_soortgroepen = []
         
         for group, value in soorten_results.items():
-            if value:  # True or list
+            if value is True:
+                # Group was marked suitable but has no subspecies
                 beschikbare_soortgroepen.append(group)
+        
+            elif isinstance(value, list) and len(value) > 0:
+                # Add each selected species inside the group
+                for species in value:
+                    beschikbare_soortgroepen.append(species)
+
                 
                 
         photos_to_upload = []
@@ -115,9 +121,6 @@ if check_password():
                 "Nog een foto toevoegen?",
                 key=f"add_photo_{index}"
             )
-
-
-
 
 
 
