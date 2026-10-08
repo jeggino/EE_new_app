@@ -17,3 +17,5 @@ requests
 # GeoJSON handling (pure Python, safe)
 geojson
 geopandas 
+
+python-docx
