@@ -63,6 +63,9 @@ if check_password():
     </div>
     """, unsafe_allow_html=True)
 
+    if st.button("Logout"):
+        logout()
+
 
     # col1, col2, col3 = st.columns(3)
     
