@@ -20,7 +20,7 @@ SPECIES_GROUPS = {
         "zandhagedis"
     ],
     "vissen": None,
-    "zoogdieren_vleermuizen": [
+    "vleermuizen": [
         "gewone dwergvleermuis",
         "ruige dwergvleermuis",
         "laatvlieger",
@@ -29,7 +29,7 @@ SPECIES_GROUPS = {
         "rosse vleermuis",
         "grootoorvleermuis"
     ],
-    "zoogdieren_marterachtigen": [
+    "marterachtigen": [
         "bunzing",
         "wezel",
         "hermelijn",
