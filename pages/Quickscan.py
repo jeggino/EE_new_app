@@ -538,33 +538,50 @@ if check_password():
             existing_id = existing.data[0]["id"]
         
         if write_conclusion:
-        
+                
             st.markdown("#### Schrijf of bewerk de conclusie")
         
-            # 2. Toon tekstvak (met bestaande tekst indien aanwezig)
+            # Tekstvak met bestaande tekst indien aanwezig
             conclusion_text = st.text_area(
                 "Conclusie:",
                 value=existing_text if existing_text else "",
                 placeholder="..."
             )
         
-            # 3. Opslaan-knop
-            if st.button("Conclusie opslaan"):
+            # Als er al een conclusie bestaat → toon update-knop
+            if existing_id:
         
-                if conclusion_text.strip() == "":
-                    st.error("De conclusie mag niet leeg zijn.")
-                else:
-                    # 4. Update of insert
-                    if existing_id:
-                        # Update bestaande conclusie
+                st.info("Er is al een conclusie opgeslagen voor dit project.")
+        
+                col1, col2 = st.columns(2)
+        
+                with col1:
+                    if st.button("Conclusie bijwerken"):
+                        if conclusion_text.strip() == "":
+                            st.error("De conclusie mag niet leeg zijn.")
+                        else:
+                            supabase.table("new_app_quickscan_conclusions") \
+                                .update({"conclusie": conclusion_text}) \
+                                .eq("id", existing_id) \
+                                .execute()
+        
+                            st.success("De conclusie is bijgewerkt.")
+        
+                with col2:
+                    if st.button("Conclusie verwijderen"):
                         supabase.table("new_app_quickscan_conclusions") \
-                            .update({"conclusie": conclusion_text}) \
+                            .delete() \
                             .eq("id", existing_id) \
                             .execute()
         
-                        st.success("De conclusie is bijgewerkt.")
+                        st.warning("De conclusie is verwijderd.")
+            
+            # Als er nog GEEN conclusie bestaat → toon opslaan-knop
+            else:
+                if st.button("Nieuwe conclusie opslaan"):
+                    if conclusion_text.strip() == "":
+                        st.error("De conclusie mag niet leeg zijn.")
                     else:
-                        # Nieuwe conclusie opslaan
                         supabase.table("new_app_quickscan_conclusions") \
                             .insert({
                                 "project_naam": qs["naam"],
@@ -572,6 +589,7 @@ if check_password():
                             }).execute()
         
                         st.success("De conclusie is succesvol opgeslagen.")
+
 
 
 
