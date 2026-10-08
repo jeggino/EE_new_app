@@ -24,7 +24,6 @@ from utils.media_tools import save_photos
 
 
 if check_password():
-    st.stop()
 
     st.title("Quickscan")
 
