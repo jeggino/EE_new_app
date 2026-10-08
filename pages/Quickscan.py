@@ -271,6 +271,7 @@ if check_password():
         try:
             # Download GeoJSON from Supabase
             data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+            st.write(data)
             geojson_data = json.loads(data.decode("utf-8"))
         
             # Extract coordinates for centering
