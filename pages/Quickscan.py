@@ -23,7 +23,7 @@ from utils.media_tools import save_photos
 
 
 
-if not check_password():
+if check_password():
     st.stop()
 
     st.title("Quickscan")
