@@ -19,8 +19,8 @@ if check_password():
 
         geojson = draw_geometry()
 
-        project_name = st.text_input("Projectnaam")
-        description = st.text_area("Beschrijving")
+        naam = st.text_input("Projectnaam")
+        opmerking = st.text_area("Beschrijving")
 
         st.subheader("Veldgegevens")
         
@@ -40,22 +40,27 @@ if check_password():
             ["Geen", "Licht", "Matig", "Hevig"]
         )
 
-
+naam
         if st.button("Project opslaan"):
         
             if not geojson:
                 st.error("Teken eerst een geometrie.")
                 st.stop()
         
-            if not project_name:
+            if not naam:
                 st.error("Voer een projectnaam in.")
                 st.stop()
         
-            st.write("DEBUG:", project_name, description, datum, veldwerker, starttijd, eindtijd, temperatuur, windsnelheid, regen)
+            # Check if project name already exists
+            existing = supabase.table("new_app_quickscan").select("naam").eq("naam", naam.replace(" ", "_")).execute()
+            if existing.data:
+                st.error("Projectnaam bestaat al. Kies een andere naam.")
+                st.stop()
+        
         
             save_quickscan(
-                project_name,
-                description,
+                naam,
+                opmerking,
                 geojson,
                 datum,
                 veldwerker,
@@ -65,12 +70,9 @@ if check_password():
                 windsnelheid,
                 regen
             )
-
-
-
-
+        
             st.success("Quickscan succesvol opgeslagen.")
-            # st.rerun()
+
 
     with tab_edit:
         st.subheader("Quickscan bewerken")
