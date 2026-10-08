@@ -513,8 +513,39 @@ if check_password():
         
                 st_folium(m, width=700, height=500)
 
-   
-    
+        
+        st.markdown("""
+        ### Conclusie van de Quickscan
+        
+        In dit onderdeel kun je een korte, professionele conclusie toevoegen aan de Quickscan.  
+        Deze conclusie wordt opgeslagen in de database en vormt het eindadvies van de ecologische beoordeling.
+        """)
+
+        write_conclusion = st.selectbox(
+            "Wil je een conclusie toevoegen aan deze Quickscan?",
+            ["Nee", "Ja"]
+        )
+
+        if write_conclusion == "Ja":
+            conclusion_text = st.text_area(
+                "Schrijf hier de conclusie:",
+                placeholder="Voorbeeld: Het gebouw vertoont duidelijke potentie voor huismus, vleermuizen en gierzwaluwen..."
+            )
+
+            save_it = st.selectbox(
+                "Wil je deze conclusie opslaan?",
+                ["Nee", "Ja"]
+            )
+
+            if save_it == "Ja" and conclusion_text.strip() != "":
+                supabase.table("new_app_quickscan_conclusions").insert({
+                    "project_naam": qs["naam"],
+                    "conclusie": conclusion_text
+                }).execute()
+        
+                st.success("De conclusie is succesvol opgeslagen.")
+
+
         st.subheader("Download PDF")
     
         pdf_text = f"""
