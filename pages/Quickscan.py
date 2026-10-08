@@ -266,24 +266,55 @@ if check_password():
         
         geojson_url = supabase.storage.from_("new_app").get_public_url(qs["geometry_path"])
         
+        import requests
+        import json
+        import folium
+        from streamlit_folium import st_folium
         
         try:
-            geojson_data = requests.get(geojson_url).json()
+            # Load GeoJSON correctly
+            response = requests.get(geojson_url)
+            geojson_data = json.loads(response.text)
         
-            # Create a folium map centered on the geometry
-            m = folium.Map(location=[52.5, 5.75], zoom_start=10)  # default NL center
+            # Determine center of geometry
+            coords = geojson_data["features"][0]["geometry"]["coordinates"]
         
-            # Add the GeoJSON layer
+            # Handle Polygon vs LineString vs Point
+            def get_center(coords):
+                if geojson_data["features"][0]["geometry"]["type"] == "Polygon":
+                    poly = coords[0]
+                    avg_lat = sum([p[1] for p in poly]) / len(poly)
+                    avg_lon = sum([p[0] for p in poly]) / len(poly)
+                    return avg_lat, avg_lon
+                elif geojson_data["features"][0]["geometry"]["type"] == "LineString":
+                    avg_lat = sum([p[1] for p in coords]) / len(coords)
+                    avg_lon = sum([p[0] for p in coords]) / len(coords)
+                    return avg_lat, avg_lon
+                else:  # Point
+                    return coords[1], coords[0]
+        
+            lat, lon = get_center(coords)
+        
+            # Create map centered on geometry
+            m = folium.Map(location=[lat, lon], zoom_start=15)
+        
+            # Add GeoJSON layer
             folium.GeoJson(
                 geojson_data,
-                name="Gebied"
+                name="Gebied",
+                style_function=lambda x: {
+                    "color": "green",
+                    "weight": 3,
+                    "fillOpacity": 0.3
+                }
             ).add_to(m)
         
-            # Display the map
+            # Display map
             st_folium(m, width=700, height=500)
         
         except Exception as e:
             st.error(f"Kon de geometrie niet laden: {e}")
+
 
     
     
