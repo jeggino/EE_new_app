@@ -65,6 +65,39 @@ if check_password():
                 soorten_results[group] = False
 
 
+        st.subheader("Foto's")
+        
+        photos_to_upload = []
+        
+        add_photo = st.toggle("Wil je een foto toevoegen?")
+        
+        while add_photo:
+            photo = st.file_uploader(
+                "Upload een foto",
+                type=["jpg", "jpeg", "png"],
+                key=f"photo_{len(photos_to_upload)}"
+            )
+        
+            if photo:
+                beschrijving = st.text_area("Schrijf een beschrijving voor deze foto")
+                soortgroep = st.selectbox(
+                    "Voor welke soortgroep is dit habitat potentieel geschikt?",
+                    list(SPECIES_GROUPS.keys()),
+                    key=f"species_photo_{len(photos_to_upload)}"
+                )
+        
+                photos_to_upload.append({
+                    "file": photo,
+                    "beschrijving": beschrijving,
+                    "soortgroep": soortgroep
+                })
+        
+                st.success("Foto toegevoegd.")
+        
+            add_photo = st.toggle("Nog een foto toevoegen?")
+
+
+
         if st.button("Project opslaan"):
         
             if not geojson:
