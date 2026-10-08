@@ -36,6 +36,11 @@ if check_password():
 
 
         if st.button("Project opslaan"):
+        
+            if not project_name:
+                st.error("Voer een projectnaam in.")
+                st.stop()
+        
             save_quickscan(
                 project_name,
                 description,
@@ -48,6 +53,7 @@ if check_password():
                 windsnelheid,
                 regen
             )
+
 
             st.success("Quickscan succesvol opgeslagen.")
             st.rerun()
