@@ -328,7 +328,7 @@ if check_password():
                     "Soortgroepen",
                     ["Vleermuizen", "Vogels", "Amfibieën", "Zoogdieren", "Planten"],  # adjust to your list
                     default=foto.get("soortgroep", []),
-                    key=f"soorten_{foto['id']}"
+                    key=f"soorten_{qs['id']}_{foto['id']}"
                 )
         
                 # Save changes
