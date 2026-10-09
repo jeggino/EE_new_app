@@ -288,6 +288,88 @@ if check_password():
         if run_analysis:
             voer_gis_analyse_uit(qs, supabase)
 
+        "---"
+        st.markdown("### Conclusie van de Quickscan")
+        
+        # 1. Vraag of gebruiker een conclusie wil schrijven
+        write_conclusion = st.toggle("Wil je een conclusie toevoegen of bewerken?")
+        
+        # Haal bestaande conclusie op (indien aanwezig)
+        existing = supabase.table("new_app_quickscan_conclusions") \
+            .select("*") \
+            .eq("project_naam", qs["naam"]) \
+            .execute()
+        
+        existing_text = None
+        existing_id = None
+        
+        if existing.data:
+            existing_text = existing.data[0]["conclusie"]
+            existing_id = existing.data[0]["id"]
+
+        if write_conclusion:
+                
+            st.markdown("#### Schrijf of bewerk de conclusie")
+        
+            # Tekstvak met bestaande tekst indien aanwezig
+            conclusion_text = st.text_area(
+                "Conclusie:",
+                value=existing_text if existing_text else "",
+                placeholder="..."
+            )
+        
+            # Als er al een conclusie bestaat → toon update-knop
+            if existing_id:
+        
+                st.info("Er is al een conclusie opgeslagen voor dit project.")
+        
+                col1, col2, col3 = st.columns(3)
+        
+                # --- Bijwerken ---
+                with col1:
+                    if st.button("Conclusie bijwerken"):
+                        if conclusion_text.strip() == "":
+                            st.error("De conclusie mag niet leeg zijn.")
+                        else:
+                            supabase.table("new_app_quickscan_conclusions") \
+                                .update({"conclusie": conclusion_text}) \
+                                .eq("id", existing_id) \
+                                .execute()
+        
+                            st.success("De conclusie is bijgewerkt.")
+                            st.experimental_rerun()   # 🔄 reload
+        
+                # --- Verwijderen ---
+                with col2:
+                    if st.button("Conclusie verwijderen"):
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .delete() \
+                            .eq("id", existing_id) \
+                            .execute()
+        
+                        st.warning("De conclusie is verwijderd.")
+                        st.experimental_rerun()   # 🔄 reload
+        
+                # --- Handmatige reload ---
+                with col3:
+                    if st.button("Vernieuwen"):
+                        st.experimental_rerun()   # 🔄 reload
+        
+            # Als er nog GEEN conclusie bestaat → toon opslaan-knop
+            else:
+                if st.button("Nieuwe conclusie opslaan"):
+                    if conclusion_text.strip() == "":
+                        st.error("De conclusie mag niet leeg zijn.")
+                    else:
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .insert({
+                                "project_naam": qs["naam"],
+                                "conclusie": conclusion_text
+                            }).execute()
+        
+                        st.success("De conclusie is succesvol opgeslagen.")
+                        st.experimental_rerun()   # 🔄 reload
+
  
         "---"
         from docx import Document
