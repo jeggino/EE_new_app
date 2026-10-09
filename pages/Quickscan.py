@@ -315,50 +315,45 @@ if check_password():
             import os
             filename = os.path.basename(foto["foto_pad"])
         
-            st.write(f"📷 {filename}")
-        
             col1, col2 = st.columns([1, 1])
         
-            # Show photo
-            with col1:
-                data = supabase.storage.from_("new_app").download(foto["foto_pad"])
-                st.image(data)
-        
-            # Edit + Delete
-            with col2:
-                nieuwe_beschrijving = st.text_area(
-                    f"Beschrijving ({filename})",
-                    value=foto.get("beschrijving", ""),
-                    key=f"beschrijving_{qs['id']}_{foto['id']}"
-                )
-        
-                nieuwe_soorten = st.multiselect(
-                    f"Soortgroepen ({filename})",
-                    beschikbare_soortgroepen,
-                    key=f"soorten_{qs['id']}_{foto['id']}"
-                )
-        
-                if st.button("Opslaan wijzigingen", key=f"save_{qs['id']}_{foto['id']}"):
-                    supabase.table("new_app_quickscan_fotos") \
-                        .update({
-                            "beschrijving": nieuwe_beschrijving,
-                            "soortgroep": nieuwe_soorten
-                        }) \
-                        .eq("id", foto["id"]) \
-                        .execute()
-        
-                    st.success("Foto metadata bijgewerkt.")
-                    st.rerun()
-        
-                if st.button(f"Verwijder {filename}", key=f"delete_{qs['id']}_{foto['id']}"):
-                    supabase.storage.from_("new_app").remove(foto["foto_pad"])
-                    supabase.table("new_app_quickscan_fotos") \
-                        .delete() \
-                        .eq("id", foto["id"]) \
-                        .execute()
-        
-                    st.warning(f"{filename} verwijderd.")
-                    st.rerun()
+            data = supabase.storage.from_("new_app").download(foto["foto_pad"])
+            st.image(data)
+    
+
+            nieuwe_beschrijving = st.text_area(
+                f"Beschrijving",
+                value=foto.get("beschrijving", ""),
+                key=f"beschrijving_{qs['id']}_{foto['id']}"
+            )
+    
+            nieuwe_soorten = st.multiselect(
+                f"Soortgroepen ({filename})",
+                beschikbare_soortgroepen,
+                key=f"soorten_{qs['id']}_{foto['id']}"
+            )
+    
+            if col1.button("Opslaan wijzigingen", key=f"save_{qs['id']}_{foto['id']}"):
+                supabase.table("new_app_quickscan_fotos") \
+                    .update({
+                        "beschrijving": nieuwe_beschrijving,
+                        "soortgroep": nieuwe_soorten
+                    }) \
+                    .eq("id", foto["id"]) \
+                    .execute()
+    
+                st.success("Foto metadata bijgewerkt.")
+                st.rerun()
+    
+            if col2.button(f"Verwijder", key=f"delete_{qs['id']}_{foto['id']}"):
+                supabase.storage.from_("new_app").remove(foto["foto_pad"])
+                supabase.table("new_app_quickscan_fotos") \
+                    .delete() \
+                    .eq("id", foto["id"]) \
+                    .execute()
+    
+                st.warning(f"verwijderd.")
+                st.rerun()
 
 
         
