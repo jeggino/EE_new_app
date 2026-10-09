@@ -312,7 +312,7 @@ if check_password():
             # Show photo
             with col1:
                 data = supabase.storage.from_("new_app").download(foto["foto_pad"])
-                st.image(data)
+                st.image(data, key=f"image_{qs['id']}_{foto['id']}")
         
             # Edit + Delete
             with col2:
@@ -320,7 +320,7 @@ if check_password():
                 nieuwe_beschrijving = st.text_area(
                     "Beschrijving",
                     value=foto.get("beschrijving", ""),
-                    key=f"beschrijving_{foto['id']}"
+                    key=f"beschrijving_{qs['id']}_{foto['id']}"
                 )
         
                 # Edit species (list)
