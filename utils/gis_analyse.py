@@ -11,13 +11,13 @@ def voer_gis_analyse_uit(qs, supabase):
         # -----------------------------
         # 1. Natura2000 dataset laden
         # -----------------------------
-        url = (
-            "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
-            "service=WFS&version=2.0.0&request=GetFeature&"
-            "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
-            "outputFormat=application/json"
-        )
-        n2000 = gpd.read_file(url).to_crs(4326)
+        # url = (
+        #     "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
+        #     "service=WFS&version=2.0.0&request=GetFeature&"
+        #     "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
+        #     "outputFormat=application/json"
+        # )
+        # n2000 = gpd.read_file(url).to_crs(4326)
 
         # -----------------------------
         # 2. Quickscan geometrie laden
@@ -25,10 +25,44 @@ def voer_gis_analyse_uit(qs, supabase):
         data = supabase.storage.from_("new_app").download(qs["geometry_path"])
         qs_gdf = gpd.read_file(data).set_crs(4326)
 
+
+
+
+#--------------
+        # -----------------------------
+        # 1. Quickscan centroid bepalen
+        # -----------------------------
+        centroid = qs_gdf.geometry.centroid.iloc[0]
+        lat = centroid.y
+        lon = centroid.x
+        
+        # -----------------------------
+        # 2. 10 km buffer in graden
+        #    (ongeveer 0.1° = 11 km)
+        # -----------------------------
+        buffer_deg = 0.1
+        
+        bbox = f"{lon-buffer_deg},{lat-buffer_deg},{lon+buffer_deg},{lat+buffer_deg}"
+        
+        # -----------------------------
+        # 3. Natura2000 gefilterd op 10 km
+        # -----------------------------
+        url = (
+            "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
+            "service=WFS&version=2.0.0&request=GetFeature&"
+            "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
+            f"bbox={bbox},EPSG:4326&"
+            "outputFormat=application/json"
+        )
+        
+        n2000 = gpd.read_file(url).to_crs(4326)
+
+#--------------
+
         # -----------------------------
         # 3. Centroid + buffer
         # -----------------------------
-        centroid = qs_gdf.geometry.centroid.iloc[0]
+        # centroid = qs_gdf.geometry.centroid.iloc[0]
 
         centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
         buffer_m = centroid_m.buffer(3000)  # 3 km
