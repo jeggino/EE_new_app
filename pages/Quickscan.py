@@ -210,6 +210,7 @@ if check_password():
         st.subheader("Projectinformatie")
         st.write(f"**Naam:** {qs['naam']}")
         st.write(f"**Datum:** {qs['datum']}")
+        st.write(f"**Tijd:** {qs['starttijd']} - {qs['eindtijd']}")
         st.write(f"**Veldwerker:** {qs['veldwerker']}")
         st.write(f"**Beschrijving:** {qs['opmerking']}")
     
