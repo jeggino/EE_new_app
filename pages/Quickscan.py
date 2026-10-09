@@ -178,6 +178,29 @@ if check_password():
     with tab_edit:
         st.subheader("Quickscan bewerken")
         st.info("Hier komt de lijst met bestaande Quickscans.")
+        # -----------------------------
+        # 1. Alle quickscans ophalen
+        # -----------------------------
+        resp = supabase.table("quickscan").select("id, naam, datum").execute()
+        quickscans = resp.data
+        
+        if not quickscans:
+            st.info("Er zijn nog geen Quickscan‑projecten.")
+            st.stop()
+        
+        # -----------------------------
+        # 2. Dropdown om project te kiezen
+        # -----------------------------
+        keuze = st.selectbox(
+            "Kies een Quickscan om te bewerken:",
+            options=quickscans,
+            format_func=lambda x: f"{x['naam']} – {x['datum']}"
+        )
+
+
+
+
+    
 
     
     with tab_view:
