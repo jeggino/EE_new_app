@@ -315,12 +315,10 @@ if check_password():
             import os
             filename = os.path.basename(foto["foto_pad"])
         
-            col1, col2 = st.columns([1, 1])
         
             data = supabase.storage.from_("new_app").download(foto["foto_pad"])
             st.image(data)
     
-
             nieuwe_beschrijving = st.text_area(
                 f"Beschrijving",
                 value=foto.get("beschrijving", ""),
@@ -328,11 +326,12 @@ if check_password():
             )
     
             nieuwe_soorten = st.multiselect(
-                f"Soortgroepen ({filename})",
+                f"Soortgroepen",
                 beschikbare_soortgroepen,
                 key=f"soorten_{qs['id']}_{foto['id']}"
             )
-    
+            
+            col1, col2 = st.columns([1, 1])
             if col1.button("Opslaan wijzigingen", key=f"save_{qs['id']}_{foto['id']}"):
                 supabase.table("new_app_quickscan_fotos") \
                     .update({
@@ -354,6 +353,8 @@ if check_password():
     
                 st.warning(f"verwijderd.")
                 st.rerun()
+
+            "---"
 
 
         
