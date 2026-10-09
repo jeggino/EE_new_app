@@ -3,7 +3,7 @@ from streamlit_folium import st_folium
 import folium
 from folium.plugins import Draw, Fullscreen, Geocoder
 
-def draw_geometry():
+def draw_geometry(key="map"):
 
     if "last_drawings" not in st.session_state:
         st.session_state.last_drawings = None
@@ -29,7 +29,7 @@ def draw_geometry():
     Fullscreen().add_to(m)
     Geocoder(add_marker=True).add_to(m)
 
-    map_data = st_folium(m, height=500, use_container_width=True)
+    map_data = st_folium(m, height=500, use_container_width=True, key=key)
 
     if map_data and "all_drawings" in map_data:
         st.session_state.last_drawings = map_data["all_drawings"]
