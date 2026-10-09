@@ -245,7 +245,8 @@ if check_password():
         windsnelheid = st.selectbox(
             "Windsnelheid",
             ["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"],
-            index=["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"].index(qs["windsnelheid"])
+            index=["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"].index(qs["windsnelheid"]),
+            key=f"windsnelheid_edit_{qs['id']}"
         )
         
         regen = st.selectbox(
