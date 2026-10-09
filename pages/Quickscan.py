@@ -312,7 +312,7 @@ if check_password():
             # Show photo
             with col1:
                 data = supabase.storage.from_("new_app").download(foto["foto_pad"])
-                st.image(data, key=f"image_{qs['id']}_{foto['id']}")
+                st.image(data)
         
             # Edit + Delete
             with col2:
