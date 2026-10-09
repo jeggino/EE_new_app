@@ -178,6 +178,38 @@ if check_password():
     with tab_edit:
         st.subheader("Quickscan bewerken", text_alignment="center")
         
+        # 1. Haal alle quickscans op
+        resp = supabase.table("new_app_quickscan").select("id, naam, datum").execute()
+        quickscans = resp.data
+        
+        if not quickscans:
+            st.info("Geen quickscans gevonden.")
+            st.stop()
+        
+        # 2. Dropdown
+        keuze = st.selectbox(
+            "Kies een Quickscan:",
+            options=quickscans,
+            format_func=lambda x: f"{x['naam']} – {x['datum']}"
+        )
+
+        qs_id = keuze["id"]
+
+        qs_resp = supabase.table("new_app_quickscan") \
+            .select("*") \
+            .eq("id", qs_id) \
+            .single() \
+            .execute()
+    
+        qs = qs_resp.data
+    
+        if not qs:
+            st.error("Quickscan niet gevonden.")
+            st.stop()
+        
+
+
+        
         # -----------------------------
         # 1. Geometrie laden
         # -----------------------------
