@@ -22,10 +22,10 @@ def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,te
         file_options={"content-type": "application/geo+json", "x-upsert": "true"}
     )
 
-    supabase.table("new_app_quickscan").insert({
-        "naam": naam.replace(" ", "_"),
+    resp = supabase.table("new_app_quickscan").insert({
+        "naam": naam,
         "opmerking": opmerking,
-        "geometry_path": filename,
+        "geometry_path": geometry_path,
         "datum": str(datum),
         "veldwerker": veldwerker,
         "starttijd": str(starttijd),
@@ -34,6 +34,9 @@ def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,te
         "windsnelheid": windsnelheid,
         "regen": regen,
         "soorten": soorten_results
-
     }).execute()
+    
+    qs_id = resp.data[0]["id"]
+    return qs_id
+
 
