@@ -313,9 +313,9 @@ if check_password():
                 st.image(data)
         
             with col2:
-                if st.button(f"Verwijder {foto['name']}"):
-                    supabase.storage.from_("new_app").remove(f"{foto_folder}/{foto['name']}")
-                    st.warning(f"{foto['name']} verwijderd.")
+                if st.button(f"Verwijder {filename}", key=f"delete_{foto['id']}"):
+                    supabase.storage.from_("new_app").remove(f"{foto["foto_pad"]}")
+                    st.warning(f"{filename} verwijderd.")
                     st.rerun()
         
         nieuwe_foto = st.file_uploader("Nieuwe foto uploaden", type=["jpg","jpeg","png"])
