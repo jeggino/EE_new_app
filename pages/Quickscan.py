@@ -337,7 +337,7 @@ if check_password():
                                 .execute()
         
                             st.success("De conclusie is bijgewerkt.")
-                            st.experimental_rerun()   # 🔄 reload
+                            st.rerun()   # 🔄 reload
         
                 # --- Verwijderen ---
                 with col2:
@@ -348,12 +348,12 @@ if check_password():
                             .execute()
         
                         st.warning("De conclusie is verwijderd.")
-                        st.experimental_rerun()   # 🔄 reload
+                        st.rerun()   # 🔄 reload
         
                 # --- Handmatige reload ---
                 with col3:
                     if st.button("Vernieuwen"):
-                        st.experimental_rerun()   # 🔄 reload
+                        st.rerun()   # 🔄 reload
         
             # Als er nog GEEN conclusie bestaat → toon opslaan-knop
             else:
@@ -368,7 +368,7 @@ if check_password():
                             }).execute()
         
                         st.success("De conclusie is succesvol opgeslagen.")
-                        st.experimental_rerun()   # 🔄 reload
+                        st.rerun()   # 🔄 reload
 
  
         "---"
