@@ -302,7 +302,10 @@ if check_password():
 
         
         for foto in fotos:
-            st.write(f"📷 {foto['name']}")
+            import os
+            filename = os.path.basename(foto["foto_pad"])
+            st.write(f"📷 {filename}")
+
         
             col1, col2 = st.columns([1,1])
             with col1:
