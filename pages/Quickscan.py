@@ -303,6 +303,7 @@ if check_password():
         # Build available species/groups based on Quickscan suitability
         soorten_results = nieuwe_soorten
         beschikbare_soortgroepen = []
+        nieuwe_soorten
         
         for group, value in soorten_results.items():
             if value is True:
