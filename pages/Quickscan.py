@@ -226,7 +226,7 @@ if check_password():
         # -----------------------------
         # 2. Basisgegevens
         # -----------------------------
-        naam = st.text_input("Projectnaam", value=qs["naam"])
+        naam = st.text_input("Projectnaam", value=qs["naam"],key=f"naam_edit_{qs['id']}")
         opmerking = st.text_area("Beschrijving", value=qs["opmerking"],key=f"beschrijving_edit_{qs['id']}")
         
         # -----------------------------
@@ -234,13 +234,13 @@ if check_password():
         # -----------------------------
         st.subheader("Veldgegevens")
         
-        datum = st.date_input("Datum", value=qs["datum"])
-        veldwerker = st.text_input("Veldwerker", value=qs["veldwerker"])
+        datum = st.date_input("Datum", value=qs["datum"],key=f"datum_edit_{qs['id']}")
+        veldwerker = st.text_input("Veldwerker", value=qs["veldwerker"],key=f"veldwerker_edit_{qs['id']}")
         
-        starttijd = st.time_input("Starttijd", value=qs.get("starttijd"))
-        eindtijd = st.time_input("Eindtijd", value=qs.get("eindtijd"))
+        starttijd = st.time_input("Starttijd", value=qs.get("starttijd"),key=f"starttijd_edit_{qs['id']}")
+        eindtijd = st.time_input("Eindtijd", value=qs.get("eindtijd"),key=f"eindtijd_edit_{qs['id']}")
         
-        temperatuur = st.number_input("Temperatuur (°C)", step=0.1, value=qs["temperatuur"])
+        temperatuur = st.number_input("Temperatuur (°C)", step=0.1, value=qs["temperatuur"],key=f"temperatuur_edit_{qs['id']}")
         
         windsnelheid = st.selectbox(
             "Windsnelheid",
