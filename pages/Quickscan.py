@@ -268,7 +268,8 @@ if check_password():
         
             suitable = st.toggle(
                 f"Is het gebied geschikt voor {group}?",
-                value=(huidige_waarde is True or isinstance(huidige_waarde, list))
+                value=(huidige_waarde is True or isinstance(huidige_waarde, list)),
+                key=f"suitable_{group}_{qs['id']}"
             )
         
             if suitable:
