@@ -324,7 +324,7 @@ if check_password():
                 key=f"beschrijving_{qs['id']}_{foto['id']}"
             )
     
-            nieuwe_soorten = st.multiselect(
+            nieuwe_soorten_list = st.multiselect(
                 f"Soortgroepen",
                 beschikbare_soortgroepen,
                 key=f"soorten_{qs['id']}_{foto['id']}"
@@ -335,7 +335,7 @@ if check_password():
                 supabase.table("new_app_quickscan_fotos") \
                     .update({
                         "beschrijving": nieuwe_beschrijving,
-                        "soortgroep": nieuwe_soorten
+                        "soortgroep": nieuwe_soorten_list
                     }) \
                     .eq("id", foto["id"]) \
                     .execute()
