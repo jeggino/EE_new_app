@@ -360,6 +360,7 @@ if check_password():
                     st.warning(f"{filename} verwijderd.")
                     st.rerun()
 
+
         
         
         # Upload new photo
