@@ -35,8 +35,10 @@ def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,te
         "regen": regen,
         "soorten": soorten_results
     }).execute()
-    
+
+    # ⭐ Supabase returns the inserted row
     qs_id = resp.data[0]["id"]
+
     return qs_id
 
 
