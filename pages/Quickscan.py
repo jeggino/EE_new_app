@@ -280,7 +280,7 @@ if check_password():
                         f"Welke soorten binnen {group}?",
                         species_list,
                         default=huidige_waarde if isinstance(huidige_waarde, list) else [],
-                        key=f"species_{group}"
+                        key=f"species_{group}_{qs['id']}""
                     )
                     nieuwe_soorten[group] = selected
                 else:
