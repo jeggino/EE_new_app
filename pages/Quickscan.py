@@ -323,13 +323,23 @@ if check_password():
                     key=f"beschrijving_{qs['id']}_{foto['id']}"
                 )
         
-                # Edit species (list)
+                # Build available species/groups based on Quickscan suitability
+                beschikbare_soortgroepen = []
+                
+                for group, value in soorten_results.items():
+                    if value is True:
+                        beschikbare_soortgroepen.append(group)
+                    elif isinstance(value, list) and len(value) > 0:
+                        beschikbare_soortgroepen.extend(value)
+                
+                # Photo species selector
                 nieuwe_soorten = st.multiselect(
-                    "Soortgroepen",
-                    foto.get("soortgroep", []),  # adjust to your list
+                    f"Soortgroepen ({filename})",
+                    beschikbare_soortgroepen,
                     default=foto.get("soortgroep", []),
                     key=f"soorten_{qs['id']}_{foto['id']}"
                 )
+
         
                 # Save changes
                 if st.button("Opslaan wijzigingen", key=f"save_{foto['id']}"):
