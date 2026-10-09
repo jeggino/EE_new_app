@@ -221,7 +221,7 @@ if check_password():
         st.write("Huidige geometrie:")
         
         st.write("Nieuwe geometrie tekenen (optioneel):")
-        nieuwe_geojson = draw_geometry()
+        # nieuwe_geojson = draw_geometry()
         
         # -----------------------------
         # 2. Basisgegevens
