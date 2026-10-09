@@ -335,7 +335,6 @@ if check_password():
                 nieuwe_soorten = st.multiselect(
                     f"Soortgroepen ({filename})",
                     beschikbare_soortgroepen,
-                    default=foto.get("soortgroep", []),
                     key=f"soorten_{qs['id']}_{foto['id']}"
                 )
         
