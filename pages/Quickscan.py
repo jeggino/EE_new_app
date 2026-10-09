@@ -35,7 +35,7 @@ if check_password():
     with tab_create:
         st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
-        geojson = draw_geometry()
+        geojson = draw_geometry(key="new_qs_map")
 
         naam = st.text_input("Projectnaam")
         opmerking = st.text_area("Beschrijving")
@@ -221,7 +221,7 @@ if check_password():
         st.write("Huidige geometrie:")
         
         st.write("Nieuwe geometrie tekenen (optioneel):")
-        # nieuwe_geojson = draw_geometry()
+        nieuwe_geojson = draw_geometry(key="edit_qs_map")
         
         # -----------------------------
         # 2. Basisgegevens
