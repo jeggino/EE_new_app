@@ -293,13 +293,22 @@ if check_password():
         # -----------------------------
         st.subheader("Foto's")
         
-        # Load photos linked by Quickscan ID
         fotos_resp = supabase.table("new_app_quickscan_fotos") \
             .select("*") \
             .eq("quickscan_id", qs["id"]) \
             .execute()
         
         fotos = fotos_resp.data
+        
+        # Build available species/groups based on Quickscan suitability
+        soorten_results = qs["soorten"]
+        beschikbare_soortgroepen = []
+        
+        for group, value in soorten_results.items():
+            if value is True:
+                beschikbare_soortgroepen.append(group)
+            elif isinstance(value, list) and len(value) > 0:
+                beschikbare_soortgroepen.extend(value)
         
         for foto in fotos:
             import os
@@ -316,33 +325,20 @@ if check_password():
         
             # Edit + Delete
             with col2:
-                # Edit description
                 nieuwe_beschrijving = st.text_area(
-                    "Beschrijving",
+                    f"Beschrijving ({filename})",
                     value=foto.get("beschrijving", ""),
                     key=f"beschrijving_{qs['id']}_{foto['id']}"
                 )
         
-                # Build available species/groups based on Quickscan suitability
-                beschikbare_soortgroepen = []
-                
-                for group, value in soorten_results.items():
-                    if value is True:
-                        beschikbare_soortgroepen.append(group)
-                    elif isinstance(value, list) and len(value) > 0:
-                        beschikbare_soortgroepen.extend(value)
-                
-                # Photo species selector
                 nieuwe_soorten = st.multiselect(
                     f"Soortgroepen ({filename})",
                     beschikbare_soortgroepen,
                     default=foto.get("soortgroep", []),
                     key=f"soorten_{qs['id']}_{foto['id']}"
                 )
-
         
-                # Save changes
-                if st.button("Opslaan wijzigingen", key=f"save_{foto['id']}"):
+                if st.button("Opslaan wijzigingen", key=f"save_{qs['id']}_{foto['id']}"):
                     supabase.table("new_app_quickscan_fotos") \
                         .update({
                             "beschrijving": nieuwe_beschrijving,
@@ -354,12 +350,8 @@ if check_password():
                     st.success("Foto metadata bijgewerkt.")
                     st.rerun()
         
-                # Delete photo (storage + database)
-                if st.button(f"Verwijder {filename}", key=f"delete_{foto['id']}"):
-                    # Remove from storage
+                if st.button(f"Verwijder {filename}", key=f"delete_{qs['id']}_{foto['id']}"):
                     supabase.storage.from_("new_app").remove(foto["foto_pad"])
-        
-                    # Remove from database
                     supabase.table("new_app_quickscan_fotos") \
                         .delete() \
                         .eq("id", foto["id"]) \
@@ -367,6 +359,7 @@ if check_password():
         
                     st.warning(f"{filename} verwijderd.")
                     st.rerun()
+
         
         
         # Upload new photo
