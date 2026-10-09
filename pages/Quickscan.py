@@ -227,7 +227,7 @@ if check_password():
         # 2. Basisgegevens
         # -----------------------------
         naam = st.text_input("Projectnaam", value=qs["naam"])
-        opmerking = st.text_area("Beschrijving", value=qs["opmerking"])
+        opmerking = st.text_area("Beschrijving", value=qs["opmerking"],key=f"beschrijving_edit_{qs['id']}")
         
         # -----------------------------
         # 3. Veldgegevens
