@@ -356,17 +356,22 @@ if check_password():
             "---"
 
 
+        if "upload_key" not in st.session_state:
+            st.session_state.upload_key = f"upload_{qs['id']}"
         
-        
-        # Upload new photo
-        nieuwe_foto = st.file_uploader("Nieuwe foto uploaden", type=["jpg", "jpeg", "png"], key=f"upload_{qs['id']}")
+        nieuwe_foto = st.file_uploader(
+            "Nieuwe foto uploaden",
+            type=["jpg", "jpeg", "png"],
+            key=st.session_state.upload_key
+        )
+
         
         if nieuwe_foto:
             import uuid
             unique_id = str(uuid.uuid4())
-            safe_name = qs["naam"].replace(" ", "_")
+            safe_name = naam.replace(" ", "_")
         
-            filename = f"quickscan/fotos/{safe_name}_{unique_id}.jpg"
+            filename = f"quickscan/fotos/{unique_id}.jpg"
         
             # Upload to storage
             supabase.storage.from_("new_app").upload(
@@ -385,6 +390,10 @@ if check_password():
             }).execute()
         
             st.success("Foto geüpload.")
+            
+           # Reset uploader key to clear the file
+            st.session_state.upload_key = f"upload_{qs['id']}_{uuid.uuid4()}"
+            
             st.rerun()
 
         
