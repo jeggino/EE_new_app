@@ -293,40 +293,101 @@ if check_password():
         # -----------------------------
         st.subheader("Foto's")
         
+        # Load photos linked by Quickscan ID
         fotos_resp = supabase.table("new_app_quickscan_fotos") \
             .select("*") \
             .eq("quickscan_id", qs["id"]) \
             .execute()
         
         fotos = fotos_resp.data
-
         
         for foto in fotos:
             import os
             filename = os.path.basename(foto["foto_pad"])
-            st.write(f"📷 {filename}")
-
         
-            col1, col2 = st.columns([1,1])
+            st.write(f"📷 {filename}")
+        
+            col1, col2 = st.columns([1, 1])
+        
+            # Show photo
             with col1:
                 data = supabase.storage.from_("new_app").download(foto["foto_pad"])
                 st.image(data)
         
+            # Edit + Delete
             with col2:
+                # Edit description
+                nieuwe_beschrijving = st.text_area(
+                    "Beschrijving",
+                    value=foto.get("beschrijving", ""),
+                    key=f"beschrijving_{foto['id']}"
+                )
+        
+                # Edit species (list)
+                nieuwe_soorten = st.multiselect(
+                    "Soortgroepen",
+                    ["Vleermuizen", "Vogels", "Amfibieën", "Zoogdieren", "Planten"],  # adjust to your list
+                    default=foto.get("soortgroep", []),
+                    key=f"soorten_{foto['id']}"
+                )
+        
+                # Save changes
+                if st.button("Opslaan wijzigingen", key=f"save_{foto['id']}"):
+                    supabase.table("new_app_quickscan_fotos") \
+                        .update({
+                            "beschrijving": nieuwe_beschrijving,
+                            "soortgroep": nieuwe_soorten
+                        }) \
+                        .eq("id", foto["id"]) \
+                        .execute()
+        
+                    st.success("Foto metadata bijgewerkt.")
+                    st.rerun()
+        
+                # Delete photo (storage + database)
                 if st.button(f"Verwijder {filename}", key=f"delete_{foto['id']}"):
-                    supabase.storage.from_("new_app").remove(f"{foto["foto_pad"]}")
+                    # Remove from storage
+                    supabase.storage.from_("new_app").remove(foto["foto_pad"])
+        
+                    # Remove from database
+                    supabase.table("new_app_quickscan_fotos") \
+                        .delete() \
+                        .eq("id", foto["id"]) \
+                        .execute()
+        
                     st.warning(f"{filename} verwijderd.")
                     st.rerun()
         
-        nieuwe_foto = st.file_uploader("Nieuwe foto uploaden", type=["jpg","jpeg","png"])
+        
+        # Upload new photo
+        nieuwe_foto = st.file_uploader("Nieuwe foto uploaden", type=["jpg", "jpeg", "png"], key=f"upload_{qs['id']}")
         
         if nieuwe_foto:
+            import uuid
+            unique_id = str(uuid.uuid4())
+            safe_name = qs["naam"].replace(" ", "_")
+        
+            filename = f"quickscan/fotos/{safe_name}_{unique_id}.jpg"
+        
+            # Upload to storage
             supabase.storage.from_("new_app").upload(
-                f"{foto_folder}/{nieuwe_foto.name}",
-                nieuwe_foto
+                filename,
+                nieuwe_foto.read(),
+                file_options={"content-type": "image/jpeg", "x-upsert": "true"}
             )
+        
+            # Insert metadata row
+            supabase.table("new_app_quickscan_fotos").insert({
+                "quickscan_id": qs["id"],
+                "quickscan_naam": safe_name,
+                "foto_pad": filename,
+                "beschrijving": "",
+                "soortgroep": []
+            }).execute()
+        
             st.success("Foto geüpload.")
             st.rerun()
+
         
         # -----------------------------
         # 6. Opslaan
