@@ -301,7 +301,7 @@ if check_password():
         fotos = fotos_resp.data
         
         # Build available species/groups based on Quickscan suitability
-        soorten_results = qs["soorten"]
+        soorten_results = nieuwe_soorten
         beschikbare_soortgroepen = []
         
         for group, value in soorten_results.items():
