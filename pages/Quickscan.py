@@ -176,26 +176,144 @@ if check_password():
 
 
     with tab_edit:
-        st.subheader("Quickscan bewerken")
-        st.info("Hier komt de lijst met bestaande Quickscans.")
-        # -----------------------------
-        # 1. Alle quickscans ophalen
-        # -----------------------------
-        resp = supabase.table("new_app_quickscan").select("id, naam, datum").execute()
-        quickscans = resp.data
-        
-        if not quickscans:
-            st.info("Er zijn nog geen Quickscan‑projecten.")
-            st.stop()
+        st.subheader("Quickscan bewerken", text_alignment="center")
         
         # -----------------------------
-        # 2. Dropdown om project te kiezen
+        # 1. Geometrie laden
         # -----------------------------
-        keuze = st.selectbox(
-            "Kies een Quickscan om te bewerken:",
-            options=quickscans,
-            format_func=lambda x: f"{x['naam']} – {x['datum']}"
+        # Huidige geometrie ophalen
+        geometry_data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+        current_geojson = geometry_data
+        
+        # Teken nieuwe geometrie (optioneel)
+        st.write("Huidige geometrie:")
+        st.geojson(current_geojson)
+        
+        st.write("Nieuwe geometrie tekenen (optioneel):")
+        nieuwe_geojson = draw_geometry()
+        
+        # -----------------------------
+        # 2. Basisgegevens
+        # -----------------------------
+        naam = st.text_input("Projectnaam", value=qs["naam"])
+        opmerking = st.text_area("Beschrijving", value=qs["opmerking"])
+        
+        # -----------------------------
+        # 3. Veldgegevens
+        # -----------------------------
+        st.subheader("Veldgegevens")
+        
+        datum = st.date_input("Datum", value=qs["datum"])
+        veldwerker = st.text_input("Veldwerker", value=qs["veldwerker"])
+        
+        starttijd = st.time_input("Starttijd", value=qs.get("starttijd"))
+        eindtijd = st.time_input("Eindtijd", value=qs.get("eindtijd"))
+        
+        temperatuur = st.number_input("Temperatuur (°C)", step=0.1, value=qs["temperatuur"])
+        
+        windsnelheid = st.selectbox(
+            "Windsnelheid",
+            ["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"],
+            index=["0 - Stil", "1 - Zwak", "2 - Matig", "3 - Vrij krachtig", "4 - Sterk", "5 - Storm"].index(qs["windsnelheid"])
         )
+        
+        regen = st.selectbox(
+            "Regen",
+            ["Geen", "Licht", "Matig", "Hevig"],
+            index=["Geen", "Licht", "Matig", "Hevig"].index(qs["regen"])
+        )
+        
+        # -----------------------------
+        # 4. Soortgeschiktheid
+        # -----------------------------
+        st.subheader("Soortgeschiktheid")
+        
+        soorten_results = qs["soorten"]  # dit is jouw JSON dict uit de database
+        nieuwe_soorten = {}
+        
+        for group, species_list in SPECIES_GROUPS.items():
+            huidige_waarde = soorten_results.get(group)
+        
+            suitable = st.toggle(
+                f"Is het gebied geschikt voor {group}?",
+                value=(huidige_waarde is True or isinstance(huidige_waarde, list))
+            )
+        
+            if suitable:
+                if species_list:
+                    selected = st.multiselect(
+                        f"Welke soorten binnen {group}?",
+                        species_list,
+                        default=huidige_waarde if isinstance(huidige_waarde, list) else [],
+                        key=f"species_{group}"
+                    )
+                    nieuwe_soorten[group] = selected
+                else:
+                    nieuwe_soorten[group] = True
+            else:
+                nieuwe_soorten[group] = False
+        
+        # -----------------------------
+        # 5. Foto's beheren
+        # -----------------------------
+        st.subheader("Foto's")
+        
+        foto_folder = qs["foto_folder"]
+        fotos = supabase.storage.from_("new_app").list(foto_folder)
+        
+        for foto in fotos:
+            st.write(f"📷 {foto['name']}")
+        
+            col1, col2 = st.columns([1,1])
+            with col1:
+                data = supabase.storage.from_("new_app").download(f"{foto_folder}/{foto['name']}")
+                st.image(data)
+        
+            with col2:
+                if st.button(f"Verwijder {foto['name']}"):
+                    supabase.storage.from_("new_app").remove(f"{foto_folder}/{foto['name']}")
+                    st.warning(f"{foto['name']} verwijderd.")
+                    st.rerun()
+        
+        nieuwe_foto = st.file_uploader("Nieuwe foto uploaden", type=["jpg","jpeg","png"])
+        
+        if nieuwe_foto:
+            supabase.storage.from_("new_app").upload(
+                f"{foto_folder}/{nieuwe_foto.name}",
+                nieuwe_foto
+            )
+            st.success("Foto geüpload.")
+            st.rerun()
+        
+        # -----------------------------
+        # 6. Opslaan
+        # -----------------------------
+        if st.button("Quickscan opslaan"):
+            update_data = {
+                "naam": naam,
+                "opmerking": opmerking,
+                "datum": str(datum),
+                "veldwerker": veldwerker,
+                "starttijd": str(starttijd),
+                "eindtijd": str(eindtijd),
+                "temperatuur": temperatuur,
+                "windsnelheid": windsnelheid,
+                "regen": regen,
+                "soorten": nieuwe_soorten,
+            }
+        
+            # Geometrie vervangen indien nieuwe getekend
+            if nieuwe_geojson:
+                path = f"geometry/{qs['id']}.geojson"
+                supabase.storage.from_("new_app").upload(path, nieuwe_geojson)
+                update_data["geometry_path"] = path
+        
+            supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
+        
+            st.success("Quickscan bijgewerkt.")
+            st.session_state.edit_mode = False
+            st.rerun()
+
 
 
 
