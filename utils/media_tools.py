@@ -13,7 +13,7 @@ def save_photos(quickscan_id,quickscan_name, photos):
 
         # Create unique filename
         unique_id = str(uuid.uuid4())
-        filename = f"quickscan/fotos/{safe_name}_{unique_id}.jpg"
+        filename = f"quickscan/fotos/{unique_id}.jpg"
 
         # Upload photo to Supabase bucket
         supabase.storage.from_(BUCKET).upload(
