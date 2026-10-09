@@ -251,7 +251,8 @@ if check_password():
         regen = st.selectbox(
             "Regen",
             ["Geen", "Licht", "Matig", "Hevig"],
-            index=["Geen", "Licht", "Matig", "Hevig"].index(qs["regen"])
+            index=["Geen", "Licht", "Matig", "Hevig"].index(qs["regen"]),
+            key=f"regen_{qs['id']}"
         )
         
         # -----------------------------
