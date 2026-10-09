@@ -181,7 +181,7 @@ if check_password():
         # -----------------------------
         # 1. Alle quickscans ophalen
         # -----------------------------
-        resp = supabase.table("quickscan").select("id, naam, datum").execute()
+        resp = supabase.table("new_app_quickscan").select("id, naam, datum").execute()
         quickscans = resp.data
         
         if not quickscans:
