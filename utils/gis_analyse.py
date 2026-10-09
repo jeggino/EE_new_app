@@ -8,27 +8,12 @@ import base64
 def voer_gis_analyse_uit(qs, supabase):
     with st.spinner("GIS‑analyse wordt uitgevoerd..."):
 
-        # -----------------------------
-        # 1. Natura2000 dataset laden
-        # -----------------------------
-        # url = (
-        #     "https://services.geodataoverijssel.nl/geoserver/B46_natuur_en_landschap/ows?"
-        #     "service=WFS&version=2.0.0&request=GetFeature&"
-        #     "typeName=B46_natuur_en_landschap:B4_Natura_2000-gebieden&"
-        #     "outputFormat=application/json"
-        # )
-        # n2000 = gpd.read_file(url).to_crs(4326)
 
-        # -----------------------------
-        # 2. Quickscan geometrie laden
-        # -----------------------------
         data = supabase.storage.from_("new_app").download(qs["geometry_path"])
         qs_gdf = gpd.read_file(data).set_crs(4326)
 
 
 
-
-#--------------
         # -----------------------------
         # 1. Quickscan centroid bepalen
         # -----------------------------
@@ -57,12 +42,9 @@ def voer_gis_analyse_uit(qs, supabase):
         
         n2000 = gpd.read_file(url).to_crs(4326)
 
-#--------------
-
         # -----------------------------
         # 3. Centroid + buffer
         # -----------------------------
-        # centroid = qs_gdf.geometry.centroid.iloc[0]
 
         centroid_m = gpd.GeoSeries([centroid], crs=4326).to_crs(3857)
         buffer_m = centroid_m.buffer(3000)  # 3 km
@@ -95,7 +77,7 @@ def voer_gis_analyse_uit(qs, supabase):
         # -----------------------------
         # 6. Folium kaart bouwen
         # -----------------------------
-        m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12)
+        m = folium.Map(location=[centroid.y, centroid.x], zoom_start=12, zoom_control=False)
 
         # Quickscan polygon
         folium.GeoJson(
