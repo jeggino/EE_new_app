@@ -326,7 +326,7 @@ if check_password():
                 # Edit species (list)
                 nieuwe_soorten = st.multiselect(
                     "Soortgroepen",
-                    ["Vleermuizen", "Vogels", "Amfibieën", "Zoogdieren", "Planten"],  # adjust to your list
+                    foto.get("soortgroep", []),  # adjust to your list
                     default=foto.get("soortgroep", []),
                     key=f"soorten_{qs['id']}_{foto['id']}"
                 )
