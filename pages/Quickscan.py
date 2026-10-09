@@ -488,7 +488,7 @@ if check_password():
         st.subheader("Foto's")
         fotos = supabase.table("new_app_quickscan_fotos") \
             .select("*") \
-            .eq("quickscan_naam", qs["naam"]) \
+            .eq("quickscan_id", qs["id"]) \
             .execute()
         
         if not fotos.data:
