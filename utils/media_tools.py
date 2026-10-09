@@ -3,7 +3,7 @@ from utils.supabase_client import supabase
 
 BUCKET = "new_app"
 
-def save_photos(quickscan_name, photos):
+def save_photos(quickscan_id,quickscan_name, photos):
     safe_name = quickscan_name.replace(" ", "_")
 
     for item in photos:
@@ -28,4 +28,5 @@ def save_photos(quickscan_name, photos):
             "foto_pad": filename,
             "beschrijving": beschrijving,
             "soortgroep": soortgroepen_foto,   # list stored in JSONB
+            "quickscan_id": quickscan_id,
         }).execute()
