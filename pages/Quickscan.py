@@ -293,15 +293,20 @@ if check_password():
         # -----------------------------
         st.subheader("Foto's")
         
-        foto_folder = qs["foto_folder"]
-        fotos = supabase.storage.from_("new_app").list(foto_folder)
+        fotos_resp = supabase.table("new_app_quickscan_fotos") \
+            .select("*") \
+            .eq("quickscan_id", qs["id"]) \
+            .execute()
+        
+        fotos = fotos_resp.data
+
         
         for foto in fotos:
             st.write(f"📷 {foto['name']}")
         
             col1, col2 = st.columns([1,1])
             with col1:
-                data = supabase.storage.from_("new_app").download(f"{foto_folder}/{foto['name']}")
+                data = supabase.storage.from_("new_app").download(foto["foto_pad"])
                 st.image(data)
         
             with col2:
