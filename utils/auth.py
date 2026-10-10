@@ -1,13 +1,6 @@
 import streamlit as st
-from supabase import create_client, Client
-from config import SUPABASE_URL, SUPABASE_KEY
+from utils.supabase_client import supabase
 
-# ----------------- INIT -----------------
-@st.cache_resource
-def get_supabase() -> Client:
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
-
-supabase = get_supabase()
 
 # ----------------- SESSION DEFAULTS -----------------
 DEFAULTS = {
@@ -21,16 +14,22 @@ for k, v in DEFAULTS.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ----------------- AUTH FUNCTIONS -----------------
-def login(email: str, password: str):
+# ----------------- AUTH CORE -----------------
+def restore_session():
+    session = supabase.auth.get_session()
+    if session and session.user:
+        st.session_state.logged_in = True
+        st.session_state.user = session.user
+        st.session_state.session = session
+    else:
+        st.session_state.logged_in = False
+
+def login(email, password):
     try:
-        res = supabase.auth.sign_in_with_password(
-            {"email": email, "password": password}
-        )
+        res = supabase.auth.sign_in_with_password({"email": email, "password": password})
         return res
     except Exception:
         return None
-
 
 def logout():
     supabase.auth.sign_out()
@@ -39,29 +38,13 @@ def logout():
         st.session_state[k] = v
     st.rerun()
 
-
-def restore_session():
-    """
-    Ensures the user stays logged in after refresh.
-    Supabase automatically persists the session in the browser.
-    """
-    session = supabase.auth.get_session()
-
-    if session and session.user:
-        st.session_state.logged_in = True
-        st.session_state.user = session.user
-        st.session_state.session = session
-    else:
-        st.session_state.logged_in = False
-
-
-# ----------------- UI: LOGIN -----------------
+# ----------------- UI -----------------
 def show_login():
     st.sidebar.title("Login")
 
     with st.sidebar.form("login_form"):
         email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
+        password = st.text_input("Wachtwoord", type="password")
         submitted = st.form_submit_button("Login")
 
         if submitted:
@@ -72,25 +55,23 @@ def show_login():
                 st.session_state.session = res.session
                 st.rerun()
             else:
-                st.sidebar.error("Invalid email or password")
+                st.sidebar.error("Email of wachtwoord klopt niet.")
 
-    if st.sidebar.button("Create Account"):
+    if st.sidebar.button("Account aanmaken"):
         st.session_state.show_signup = True
         st.rerun()
 
-
-# ----------------- UI: SIGNUP -----------------
 def show_signup():
-    st.sidebar.title("Create Account")
+    st.sidebar.title("Account aanmaken")
 
     with st.sidebar.form("signup_form"):
         email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        full_name = st.text_input("Full Name")
-        category = st.selectbox("Category", ["beginner", "senior"])
-        role = st.selectbox("Role", ["guest", "user", "creator"])
+        password = st.text_input("Wachtwoord", type="password")
+        full_name = st.text_input("Volledige naam")
+        category = st.selectbox("Categorie", ["beginner", "senior"])
+        role = st.selectbox("Rol", ["guest", "user", "creator"])
 
-        submitted = st.form_submit_button("Create Account")
+        submitted = st.form_submit_button("Aanmaken")
 
         if submitted:
             try:
@@ -103,24 +84,21 @@ def show_signup():
                         "role": role
                     }
                 })
-                st.success("Account created! You can now log in.")
+                st.success("Account aangemaakt! Je kunt nu inloggen.")
                 st.session_state.show_signup = False
                 st.rerun()
             except Exception as e:
-                st.error(f"Error creating account: {e}")
+                st.error(f"Fout bij aanmaken: {e}")
 
-    if st.sidebar.button("Back to Login"):
+    if st.sidebar.button("Terug naar login"):
         st.session_state.show_signup = False
         st.rerun()
 
-
-# ----------------- MAIN AUTH HANDLER -----------------
-def auth_gate(app_function):
+# ----------------- PUBLIC FUNCTION -----------------
+def check_password():
     """
-    Wrap your app with this function:
-    - Restores session
-    - Shows login/signup if needed
-    - Runs your app when logged in
+    This replaces your old password check.
+    Now it handles full Supabase authentication.
     """
 
     restore_session()
@@ -130,7 +108,8 @@ def auth_gate(app_function):
             show_signup()
         else:
             show_login()
-    else:
-        app_function()
+        return False
+
+    return True
 
 
