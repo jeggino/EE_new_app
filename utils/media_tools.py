@@ -11,8 +11,12 @@ def save_photos(quickscan_id, quickscan_name, photos):
         beschrijving = item["beschrijving"]
         soortgroepen_foto = item["soortgroepen"]
 
-        # Ensure bytes
-        data = file.read() if hasattr(file, "read") else file
+        # Reset file pointer so multiple reads work
+        if hasattr(file, "read"):
+            file.seek(0)
+            data = file.read()
+        else:
+            data = file
 
         unique_id = str(uuid.uuid4())
         filename = f"quickscan/fotos/{unique_id}.jpg"
@@ -27,7 +31,7 @@ def save_photos(quickscan_id, quickscan_name, photos):
             "quickscan_naam": safe_name,
             "foto_pad": filename,
             "beschrijving": beschrijving,
-            "soortgroep": soortgroepen_foto,
+            "soortgroep": soortgroepen_foto,   # your list stays a list
             "quickscan_id": quickscan_id,
         }).execute()
 
