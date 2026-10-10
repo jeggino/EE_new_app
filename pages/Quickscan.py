@@ -415,9 +415,15 @@ if check_password():
         
             # Geometrie vervangen indien nieuwe getekend
             if nieuwe_geojson:
+                data = nieuwe_geojson.encode("utf-8")
                 path = f"quickscan/geometry/{qs['id']}.geojson"
-                supabase.storage.from_("new_app").upload(path, nieuwe_geojson)
-                # update_data["geometry_path"] = path
+
+                supabase.storage.from_("new_app").upload(
+                    path,
+                    data,
+                    file_options={"content-type": "application/geo+json", "x-upsert": "true"}
+                )
+
         
             # supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
         
