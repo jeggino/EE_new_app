@@ -210,7 +210,7 @@ if check_password():
         keuze = st.selectbox(
             "Kies een Quickscan:",
             options=quickscans,
-            format_func=lambda x: f"{x['naam']} – {x['datum']}"
+            format_func=lambda x: f"{x['naam']} ({x['datum']})"
         )
 
         qs_id = keuze["id"]
