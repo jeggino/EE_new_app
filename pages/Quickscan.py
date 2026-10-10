@@ -249,9 +249,6 @@ if check_password():
         
         nieuwe_geojson = draw_geometry_with_existing(current_geojson, key="edit_map")
 
-
-
-        st.write(nieuwe_geojson)
         
         # -----------------------------
         # 2. Basisgegevens
@@ -428,40 +425,41 @@ if check_password():
         # -----------------------------
         # 6. Opslaan
         # -----------------------------
-        if st.button("Quickscan opslaan"):
-            update_data = {
-                "naam": naam,
-                "opmerking": opmerking,
-                "datum": str(datum),
-                "veldwerker": veldwerker,
-                "starttijd": str(starttijd),
-                "eindtijd": str(eindtijd),
-                "temperatuur": temperatuur,
-                "windsnelheid": windsnelheid,
-                "regen": regen,
-                "soorten": nieuwe_soorten,
-            }
-        
-            # Geometrie vervangen indien nieuwe getekend
-            if nieuwe_geojson:
-
-                import json
-                
-                data = json.dumps(nieuwe_geojson).encode("utf-8")
-                path = f"quickscan/geometries/{qs['id']}.geojson"
-                supabase.storage.from_("new_app").upload(
-                    path,
-                    data,
-                    file_options={"content-type": "application/geo+json", "x-upsert": "true"}
-                )
-
-
-        
-            # supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
-        
-            st.success("Quickscan bijgewerkt.")
-            st.session_state.edit_mode = False
-            st.rerun()
+        with st.spinner("Quickscan wordt opgeslagen…"):
+            if st.button("Quickscan opslaan"):
+                update_data = {
+                    "naam": naam,
+                    "opmerking": opmerking,
+                    "datum": str(datum),
+                    "veldwerker": veldwerker,
+                    "starttijd": str(starttijd),
+                    "eindtijd": str(eindtijd),
+                    "temperatuur": temperatuur,
+                    "windsnelheid": windsnelheid,
+                    "regen": regen,
+                    "soorten": nieuwe_soorten,
+                }
+            
+                # Geometrie vervangen indien nieuwe getekend
+                if nieuwe_geojson:
+    
+                    import json
+                    
+                    data = json.dumps(nieuwe_geojson).encode("utf-8")
+                    path = f"quickscan/geometries/{qs['id']}.geojson"
+                    supabase.storage.from_("new_app").upload(
+                        path,
+                        data,
+                        file_options={"content-type": "application/geo+json", "x-upsert": "true"}
+                    )
+    
+    
+            
+                # supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
+            
+                st.success("Quickscan bijgewerkt.")
+                st.session_state.edit_mode = False
+                st.rerun()
 
 
 
