@@ -33,7 +33,7 @@ st.markdown("""
 
 
 if check_password():
-    col1, col2 = st.columns([4, 1])
+    col1, col2 = st.columns([2, 1])
     if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
