@@ -19,7 +19,7 @@ st.markdown("""
 
 if check_password():
 
-    show_info_dialog()
+    st.button("ℹ️ Info", on_click=show_info_dialog)
 
     
     # Create 3 equal columns
