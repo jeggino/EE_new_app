@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.auth import check_password
+from utils.auth import check_password, logout
 from utils.buttons import image_button
 from utils.info_dialog import show_info_dialog
 
@@ -25,6 +25,7 @@ if check_password():
     )
 
     st.button("ℹ️ Info", on_click=show_info_dialog, use_container_width=True)
+    st.sidebar.button("Uitloggen", on_click=logout, use_container_width=True)
 
     
     # Create 3 equal columns
