@@ -26,8 +26,9 @@ from utils.buttons import image_button
 
 
 
-image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py")
 if check_password():
+    image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py", key="back_qs")
+
 
     st.title("Quickscan",text_alignment="center",)
     
