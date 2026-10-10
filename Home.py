@@ -13,7 +13,7 @@ if check_password():
 
     st.title("Welkom bij de Elsken Ecologie Advies Applicatie",text_alignment="center",)
 
-    st.write(
+    st.markdown(
         """
         Deze applicatie ondersteunt ecologisch adviseurs bij het uitvoeren van 
         **Quickscans**, **Inventarisaties** en **Controles**.
@@ -26,7 +26,7 @@ if check_password():
         - :blue[**Control**] – In deze sectie kun je de voortgang en resultaten van elk inventarisatie‑ of Quickscan‑project volgen. Je ziet hier in één overzicht of er roest‑ of nestlocaties zijn gevonden, of de dagverslagen volledig zijn ingevuld en of alle stappen van het protocol correct zijn uitgevoerd. Deze module maakt het mogelijk om de kwaliteit van het veldwerk te bewaken en direct actie te ondernemen wanneer afwijkingen, ontbrekende gegevens of urgente ecologische bevindingen worden vastgesteld.  
 
         Je blijft ingelogd zolang je de browser open houdt.
-        """
+        """,text_alignment="justify"
     )
 
     st.divider()
