@@ -85,18 +85,17 @@ if check_password():
 
     col1, col2, col3 = st.columns(3,border=True)
     with col1:
-        image_button("Quickscan", "utils/pictures/icons/quickscan.png", "pages/Quickscan.py")
+        image_button("Quickscan", "utils/pictures/icons/quickscan.png", "pages/Quickscan.py", key="qs")
 
 
     
     with col2:
-        image_button("Inventarisatie", "utils/pictures/icons/inventarisatie.png", "pages/Inventarisatie.py")
+        image_button("Inventarisatie", "utils/pictures/icons/inventarisatie.png", "pages/Inventarisatie.py", key="inv")
         
 
     
     with col3:
-        image_button("Control", "utils/pictures/icons/control.png", "pages/Control.py")
-
+        image_button("Control", "utils/pictures/icons/control.png", "pages/Control.py", key="ctrl")
 
 
 
