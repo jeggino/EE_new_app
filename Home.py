@@ -81,18 +81,18 @@ if check_password():
     #     st.image("utils/pictures/icons/control.png", width=120)
     #     st.page_link("pages/Control.py", label="Control")
 
-    
+    col1, col2, col3 = st.columns(3,border=True)
     with col1:
         st.image("utils/pictures/icons/quickscan.png", width=120)
-        st.link_button("pages/Quickscan.py",icon=":material/thumb_up:")
+        st.link_button("https://ee-new-app.streamlit.app/Quickscan",icon=":material/thumb_up:")
     
     with col2:
         st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        st.link_button("pages/Inventarisatie.py", icon=":material/thumb_up:")
+        st.link_button("https://ee-new-app.streamlit.app/Quickscan",icon=":material/thumb_up:")
     
     with col3:
         st.image("utils/pictures/icons/control.png", width=120)
-        st.link_button("pages/Control.py",icon=":material/thumb_up:")
+        st.link_button("https://ee-new-app.streamlit.app/Quickscan",icon=":material/thumb_up:")
 
 
 
