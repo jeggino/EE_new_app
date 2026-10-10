@@ -83,20 +83,51 @@ if check_password():
     #     st.image("utils/pictures/icons/control.png", width=120)
     #     st.page_link("pages/Control.py", label="Control")
 
-    col1, col2, col3 = st.columns(3,border=True)
-    with col1:
-        image_button("Quickscan", "utils/pictures/icons/quickscan.png", "pages/Quickscan.py", key="qs")
+    # col1, col2, col3 = st.columns(3,border=True)
+    # with col1:
+    #     image_button("Quickscan", "utils/pictures/icons/quickscan.png", "pages/Quickscan.py", key="qs")
 
 
     
-    with col2:
-        image_button("Inventarisatie", "utils/pictures/icons/inventarisatie.png", "pages/Inventarisatie.py", key="inv")
+    # with col2:
+    #     image_button("Inventarisatie", "utils/pictures/icons/inventarisatie.png", "pages/Inventarisatie.py", key="inv")
         
 
     
-    with col3:
-        image_button("Control", "utils/pictures/icons/control.png", "pages/Control.py", key="ctrl")
+    # with col3:
+    #     image_button("Control", "utils/pictures/icons/control.png", "pages/Control.py", key="ctrl")
 
+
+    # Hide sidebar
+    st.markdown("""
+        <style>
+            [data-testid="stSidebar"] {display: none;}
+            [data-testid="stSidebarNav"] {display: none;}
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.title("Ga verder naar een module")
+    
+    # Create 3 equal columns
+    col1, col2, col3 = st.columns(3)
+    
+    # --- Quickscan ---
+    with col1:
+        st.image("utils/pictures/icons/quickscan.png", width=120)
+        if st.button("Quickscan"):
+            st.switch_page("pages/Quickscan.py")
+    
+    # --- Inventarisatie ---
+    with col2:
+        st.image("utils/pictures/icons/inventarisatie.png", width=120)
+        if st.button("Inventarisatie"):
+            st.switch_page("pages/Inventarisatie.py")
+    
+    # --- Control ---
+    with col3:
+        st.image("utils/pictures/icons/control.png", width=120)
+        if st.button("Control"):
+            st.switch_page("pages/Control.py")
 
 
 
