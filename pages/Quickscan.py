@@ -155,10 +155,23 @@ if check_password():
         
             with st.spinner("Quickscan wordt opgeslagen…"):
             
+                # qs_id = save_quickscan(
+                #     naam,
+                #     opmerking,
+                #     geojson,
+                #     datum,
+                #     veldwerker,
+                #     starttijd,
+                #     eindtijd,
+                #     temperatuur,
+                #     windsnelheid,
+                #     regen,
+                #     soorten_results
+                # )
+
                 qs_id = save_quickscan(
                     naam,
                     opmerking,
-                    geojson,
                     datum,
                     veldwerker,
                     starttijd,
@@ -168,7 +181,6 @@ if check_password():
                     regen,
                     soorten_results
                 )
-
             
                 if photos_to_upload:
                     save_photos(qs_id, naam, photos_to_upload)
