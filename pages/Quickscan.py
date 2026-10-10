@@ -19,6 +19,7 @@ from utils.supabase_client import supabase
 from utils.species_groups import SPECIES_GROUPS
 from utils.media_tools import save_photos
 from utils.gis_analyse import voer_gis_analyse_uit
+from utils.buttons import image_button
 
 
 
@@ -29,6 +30,7 @@ from utils.gis_analyse import voer_gis_analyse_uit
 if check_password():
 
     st.title("Quickscan",text_alignment="center",)
+    image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py")
 
     tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
 
