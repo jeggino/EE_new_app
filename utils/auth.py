@@ -63,38 +63,7 @@ def show_login():
         st.session_state.show_signup = True
         st.rerun()
 
-def show_signup():
-    st.title("Account aanmaken")
 
-    with st.form("signup_form"):
-        email = st.text_input("Email")
-        password = st.text_input("Wachtwoord", type="password")
-        full_name = st.text_input("Volledige naam")
-        category = st.selectbox("Categorie", ["junior", "intermediate", "senior", "expert"])
-        role = st.selectbox("Rol", ["guest", "user", "creator"])
-
-        submitted = st.form_submit_button("Aanmaken")
-
-        if submitted:
-            try:
-                res = supabase.auth.sign_up({
-                    "email": email,
-                    "password": password,
-                    "options": {
-                        "data": {
-                            "full_name": full_name,
-                            "category": category,
-                            "role": role
-                        }
-                    }
-                })
-
-                st.success("Account aangemaakt! Je kunt nu inloggen.")
-                st.session_state.show_signup = False
-                st.rerun()
-
-            except Exception as e:
-                st.error(f"Fout bij aanmaken: {e}")
 
     if st.button("Terug naar login"):
         st.session_state.show_signup = False
@@ -110,10 +79,7 @@ def check_password():
     restore_session()
 
     if not st.session_state.logged_in:
-        if st.session_state.show_signup:
-            show_signup()
-        else:
-            show_login()
+        show_login()
         return False
 
     return True
