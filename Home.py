@@ -23,24 +23,26 @@ if check_password():
 
     
     # Create 3 equal columns
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     # --- Quickscan ---
     with col1:
         # st.image("utils/pictures/icons/quickscan.png", width=120)
-        if st.button("Quickscan", icon=":material/visibility:"):
+        if st.button("Quickscan", icon=":material/visibility:", use_container_width=True):
             st.switch_page("pages/Quickscan.py")
     
     # --- Inventarisatie ---
     with col2:
         # st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        if st.button("Inventarisatie",disabled=True, icon=":material/note_alt:"):
+        if st.button("Inventarisatie",disabled=True, icon=":material/note_alt:", use_container_width=True):
             st.switch_page("pages/Inventarisatie.py")
     
     # --- Control ---
+    col3, col4 = st.columns(2)
+
     with col3:
         # st.image("utils/pictures/icons/control.png", width=120)
-        if st.button("Control",disabled=True, icon=":material/manage_search:"):
+        if st.button("Control",disabled=True, icon=":material/manage_search:", use_container_width=True):
             st.switch_page("pages/Control.py")
 
 
