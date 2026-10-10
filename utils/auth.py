@@ -55,7 +55,7 @@ def show_login():
                 st.session_state.session = res.session
                 st.rerun()
             else:
-                st.sidebar.error("Email of wachtwoord klopt niet.")
+                st.error("Email of wachtwoord klopt niet.")
 
     if st.button("Account aanmaken"):
         st.session_state.show_signup = True
