@@ -454,7 +454,7 @@ if check_password():
     
     
             
-                # supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
+                supabase.table("new_app_quickscan").update(update_data).eq("id", qs["id"]).execute()
             
                 st.success("Quickscan bijgewerkt.")
                 st.session_state.edit_mode = False
