@@ -35,7 +35,7 @@ def verwijder_quickscan(qs_id, supabase):
                             supabase.storage.from_("new_app").remove([foto_pad])
     
                         # Verwijder fotoregels uit de database
-                        supabase.table("new_app_quickscan_fotos").delete().eq("Quickscan_id", qs_id).execute()
+                        supabase.table("new_app_quickscan_fotos").delete().eq("quickscan_id", qs_id).execute()
     
                     # 4. Verwijder conclusies uit new_app_quickscan_conclusions
                     supabase.table("new_app_quickscan_conclusions").delete().eq("project_naam", qs_id).execute()
