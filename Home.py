@@ -19,7 +19,12 @@ st.markdown("""
 
 if check_password():
 
-    st.button("ℹ️ Info", on_click=show_info_dialog)
+    st.image(
+        "utils/pictures/signal-2026-08-31-14-39-37-051 (1).jpg",
+        use_column_width=True
+    )
+
+    st.button("ℹ️ Info", on_click=show_info_dialog, use_container_width=True)
 
     
     # Create 3 equal columns
