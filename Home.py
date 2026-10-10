@@ -51,6 +51,11 @@ if check_password():
         if st.button("Control",disabled=True, icon=":material/manage_search:", use_container_width=True):
             st.switch_page("pages/Control.py")
 
+    with col4:
+        if st.button("Account aanmaken", icon=":material/person_add:", use_container_width=True):
+            st.switch_page("pages/Signup.py")
+
+
 
 
 
