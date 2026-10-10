@@ -1,18 +1,10 @@
 import streamlit as st
 import time
 
-st.markdown("""
-    <style>
-        .expander-red > summary {
-            color: red !important;
-            font-weight: bold !important;
-            font-size: 18px;
-        }
-    </style>
-""", unsafe_allow_html=True)
+
 
 def verwijder_quickscan(qs_id, supabase):
-    with st.expander("Quickscan verwijder"):
+    with st.expander(":red[**Quickscan verwijder**]"):
         st.error("⚠️ Deze actie is permanent en kan niet ongedaan worden gemaakt.")
         st.write(
             "Als je doorgaat, worden **alle gegevens van deze Quickscan verwijderd**, waaronder:\n"
