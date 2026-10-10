@@ -22,12 +22,20 @@ from utils.gis_analyse import voer_gis_analyse_uit
 from utils.buttons import image_button
 
 
-
+# Hide sidebar
+st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {display: none;}
+        [data-testid="stSidebarNav"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
 
 
 
 if check_password():
-    image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py", key="back_qs")
+    if st.button("⬅️ Terug naar menu"):
+        st.switch_page("Home.py")
+
 
 
     st.title("Quickscan",text_alignment="center",)
