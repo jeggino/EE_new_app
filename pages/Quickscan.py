@@ -645,7 +645,7 @@ if check_password():
                     else:
                         supabase.table("new_app_quickscan_conclusions") \
                             .insert({
-                                "project_naam": qs["naam"],
+                                "project_naam": qs["id"],
                                 "conclusie": conclusion_text
                             }).execute()
         
