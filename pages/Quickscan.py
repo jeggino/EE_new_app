@@ -134,7 +134,6 @@ if check_password():
                 key=f"add_photo_{index}"
             )
 
-        photos_to_upload
 
 
         if st.button("Project opslaan"):
