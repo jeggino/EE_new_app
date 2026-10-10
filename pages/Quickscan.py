@@ -115,6 +115,45 @@ if check_password():
 
                 
                 
+        # photos_to_upload = []
+        
+        # add_photo = st.toggle("Wil je een foto toevoegen?", key="add_photo_first")
+        
+        # while add_photo:
+        #     index = len(photos_to_upload)
+        
+        #     photo = st.file_uploader(
+        #         "Upload een foto",
+        #         type=["jpg", "jpeg", "png"],
+        #         key=f"photo_{index}"
+        #     )
+        
+        #     if photo:
+        #         beschrijving = st.text_area(
+        #             "Schrijf een beschrijving voor deze foto",
+        #             key=f"beschrijving_{index}"
+        #         )
+        
+        #         soortgroepen_foto = st.multiselect(
+        #             "Voor welke soortgroepen is dit habitat potentieel geschikt?",
+        #             beschikbare_soortgroepen,
+        #             key=f"soortgroepen_{index}"
+        #         )
+        
+        #         photos_to_upload.append({
+        #             "file": photo,
+        #             "beschrijving": beschrijving,
+        #             "soortgroepen": soortgroepen_foto
+        #         })
+        
+        #         st.success("Foto toegevoegd.")
+        
+        #     # IMPORTANT: give this toggle a UNIQUE key
+        #     add_photo = st.toggle(
+        #         "Nog een foto toevoegen?",
+        #         key=f"add_photo_{index}"
+        #     )
+
         photos_to_upload = []
         
         add_photo = st.toggle("Wil je een foto toevoegen?", key="add_photo_first")
@@ -122,9 +161,9 @@ if check_password():
         while add_photo:
             index = len(photos_to_upload)
         
-            photo = st.file_uploader(
-                "Upload een foto",
-                type=["jpg", "jpeg", "png"],
+            # CAMERA INPUT INSTEAD OF FILE UPLOADER
+            photo = st.camera_input(
+                "Maak een foto",
                 key=f"photo_{index}"
             )
         
@@ -141,7 +180,7 @@ if check_password():
                 )
         
                 photos_to_upload.append({
-                    "file": photo,
+                    "file": photo,  # camera image object
                     "beschrijving": beschrijving,
                     "soortgroepen": soortgroepen_foto
                 })
