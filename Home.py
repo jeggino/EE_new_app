@@ -67,19 +67,32 @@ if check_password():
 
 
 
-    col1, col2, col3 = st.columns(3,border=True)
+    # col1, col2, col3 = st.columns(3,border=True)
+    
+    # with col1:
+    #     st.image("utils/pictures/icons/quickscan.png", width=120)
+    #     st.page_link("pages/Quickscan.py", label="Quickscan")
+    
+    # with col2:
+    #     st.image("utils/pictures/icons/inventarisatie.png", width=120)
+    #     st.page_link("pages/Inventarisatie.py", label="Inventarisatie")
+    
+    # with col3:
+    #     st.image("utils/pictures/icons/control.png", width=120)
+    #     st.page_link("pages/Control.py", label="Control")
+
     
     with col1:
         st.image("utils/pictures/icons/quickscan.png", width=120)
-        st.page_link("pages/Quickscan.py", label="Quickscan")
+        st.link_button("pages/Quickscan.py",icon=":material/thumb_up:")
     
     with col2:
         st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        st.page_link("pages/Inventarisatie.py", label="Inventarisatie")
+        st.link_button("pages/Inventarisatie.py", icon=":material/thumb_up:")
     
     with col3:
         st.image("utils/pictures/icons/control.png", width=120)
-        st.page_link("pages/Control.py", label="Control")
+        st.link_button("pages/Control.py",icon=":material/thumb_up:")
 
 
 
