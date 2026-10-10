@@ -31,7 +31,7 @@ if check_password():
 
     st.divider()
 
-    st.subheader("Ga verder naar een module")
+    st.subheader("Ga verder naar een module", text_alignment="center")
 
     # st.page_link("pages/Quickscan.py", label="Quickscan", icon="🗺️")
     # st.page_link("pages/Inventarisatie.py", label="Inventarisatie", icon="📋")
