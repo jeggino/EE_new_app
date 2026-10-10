@@ -34,26 +34,19 @@ st.markdown("""
 
 if check_password():
     col1, col2 = st.columns([2, 1])
+    col1.title("Quickscan",text_alignment="center",)
     if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
-
-
-    col1.title("Quickscan",text_alignment="center",)
-
-    col1, col2, col3 = st.columns([0, 1, 0])
-    with col2:
-
-        menu = st.segmented_control(
-            "Kies een onderdeel",
-            default="Nieuwe Quickscan",
-            options={
-                "Nieuwe Quickscan": ":material/add_circle:",
-                "Quickscan bewerken": ":material/edit:",
-                "Quickscan bekijken": ":material/visibility:"
-            }
-        )
-
+    menu = st.segmented_control(
+        "Kies een onderdeel",
+        default="Nieuwe Quickscan",
+        options={
+            "Nieuwe Quickscan": ":material/add_circle:",
+            "Quickscan bewerken": ":material/edit:",
+            "Quickscan bekijken": ":material/visibility:"
+        }
+    )
     
     if menu == "Nieuwe Quickscan":
         st.subheader("Nieuwe Quickscan",text_alignment="center",)
