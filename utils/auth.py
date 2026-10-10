@@ -77,7 +77,7 @@ def show_signup():
 
         if submitted:
             try:
-                supabase.auth.admin.create_user({
+                supabase.auth.create_user({
                     "email": email,
                     "password": password,
                     "user_metadata": {
