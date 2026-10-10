@@ -28,22 +28,26 @@ if check_password():
     # --- Quickscan ---
     with col1:
         # st.image("utils/pictures/icons/quickscan.png", width=120)
-        if st.button("Quickscan", icon=":material/add_circle:"):
+        if st.button("Quickscan", icon=":material/visibility:"):
             st.switch_page("pages/Quickscan.py")
     
     # --- Inventarisatie ---
     with col2:
         # st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        if st.button("Inventarisatie",disabled=True, icon=":material/edit:"):
+        if st.button("Inventarisatie",disabled=True, icon=":material/description:"):
             st.switch_page("pages/Inventarisatie.py")
     
     # --- Control ---
     with col3:
         # st.image("utils/pictures/icons/control.png", width=120)
-        if st.button("Control",disabled=True, icon=":material/visibility:"):
+        if st.button("Control",disabled=True, icon=":material/search:"):
             st.switch_page("pages/Control.py")
 
+        if st.button("Control",disabled=True, icon=":material/note_alt:"):
+            st.switch_page("pages/Control.py")
 
+        if st.button("Control",disabled=True, icon=":material/manage_search:"):
+            st.switch_page("pages/Control.py")
 
 
 
