@@ -41,5 +41,7 @@ def show_signup():
 
             except Exception as e:
                 st.error(f"Fout bij aanmaken: {e}")
-
+if st.button("⬅️ Terug naar menu"):
+    st.switch_page("Home.py")
+    
 show_signup()
