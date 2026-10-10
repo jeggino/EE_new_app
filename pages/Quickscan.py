@@ -385,7 +385,6 @@ if check_password():
             # Insert metadata row
             supabase.table("new_app_quickscan_fotos").insert({
                 "quickscan_id": qs["id"],
-                "quickscan_naam": safe_name,
                 "foto_pad": filename,
                 "beschrijving": "",
                 "soortgroep": []
