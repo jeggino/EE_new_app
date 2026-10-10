@@ -67,7 +67,7 @@ if check_password():
 
 
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3,border=True)
     
     with col1:
         st.image("utils/pictures/icons/quickscan.png", width=120)
