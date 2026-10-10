@@ -2,7 +2,7 @@ import streamlit as st
 import time
 
 def verwijder_quickscan(qs_id, supabase):
-    if st.button("Quickscan verwijder"):
+    with st.expander("Quickscan verwijder"):
         st.error("⚠️ Deze actie is permanent en kan niet ongedaan worden gemaakt.")
         st.write(
             "Als je doorgaat, worden **alle gegevens van deze Quickscan verwijderd**, waaronder:\n"
@@ -40,7 +40,9 @@ def verwijder_quickscan(qs_id, supabase):
                     # 4. Verwijder conclusies uit new_app_quickscan_conclusions
                     supabase.table("new_app_quickscan_conclusions").delete().eq("project_naam", qs_id).execute()
     
-                    time.sleep(1)
+                    
     
                 st.success("Quickscan succesvol verwijderd.")
+                time.sleep(1)
+                st.rerun()
 
