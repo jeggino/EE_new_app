@@ -20,6 +20,9 @@ from utils.species_groups import SPECIES_GROUPS
 from utils.media_tools import save_photos
 from utils.gis_analyse import voer_gis_analyse_uit
 from utils.buttons import image_button
+from utils.delete_quickscan import verwijder_quickscan
+
+
 
 
 # Hide sidebar
@@ -418,6 +421,9 @@ if check_password():
         # -----------------------------
         # 6. Opslaan
         # -----------------------------
+
+        
+
         with st.spinner("Quickscan wordt opgeslagen…"):
             if st.button("Quickscan opslaan"):
                 update_data = {
@@ -453,6 +459,8 @@ if check_password():
                 st.success("Quickscan bijgewerkt.")
                 st.session_state.edit_mode = False
                 st.rerun()
+
+        verwijder_quickscan(qs["id"], supabase)
 
 
 
