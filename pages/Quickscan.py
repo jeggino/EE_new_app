@@ -216,7 +216,10 @@ if check_password():
         # Huidige geometrie ophalen
         geometry_path = f"quickscan/geometries/{qs["id"]}.geojson"
         geometry_data = supabase.storage.from_("new_app").download(geometry_path)
-        current_geojson = geometry_data
+
+        import json
+        
+        current_geojson = json.dumps(geometry_data).encode("utf-8")
         
         # Teken nieuwe geometrie (optioneel)
         st.write("Huidige geometrie:")
