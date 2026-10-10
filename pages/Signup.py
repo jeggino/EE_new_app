@@ -1,6 +1,13 @@
 import streamlit as st
 from utils.supabase_client import supabase
 
+# Hide sidebar
+st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {display: none;}
+        [data-testid="stSidebarNav"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
 
 def show_signup():
     st.title("Account aanmaken")
