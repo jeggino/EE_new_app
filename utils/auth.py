@@ -40,9 +40,9 @@ def logout():
 
 # ----------------- UI -----------------
 def show_login():
-    st.sidebar.title("Login")
+    st.title("Login")
 
-    with st.sidebar.form("login_form"):
+    with st.form("login_form"):
         email = st.text_input("Email")
         password = st.text_input("Wachtwoord", type="password")
         submitted = st.form_submit_button("Login")
@@ -57,14 +57,14 @@ def show_login():
             else:
                 st.sidebar.error("Email of wachtwoord klopt niet.")
 
-    if st.sidebar.button("Account aanmaken"):
+    if st.button("Account aanmaken"):
         st.session_state.show_signup = True
         st.rerun()
 
 def show_signup():
-    st.sidebar.title("Account aanmaken")
+    st.title("Account aanmaken")
 
-    with st.sidebar.form("signup_form"):
+    with st.form("signup_form"):
         email = st.text_input("Email")
         password = st.text_input("Wachtwoord", type="password")
         full_name = st.text_input("Volledige naam")
@@ -90,7 +90,7 @@ def show_signup():
             except Exception as e:
                 st.error(f"Fout bij aanmaken: {e}")
 
-    if st.sidebar.button("Terug naar login"):
+    if st.button("Terug naar login"):
         st.session_state.show_signup = False
         st.rerun()
 
