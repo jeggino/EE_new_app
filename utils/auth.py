@@ -59,15 +59,6 @@ def show_login():
                 
 
 
-    if st.button("Account aanmaken"):
-        st.session_state.show_signup = True
-        st.rerun()
-
-
-
-    if st.button("Terug naar login"):
-        st.session_state.show_signup = False
-        st.rerun()
 
 # ----------------- PUBLIC FUNCTION -----------------
 def check_password():
