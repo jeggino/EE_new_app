@@ -41,7 +41,7 @@ from utils.supabase_client import supabase, BUCKET
 
 #     return qs_id
 
-def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,temperatuur,windsnelheid,regen,soorten_results):
+def save_quickscan(naam,opmerking,datum,veldwerker,starttijd,eindtijd,temperatuur,windsnelheid,regen,soorten_results):
 
     if not geojson:
         st.error("Teken eerst een geometrie.")
