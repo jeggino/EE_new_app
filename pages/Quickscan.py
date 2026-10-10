@@ -420,7 +420,7 @@ if check_password():
                 import json
                 
                 data = json.dumps(nieuwe_geojson).encode("utf-8")
-                path = f"quickscan/geometry/{qs['id']}.geojson"
+                path = f"quickscan/geometries/{qs['id']}.geojson"
                 supabase.storage.from_("new_app").upload(
                     path,
                     data,
