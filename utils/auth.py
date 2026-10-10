@@ -91,7 +91,6 @@ def show_signup():
                 st.rerun()
             except Exception as e:
                 st.error(f"Fout bij aanmaken: {e}")
-                st.write(res)
 
     if st.button("Terug naar login"):
         st.session_state.show_signup = False
