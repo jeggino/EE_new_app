@@ -3,8 +3,7 @@ from utils.supabase_client import supabase
 
 BUCKET = "new_app"
 
-def save_photos(quickscan_id, quickscan_name, photos):
-    safe_name = quickscan_name.replace(" ", "_")
+def save_photos(quickscan_id, photos):
 
     for item in photos:
         file = item["file"]
@@ -28,7 +27,6 @@ def save_photos(quickscan_id, quickscan_name, photos):
         )
 
         supabase.table("new_app_quickscan_fotos").insert({
-            "quickscan_naam": safe_name,
             "foto_pad": filename,
             "beschrijving": beschrijving,
             "soortgroep": soortgroepen_foto,   # your list stays a list
