@@ -56,6 +56,8 @@ def show_login():
                 st.rerun()
             else:
                 st.error("Email of wachtwoord klopt niet.")
+                st.write(res)
+
 
     if st.button("Account aanmaken"):
         st.session_state.show_signup = True
