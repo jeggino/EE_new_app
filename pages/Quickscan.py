@@ -41,9 +41,10 @@ if check_password():
     if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
-    menu = st.segmented_control(
+    menu = st.pills(
         "Kies een onderdeel",
         default="Nieuwe Quickscan",
+        selection_mode="single",
         options={
             "Nieuwe Quickscan": ":material/add_circle:",
             "Quickscan bewerken": ":material/edit:",
