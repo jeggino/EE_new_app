@@ -43,6 +43,7 @@ if check_password():
 
     menu = st.segmented_control(
         "Kies een onderdeel",
+        default="Nieuwe Quickscan",
         options={
             "Nieuwe Quickscan": ":material/add_circle:",
             "Quickscan bewerken": ":material/edit:",
