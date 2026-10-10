@@ -41,21 +41,20 @@ if check_password():
 
     col1.title("Quickscan",text_alignment="center",)
 
-    menu = st.segmented_control(
-        "Kies een onderdeel",
-        default="Nieuwe Quickscan",
-        options={
-            "Nieuwe Quickscan": ":material/add_circle:",
-            "Quickscan bewerken": ":material/edit:",
-            "Quickscan bekijken": ":material/visibility:"
-        }
-    )
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+
+        menu = st.segmented_control(
+            "Kies een onderdeel",
+            default="Nieuwe Quickscan",
+            options={
+                "Nieuwe Quickscan": ":material/add_circle:",
+                "Quickscan bewerken": ":material/edit:",
+                "Quickscan bekijken": ":material/visibility:"
+            }
+        )
 
     
-
-    # tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
-
-    # with tab_create:
     if menu == "Nieuwe Quickscan":
         st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
