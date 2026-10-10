@@ -33,17 +33,29 @@ st.markdown("""
 
 
 if check_password():
-    if st.button("⬅️ Terug naar menu"):
+    col1, col2 = st.columns([4, 1])
+    if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
 
 
-    st.title("Quickscan",text_alignment="center",)
+    col1.title("Quickscan",text_alignment="center",)
+
+    menu = st.segmented_control(
+        "Kies een onderdeel",
+        options={
+            "Nieuwe Quickscan": ":material/add_circle:",
+            "Quickscan bewerken": ":material/edit:",
+            "Quickscan bekijken": ":material/visibility:"
+        }
+    )
+
     
 
-    tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
+    # tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
 
-    with tab_create:
+    # with tab_create:
+    if menu == "Nieuwe Quickscan":
         st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
         geojson = draw_geometry(key="new_qs_map")
@@ -185,7 +197,8 @@ if check_password():
             st.success("Quickscan succesvol opgeslagen!")
 
 
-    with tab_edit:
+    # with tab_edit:
+    elif menu == "Quickscan bewerken":
         st.subheader("Quickscan bewerken", text_alignment="center")
         
         # 1. Haal alle quickscans op
@@ -457,7 +470,8 @@ if check_password():
     
 
     
-    with tab_view:
+    # with tab_view:
+    elif menu == "Quickscan bekijken":
         st.header("Quickscan bekijken",text_alignment="center",)
     
         # Load all quickscans
