@@ -170,7 +170,7 @@ if check_password():
                 )
             
                 if photos_to_upload:
-                    save_photos(qs_id, naam, photos_to_upload)
+                    save_photos(qs_id, photos_to_upload)
             
             st.success("Quickscan succesvol opgeslagen!")
 
