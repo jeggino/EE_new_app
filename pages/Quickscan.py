@@ -424,8 +424,8 @@ if check_password():
 
         
 
-        with st.spinner("Quickscan wordt opgeslagen…"):
-            if st.button("Quickscan opslaan"):
+        if st.button("Quickscan opslaan"):
+            with st.spinner("Quickscan wordt opgeslagen…"):
                 update_data = {
                     "naam": naam,
                     "opmerking": opmerking,
