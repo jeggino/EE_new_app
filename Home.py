@@ -120,13 +120,13 @@ if check_password():
     # --- Inventarisatie ---
     with col2:
         st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        if st.button("Inventarisatie"):
+        if st.button("Inventarisatie",disabled=True):
             st.switch_page("pages/Inventarisatie.py")
     
     # --- Control ---
     with col3:
         st.image("utils/pictures/icons/control.png", width=120)
-        if st.button("Control"):
+        if st.button("Control",disabled=True):
             st.switch_page("pages/Control.py")
 
 
