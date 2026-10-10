@@ -214,7 +214,7 @@ if check_password():
         # 1. Geometrie laden
         # -----------------------------
         # Huidige geometrie ophalen
-        geometry_path = f"quickscan/geometries/{qs["id"]}"
+        geometry_path = f"quickscan/geometries/{qs["id"]}.geojson"
         st.write(geometry_path)
         geometry_data = supabase.storage.from_("new_app").download(geometry_path)
         st.write(geometry_path)
