@@ -25,7 +25,7 @@ if check_password():
     )
 
     st.button("ℹ️ Info", on_click=show_info_dialog, use_container_width=True)
-    st.button("Uitloggen", on_click=logout, use_container_width=True)
+    st.button("Uitloggen", icon=":material/logout:", on_click=logout, use_container_width=True)
 
     
     # Create 3 equal columns
