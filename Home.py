@@ -6,6 +6,13 @@ from utils.buttons import image_button
 
 st.set_page_config(page_title="Ecologisch Advies - Home", page_icon="🌿",initial_sidebar_state="collapsed")
 
+st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {display: none;}
+        [data-testid="stSidebarNav"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
+
 if check_password():
 
     # Center the image using Streamlit columns
@@ -35,76 +42,8 @@ if check_password():
 
     st.subheader("Ga verder naar een module", text_alignment="center")
 
-    # st.page_link("pages/Quickscan.py", label="Quickscan", icon="🗺️")
-    # st.page_link("pages/Inventarisatie.py", label="Inventarisatie", icon="📋")
-    # st.page_link("pages/Control.py", label="Control", icon="🔍")
-
-    # st.markdown("""
-    # <div style="display:flex; gap:40px;">
-    
-    # <a href="/Quickscan" target="_self" style="text-decoration:none;">
-    #     <div style="text-align:center; padding:20px;">
-    #         <span style="font-size:60px;">🗺️</span><br>
-    #         <span style="font-size:22px; font-weight:bold;">Quickscan</span>
-    #     </div>
-    # </a>
-    
-    # <a href="/Inventarisatie" target="_self" style="text-decoration:none;">
-    #     <div style="text-align:center; padding:20px;">
-    #         <span style="font-size:60px;">📋</span><br>
-    #         <span style="font-size:22px; font-weight:bold;">Inventarisatie</span>
-    #     </div>
-    # </a>
-    
-    # <a href="/Control" target="_self" style="text-decoration:none;">
-    #     <div style="text-align:center; padding:20px;">
-    #         <span style="font-size:60px;">🔍</span><br>
-    #         <span style="font-size:22px; font-weight:bold;">Control</span>
-    #     </div>
-    # </a>
-    
-    # </div>
-    # """, unsafe_allow_html=True)
 
 
-
-
-    # col1, col2, col3 = st.columns(3,border=True)
-    
-    # with col1:
-    #     st.image("utils/pictures/icons/quickscan.png", width=120)
-    #     st.page_link("pages/Quickscan.py", label="Quickscan")
-    
-    # with col2:
-    #     st.image("utils/pictures/icons/inventarisatie.png", width=120)
-    #     st.page_link("pages/Inventarisatie.py", label="Inventarisatie")
-    
-    # with col3:
-    #     st.image("utils/pictures/icons/control.png", width=120)
-    #     st.page_link("pages/Control.py", label="Control")
-
-    # col1, col2, col3 = st.columns(3,border=True)
-    # with col1:
-    #     image_button("Quickscan", "utils/pictures/icons/quickscan.png", "pages/Quickscan.py", key="qs")
-
-
-    
-    # with col2:
-    #     image_button("Inventarisatie", "utils/pictures/icons/inventarisatie.png", "pages/Inventarisatie.py", key="inv")
-        
-
-    
-    # with col3:
-    #     image_button("Control", "utils/pictures/icons/control.png", "pages/Control.py", key="ctrl")
-
-
-    # Hide sidebar
-    st.markdown("""
-        <style>
-            [data-testid="stSidebar"] {display: none;}
-            [data-testid="stSidebarNav"] {display: none;}
-        </style>
-    """, unsafe_allow_html=True)
     
     st.title("Ga verder naar een module")
     
