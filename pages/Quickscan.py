@@ -26,11 +26,11 @@ from utils.buttons import image_button
 
 
 
-
+image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py")
 if check_password():
 
     st.title("Quickscan",text_alignment="center",)
-    image_button("Terug naar menu", "utils/pictures/icons/back.png", "Home.py")
+    
 
     tab_create, tab_edit, tab_view = st.tabs(["Nieuwe Quickscan", "Quickscan bewerken", "Quickscan bekijken"])
 
