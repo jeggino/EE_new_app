@@ -579,7 +579,7 @@ if check_password():
         # Haal bestaande conclusie op (indien aanwezig)
         existing = supabase.table("new_app_quickscan_conclusions") \
             .select("*") \
-            .eq("project_naam", qs["naam"]) \
+            .eq("project_naam", qs["id"]) \
             .execute()
         
         existing_text = None
