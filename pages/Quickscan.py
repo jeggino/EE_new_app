@@ -41,7 +41,7 @@ if check_password():
 
     col1.title("Quickscan",text_alignment="center",)
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([1, 8, 1])
     with col2:
 
         menu = st.segmented_control(
