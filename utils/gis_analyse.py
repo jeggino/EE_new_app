@@ -8,8 +8,8 @@ import base64
 def voer_gis_analyse_uit(qs, supabase):
     with st.spinner("GIS‑analyse wordt uitgevoerd..."):
 
-
-        data = supabase.storage.from_("new_app").download(qs["geometry_path"])
+        geometry_path = f"quickscan/geometries/{qs["id"]}.geojson"
+        data = supabase.storage.from_("new_app").download(geometry_path)
         qs_gdf = gpd.read_file(data).set_crs(4326)
 
 
