@@ -134,7 +134,7 @@ if check_password():
                 key=f"add_photo_{index}"
             )
 
-
+        photos_to_upload
 
 
         if st.button("Project opslaan"):
@@ -155,20 +155,6 @@ if check_password():
         
             with st.spinner("Quickscan wordt opgeslagen…"):
             
-                # qs_id = save_quickscan(
-                #     naam,
-                #     opmerking,
-                #     geojson,
-                #     datum,
-                #     veldwerker,
-                #     starttijd,
-                #     eindtijd,
-                #     temperatuur,
-                #     windsnelheid,
-                #     regen,
-                #     soorten_results
-                # )
-
                 qs_id = save_quickscan(
                     naam,
                     opmerking,
