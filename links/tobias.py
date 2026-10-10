@@ -1,5 +1,4 @@
 import os
 os.environ["APP_NAME"] = "tobias"
+import Home
 
-import runpy
-runpy.run_path("Home.py")
