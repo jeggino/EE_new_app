@@ -57,7 +57,6 @@ def save_quickscan(naam,opmerking,geojson,datum,veldwerker,starttijd,eindtijd,te
     resp = supabase.table("new_app_quickscan").insert({
         "naam": naam,
         "opmerking": opmerking,
-        "geometry_path": filename,
         "datum": str(datum),
         "veldwerker": veldwerker,
         "starttijd": str(starttijd),
