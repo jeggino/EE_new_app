@@ -223,6 +223,7 @@ if check_password():
         
         st.write("Nieuwe geometrie tekenen (optioneel):")
         nieuwe_geojson = draw_geometry(key="edit_qs_map")
+        st.write(nieuwe_geojson)
         
         # -----------------------------
         # 2. Basisgegevens
