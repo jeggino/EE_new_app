@@ -34,20 +34,15 @@ if check_password():
     # --- Inventarisatie ---
     with col2:
         # st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        if st.button("Inventarisatie",disabled=True, icon=":material/description:"):
+        if st.button("Inventarisatie",disabled=True, icon=":material/note_alt:"):
             st.switch_page("pages/Inventarisatie.py")
     
     # --- Control ---
     with col3:
         # st.image("utils/pictures/icons/control.png", width=120)
-        if st.button("Control",disabled=True, icon=":material/search:"):
-            st.switch_page("pages/Control.py")
-
-        if st.button("Control",disabled=True, icon=":material/note_alt:"):
-            st.switch_page("pages/Control.py")
-
         if st.button("Control",disabled=True, icon=":material/manage_search:"):
             st.switch_page("pages/Control.py")
+
 
 
 
