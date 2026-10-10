@@ -172,6 +172,7 @@ if check_password():
                 qs_id = save_quickscan(
                     naam,
                     opmerking,
+                    geojson,
                     datum,
                     veldwerker,
                     starttijd,
