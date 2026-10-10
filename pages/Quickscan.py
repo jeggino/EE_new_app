@@ -13,7 +13,7 @@ from streamlit_folium import st_folium
 
 
 from utils.auth import check_password
-from utils.geometry_tools import draw_geometry
+from utils.geometry_tools import draw_geometry, draw_geometry_with_existing
 from utils.quickscan_tools import save_quickscan
 from utils.supabase_client import supabase
 from utils.species_groups import SPECIES_GROUPS
@@ -222,7 +222,9 @@ if check_password():
         st.write("Huidige geometrie:")
         
         st.write("Nieuwe geometrie tekenen (optioneel):")
-        nieuwe_geojson = draw_geometry(key="edit_qs_map")
+        # nieuwe_geojson = draw_geometry(key="edit_qs_map")    
+        new_geojson = draw_geometry_with_existing(current_geojson, key="edit_map")
+
         st.write(nieuwe_geojson)
         
         # -----------------------------
