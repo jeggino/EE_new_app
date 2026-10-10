@@ -37,7 +37,7 @@ st.markdown("""
 
 if check_password():
     col1, col2 = st.columns([2, 1])
-    col1.title("Quickscan",text_alignment="center",)
+    # col1.title("Quickscan",text_alignment="center",)
     if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
@@ -52,7 +52,7 @@ if check_password():
     )
     
     if menu == "Nieuwe Quickscan":
-        st.subheader("Nieuwe Quickscan",text_alignment="center",)
+        # st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
         geojson = draw_geometry(key="new_qs_map")
 
@@ -195,7 +195,7 @@ if check_password():
 
     # with tab_edit:
     elif menu == "Quickscan bewerken":
-        st.subheader("Quickscan bewerken", text_alignment="center")
+        # st.subheader("Quickscan bewerken", text_alignment="center")
         
         # 1. Haal alle quickscans op
         resp = supabase.table("new_app_quickscan").select("id, naam, datum").execute()
@@ -471,7 +471,7 @@ if check_password():
     
     # with tab_view:
     elif menu == "Quickscan bekijken":
-        st.header("Quickscan bekijken",text_alignment="center",)
+        # st.header("Quickscan bekijken",text_alignment="center",)
     
         # Load all quickscans
         all_qs = supabase.table("new_app_quickscan") \
