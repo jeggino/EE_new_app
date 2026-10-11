@@ -12,7 +12,7 @@ st.markdown("""
 def show_signup():
     st.title("Account aanmaken")
 
-    supabase.auth.admin.update_config({
+    supabase.auth.update_config({
         "external": {
             "email": {
                 "confirm_signup": False
