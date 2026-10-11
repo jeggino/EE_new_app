@@ -1,10 +1,9 @@
 import streamlit as st
-from utils.supabase_client import supabase
+from utils.supabase_client import supabase, supabase_admin
 from utils.auth import check_password
 from config.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
 
-st.set_page_config(page_title="Medewerkers", layout="wide")
-
+# --- Hide sidebar ---
 st.markdown("""
     <style>
         [data-testid="stSidebar"] {display: none;}
@@ -12,39 +11,31 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------- AUTH CHECK ----------------
+# --- Auth check ---
 if not check_password():
     st.stop()
 
 st.title("Medewerkersbeheer")
 
-# Navigation
+# Navigation pills
 keuze = st.pills(
     "Acties",
-    ["Aanmaken", "Overzicht", "Bewerken / Verwijderen"],
-    default="Aanmaken",
+    ["Gebruiker + Medewerker aanmaken", "Overzicht", "Bewerken / Verwijderen"],
+    default="Gebruiker + Medewerker aanmaken",
 )
 
 # ============================================================
-# 1️⃣ AANMAKEN — Koppel medewerker aan bestaande Supabase user
+# 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
 # ============================================================
-if keuze == "Aanmaken":
-    st.subheader("Nieuwe medewerker koppelen aan bestaande gebruiker")
+if keuze == "Gebruiker + Medewerker aanmaken":
+    st.subheader("Nieuwe gebruiker + medewerker aanmaken")
 
-    # Fetch existing Supabase Auth users
-    users = supabase.rpc("get_all_users").execute().data or []
+    with st.form("create_user_employee_form"):
+        st.markdown("### Gebruiker")
+        email = st.text_input("Email")
+        password = st.text_input("Wachtwoord", type="password")
 
-    if not users:
-        st.warning("Er zijn nog geen gebruikers in Supabase Auth.")
-        st.stop()
-
-    # Select user
-    email_to_id = {u["email"]: u["id"] for u in users}
-    gekozen_user = st.selectbox("Kies een bestaande gebruiker", list(email_to_id.keys()))
-
-    st.markdown("### Medewerkergegevens")
-
-    with st.form("create_employee_form"):
+        st.markdown("### Medewerkergegevens")
         volledige_naam = st.text_input("Volledige naam")
         mobiel_nummer = st.text_input("Mobiel nummer")
         beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7)
@@ -53,28 +44,43 @@ if keuze == "Aanmaken":
         rol = st.selectbox("Rol", ROLLEN)
         categorie = st.selectbox("Categorie", CATEGORIEËN)
 
-        submit = st.form_submit_button("Medewerker aanmaken")
+        submit = st.form_submit_button("Aanmaken")
 
-        if submit:
-            try:
-                supabase.table("new_app_employees").insert({
-                    "gebruiker_id": email_to_id[gekozen_user],
+    if submit:
+        try:
+            # 1. Create Supabase Auth user (Admin API)
+            res = supabase_admin.auth.admin.create_user({
+                "email": email,
+                "password": password,
+                "email_confirm": True,
+                "user_metadata": {
                     "volledige_naam": volledige_naam,
-                    "email": gekozen_user,
-                    "mobiel_nummer": mobiel_nummer,
-                    "beschikbare_dagen": beschikbare_dagen,
-                    "ervaringsniveau": ervaringsniveau,
                     "rol": rol,
                     "categorie": categorie
-                }).execute()
+                }
+            })
 
-                st.success("Medewerker succesvol aangemaakt en gekoppeld aan gebruiker.")
+            user_id = res.user.id
 
-            except Exception as e:
-                st.error(f"Fout bij aanmaken: {e}")
+            # 2. Create employee record
+            supabase.table("new_app_employees").insert({
+                "gebruiker_id": user_id,
+                "volledige_naam": volledige_naam,
+                "email": email,
+                "mobiel_nummer": mobiel_nummer,
+                "beschikbare_dagen": beschikbare_dagen,
+                "ervaringsniveau": ervaringsniveau,
+                "rol": rol,
+                "categorie": categorie
+            }).execute()
+
+            st.success("Gebruiker + medewerker succesvol aangemaakt.")
+
+        except Exception as e:
+            st.error(f"Fout bij aanmaken: {e}")
 
 # ============================================================
-# 2️⃣ OVERZICHT — Simpele lijst
+# 2️⃣ OVERZICHT
 # ============================================================
 elif keuze == "Overzicht":
     st.subheader("Medewerkers overzicht")
@@ -89,7 +95,7 @@ elif keuze == "Overzicht":
     st.dataframe(medewerkers, use_container_width=True, hide_index=True)
 
 # ============================================================
-# 3️⃣ BEWERKEN / VERWIJDEREN — Simpel beheer
+# 3️⃣ BEWERKEN / VERWIJDEREN
 # ============================================================
 elif keuze == "Bewerken / Verwijderen":
     st.subheader("Medewerker bewerken of verwijderen")
@@ -136,5 +142,11 @@ elif keuze == "Bewerken / Verwijderen":
         supabase.table("new_app_employees").delete().eq("id", medewerker["id"]).execute()
         st.success("Medewerker verwijderd.")
         st.rerun()
+
+# ============================================================
+# TERUG NAAR HOME
+# ============================================================
+st.button("⬅️ Terug naar Home", on_click=lambda: st.switch_page("Home.py"))
+
 
 
