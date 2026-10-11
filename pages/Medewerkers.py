@@ -132,27 +132,47 @@ elif keuze == "Bewerken / Verwijderen":
         rol = st.selectbox("Rol", ROLLEN, index=ROLLEN.index(medewerker["rol"]))
         categorie = st.selectbox("Categorie", CATEGORIEËN, index=CATEGORIEËN.index(medewerker["categorie"]))
 
-        # Nieuw: wachtwoord opslaan
+        # Nieuw: wachtwoord wijzigen
         nieuw_wachtwoord = st.text_input("Nieuw wachtwoord (optioneel)", type="password")
+        nieuw_wachtwoord_confirm = st.text_input("Bevestig nieuw wachtwoord", type="password")
 
         opslaan = st.form_submit_button("Opslaan")
 
         if opslaan:
+
+            # --- Check wachtwoorden ---
+            if nieuw_wachtwoord or nieuw_wachtwoord_confirm:
+                if nieuw_wachtwoord != nieuw_wachtwoord_confirm:
+                    st.error("De nieuwe wachtwoorden komen niet overeen.")
+                    st.stop()
+
             update_data = {
                 "volledige_naam": volledige_naam,
                 "mobiel_nummer": mobiel_nummer,
                 "beschikbare_dagen": beschikbare_dagen,
                 "ervaringsniveau": ervaringsniveau,
                 "rol": rol,
-                "categorie": categorie,
+                "categorie": categorie
             }
 
+            # --- Update wachtwoord in eigen tabel + Auth ---
             if nieuw_wachtwoord:
                 update_data["wachtwoord"] = nieuw_wachtwoord
 
+                # Update in Supabase Auth
+                try:
+                    supabase_admin.auth.admin.update_user(
+                        medewerker["gebruiker_id"],
+                        {"password": nieuw_wachtwoord}
+                    )
+                except Exception as e:
+                    st.error(f"Kon wachtwoord niet updaten in Auth: {e}")
+                    st.stop()
+
+            # Update medewerker record
             supabase.table("new_app_employees").update(update_data).eq("id", medewerker["id"]).execute()
 
-            st.success("Medewerker bijgewerkt.")
+            st.success("Medewerker succesvol bijgewerkt.")
             st.rerun()
 
     # --- Verwijderen ---
@@ -169,6 +189,7 @@ elif keuze == "Bewerken / Verwijderen":
 
         except Exception as e:
             st.error(f"Fout bij verwijderen: {e}")
+
 
 
 # ============================================================
