@@ -25,7 +25,7 @@ if keuze == "Aanmaken":
     st.subheader("Nieuwe medewerker koppelen aan bestaande gebruiker")
 
     # Fetch existing Supabase Auth users
-    users = supabase.auth.admin.list_users().users
+    users = supabase.rpc("get_all_users").execute().data or []
 
 
     if not users:
