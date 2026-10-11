@@ -131,25 +131,44 @@ elif keuze == "Bewerken / Verwijderen":
         rol = st.selectbox("Rol", ROLLEN, index=ROLLEN.index(medewerker["rol"]))
         categorie = st.selectbox("Categorie", CATEGORIEËN, index=CATEGORIEËN.index(medewerker["categorie"]))
 
+        # Nieuw: wachtwoord opslaan
+        nieuw_wachtwoord = st.text_input("Nieuw wachtwoord (optioneel)", type="password")
+
         opslaan = st.form_submit_button("Opslaan")
 
         if opslaan:
-            supabase.table("new_app_employees").update({
+            update_data = {
                 "volledige_naam": volledige_naam,
                 "mobiel_nummer": mobiel_nummer,
                 "beschikbare_dagen": beschikbare_dagen,
                 "ervaringsniveau": ervaringsniveau,
                 "rol": rol,
                 "categorie": categorie
-            }).eq("id", medewerker["id"]).execute()
+            }
+
+            if nieuw_wachtwoord:
+                update_data["wachtwoord"] = nieuw_wachtwoord
+
+            supabase.table("new_app_employees").update(update_data).eq("id", medewerker["id"]).execute()
 
             st.success("Medewerker bijgewerkt.")
             st.rerun()
 
-    if st.button("Medewerker verwijderen"):
-        supabase.table("new_app_employees").delete().eq("id", medewerker["id"]).execute()
-        st.success("Medewerker verwijderd.")
-        st.rerun()
+    # --- Verwijderen ---
+    if st.button("Medewerker + gebruiker verwijderen"):
+        try:
+            # 1. Verwijder Supabase Auth gebruiker
+            supabase_admin.auth.admin.delete_user(medewerker["gebruiker_id"])
+
+            # 2. Verwijder medewerker uit eigen tabel
+            supabase.table("new_app_employees").delete().eq("id", medewerker["id"]).execute()
+
+            st.success("Gebruiker + medewerker volledig verwijderd.")
+            st.rerun()
+
+        except Exception as e:
+            st.error(f"Fout bij verwijderen: {e}")
+
 
 # ============================================================
 # TERUG NAAR HOME
