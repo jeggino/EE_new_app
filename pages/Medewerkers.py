@@ -27,9 +27,6 @@ if keuze == "Aanmaken":
     # Fetch existing Supabase Auth users
     users = supabase.rpc("get_all_users").execute().data or []
 
-    st.write(users) 
-
-
     if not users:
         st.warning("Er zijn nog geen gebruikers in Supabase Auth.")
         st.stop()
@@ -54,7 +51,7 @@ if keuze == "Aanmaken":
         if submit:
             try:
                 supabase.table("new_app_employees").insert({
-                    "gebruiker_id": gekozen_user['id'],
+                    "gebruiker_id": email_to_id[gekozen_user],
                     "volledige_naam": volledige_naam,
                     "email": gekozen_user,
                     "mobiel_nummer": mobiel_nummer,
