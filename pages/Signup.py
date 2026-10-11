@@ -12,6 +12,14 @@ st.markdown("""
 def show_signup():
     st.title("Account aanmaken")
 
+    supabase.auth.admin.update_config({
+        "external": {
+            "email": {
+                "confirm_signup": False
+            }
+        }
+    })
+
     with st.form("signup_form"):
         email = st.text_input("Email")
         password = st.text_input("Wachtwoord", type="password")
