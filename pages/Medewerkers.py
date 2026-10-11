@@ -1,64 +1,64 @@
-import streamlit as st
-from utils.supabase_client import supabase
-
-
-# Sidebar verbergen
-st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {display: none;}
-        [data-testid="stSidebarNav"] {display: none;}
-    </style>
-""", unsafe_allow_html=True)
-
-
-# ------------------ DATABASE FUNCTIES ------------------
-
-def fetch_medewerkers():
-    res = supabase.table("new_app_employees").select("*").order("aangemaakt_op", desc=True).execute()
-    return res.data if res.data else []
-
-
-def voeg_medewerker_toe(volledige_naam, email, mobiel_nummer, beschikbare_dagen, ervaringsniveau, rol, categorie):
-    supabase.table("new_app_employees").insert({
-        "volledige_naam": volledige_naam,
-        "email": email,
-        "mobiel_nummer": mobiel_nummer,
-        "beschikbare_dagen": beschikbare_dagen,
-        "ervaringsniveau": ervaringsniveau,
-        "rol": rol,
-        "categorie": categorie,
-    }).execute()
-
-
-def update_medewerker(medewerker_id, volledige_naam, email, mobiel_nummer, beschikbare_dagen, ervaringsniveau, rol, categorie):
-    supabase.table("new_app_employees").update({
-        "volledige_naam": volledige_naam,
-        "email": email,
-        "mobiel_nummer": mobiel_nummer,
-        "beschikbare_dagen": beschikbare_dagen,
-        "ervaringsniveau": ervaringsniveau,
-        "rol": rol,
-        "categorie": categorie,
-    }).eq("id", medewerker_id).execute()
-
-
-def verwijder_medewerker(medewerker_id):
-    supabase.table("new_app_employees").delete().eq("id", medewerker_id).execute()
-
-
-# ------------------ DASHBOARD ------------------
-
-def medewerker_dashboard():
-    st.title("Medewerker Dashboard")
-
-    keuze = st.pills(
-        "Acties",
-        ["Overzicht", "Toevoegen", "Bewerken / Verwijderen"],
-        default="Overzicht",
-    )
-
-    medewerkers = fetch_medewerkers()
-
+    import streamlit as st
+    from utils.supabase_client import supabase
+    
+    
+    # Sidebar verbergen
+    st.markdown("""
+        <style>
+            [data-testid="stSidebar"] {display: none;}
+            [data-testid="stSidebarNav"] {display: none;}
+        </style>
+    """, unsafe_allow_html=True)
+    
+    
+    # ------------------ DATABASE FUNCTIES ------------------
+    
+    def fetch_medewerkers():
+        res = supabase.table("new_app_employees").select("*").order("aangemaakt_op", desc=True).execute()
+        return res.data if res.data else []
+    
+    
+    def voeg_medewerker_toe(volledige_naam, email, mobiel_nummer, beschikbare_dagen, ervaringsniveau, rol, categorie):
+        supabase.table("new_app_employees").insert({
+            "volledige_naam": volledige_naam,
+            "email": email,
+            "mobiel_nummer": mobiel_nummer,
+            "beschikbare_dagen": beschikbare_dagen,
+            "ervaringsniveau": ervaringsniveau,
+            "rol": rol,
+            "categorie": categorie,
+        }).execute()
+    
+    
+    def update_medewerker(medewerker_id, volledige_naam, email, mobiel_nummer, beschikbare_dagen, ervaringsniveau, rol, categorie):
+        supabase.table("new_app_employees").update({
+            "volledige_naam": volledige_naam,
+            "email": email,
+            "mobiel_nummer": mobiel_nummer,
+            "beschikbare_dagen": beschikbare_dagen,
+            "ervaringsniveau": ervaringsniveau,
+            "rol": rol,
+            "categorie": categorie,
+        }).eq("id", medewerker_id).execute()
+    
+    
+    def verwijder_medewerker(medewerker_id):
+        supabase.table("new_app_employees").delete().eq("id", medewerker_id).execute()
+    
+    
+    # ------------------ DASHBOARD ------------------
+    
+    def medewerker_dashboard():
+        st.title("Medewerker Dashboard")
+    
+        keuze = st.pills(
+            "Acties",
+            ["Overzicht", "Toevoegen", "Bewerken / Verwijderen"],
+            default="Overzicht",
+        )
+    
+        medewerkers = fetch_medewerkers()
+    
     # ----------- OVERZICHT -----------
     if keuze == "Overzicht":
         st.subheader("Alle medewerkers")
@@ -66,6 +66,9 @@ def medewerker_dashboard():
         if not medewerkers:
             st.info("Er zijn nog geen medewerkers toegevoegd.")
             return
+    
+        import pandas as pd
+        df = pd.DataFrame(medewerkers)
     
         # ---------------- FILTERS ----------------
         st.markdown("### Filters")
@@ -76,80 +79,41 @@ def medewerker_dashboard():
             zoek_naam = st.text_input("Zoek op naam")
     
         with col_f2:
-            filter_categorie = st.selectbox(
+            filter_categorie = st.multiselect(
                 "Categorie",
-                ["Alle", "junior", "intermediate", "senior", "expert"]
+                ["junior", "intermediate", "senior", "expert"],
+                default=[]
             )
     
         with col_f3:
-            filter_ervaring = st.selectbox(
+            filter_ervaring = st.multiselect(
                 "Ervaringsniveau",
-                ["Alle", "junior", "intermediate", "senior", "expert"]
+                ["junior", "intermediate", "senior", "expert"],
+                default=[]
             )
     
         with col_f4:
-            filter_rol = st.selectbox(
+            filter_rol = st.multiselect(
                 "Rol",
-                ["Alle", "gast", "gebruiker", "beheerder"]
+                ["gast", "gebruiker", "beheerder"],
+                default=[]
             )
     
         # ---------------- FILTER LOGIC ----------------
-        filtered = medewerkers
+        filtered = df.copy()
     
         if zoek_naam:
-            filtered = [m for m in filtered if zoek_naam.lower() in m["volledige_naam"].lower()]
+            filtered = filtered[filtered["volledige_naam"].str.contains(zoek_naam, case=False)]
     
-        if filter_categorie != "Alle":
-            filtered = [m for m in filtered if m["categorie"] == filter_categorie]
+        if filter_categorie:
+            filtered = filtered[filtered["categorie"].isin(filter_categorie)]
     
-        if filter_ervaring != "Alle":
-            filtered = [m for m in filtered if m["ervaringsniveau"] == filter_ervaring]
+        if filter_ervaring:
+            filtered = filtered[filtered["ervaringsniveau"].isin(filter_ervaring)]
     
-        if filter_rol != "Alle":
-            filtered = [m for m in filtered if m["rol"] == filter_rol]
-    
-        # ---------------- STATISTIEKEN ----------------
-        st.markdown("### Statistieken")
-    
-        totaal = len(filtered)
-        gemiddelde_dagen = (
-            sum(m["beschikbare_dagen"] for m in filtered) / totaal
-            if totaal > 0 else 0
-        )
-    
-        col_s1, col_s2 = st.columns(2)
-    
-        with col_s1:
-            st.metric("Totaal medewerkers", totaal)
-    
-        with col_s2:
-            st.metric("Gemiddelde beschikbare dagen", round(gemiddelde_dagen, 1))
-    
-        # ---------------- GRAFIEKEN ----------------
-        import pandas as pd
-    
-        df = pd.DataFrame(filtered)
-    
-        st.markdown("### Grafieken")
-    
-        col_g1, col_g2 = st.columns(2)
-    
-        with col_g1:
-            st.bar_chart(df["ervaringsniveau"].value_counts())
-    
-        with col_g2:
-            st.bar_chart(df["categorie"].value_counts())
-    
-        st.line_chart(df["beschikbare_dagen"])
-    
-        # ---------------- TABEL ----------------
-        st.markdown("### Medewerker tabel")
-    
-        st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True
-        )
+        if filter_rol:
+            filtered = filtered[filtered["rol"].isin(filter_rol)]
+
 
 
     # ----------- TOEVOEGEN -----------
