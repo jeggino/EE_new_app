@@ -53,7 +53,7 @@ if check_password():
 
     with col4:
         if st.button("Account aanmaken", icon=":material/person_add:", use_container_width=True):
-            st.switch_page("pages/Signup.py")
+            st.switch_page("pages/Medewerkers.py")
 
 
 
