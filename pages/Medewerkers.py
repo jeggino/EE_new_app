@@ -161,10 +161,11 @@ elif keuze == "Bewerken / Verwijderen":
 
                 # Update in Supabase Auth
                 try:
-                    supabase_admin.auth.admin.update_user(
+                    supabase_admin.auth.admin.update_user_by_id(
                         medewerker["gebruiker_id"],
                         {"password": nieuw_wachtwoord}
                     )
+
                 except Exception as e:
                     st.error(f"Kon wachtwoord niet updaten in Auth: {e}")
                     st.stop()
