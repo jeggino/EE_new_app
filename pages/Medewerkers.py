@@ -27,6 +27,8 @@ if keuze == "Aanmaken":
     # Fetch existing Supabase Auth users
     users = supabase.rpc("get_all_users").execute().data or []
 
+    st.write(users) 
+
 
     if not users:
         st.warning("Er zijn nog geen gebruikers in Supabase Auth.")
