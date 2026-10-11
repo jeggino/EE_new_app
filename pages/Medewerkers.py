@@ -1,7 +1,6 @@
 import streamlit as st
 from utils.supabase_client import supabase
 
-st.set_page_config(page_title="Medewerker Dashboard", layout="wide")
 
 # Sidebar verbergen
 st.markdown("""
