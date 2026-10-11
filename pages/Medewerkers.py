@@ -144,7 +144,7 @@ elif keuze == "Bewerken / Verwijderen":
                 "beschikbare_dagen": beschikbare_dagen,
                 "ervaringsniveau": ervaringsniveau,
                 "rol": rol,
-                "categorie": categorie
+                "categorie": categorie,
             }
 
             if nieuw_wachtwoord:
