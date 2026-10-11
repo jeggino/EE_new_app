@@ -62,12 +62,95 @@ def medewerker_dashboard():
     # ----------- OVERZICHT -----------
     if keuze == "Overzicht":
         st.subheader("Alle medewerkers")
-
+    
         if not medewerkers:
             st.info("Er zijn nog geen medewerkers toegevoegd.")
             return
+    
+        # ---------------- FILTERS ----------------
+        st.markdown("### Filters")
+    
+        col_f1, col_f2, col_f3, col_f4 = st.columns(4)
+    
+        with col_f1:
+            zoek_naam = st.text_input("Zoek op naam")
+    
+        with col_f2:
+            filter_categorie = st.selectbox(
+                "Categorie",
+                ["Alle", "junior", "intermediate", "senior", "expert"]
+            )
+    
+        with col_f3:
+            filter_ervaring = st.selectbox(
+                "Ervaringsniveau",
+                ["Alle", "junior", "intermediate", "senior", "expert"]
+            )
+    
+        with col_f4:
+            filter_rol = st.selectbox(
+                "Rol",
+                ["Alle", "gast", "gebruiker", "beheerder"]
+            )
+    
+        # ---------------- FILTER LOGIC ----------------
+        filtered = medewerkers
+    
+        if zoek_naam:
+            filtered = [m for m in filtered if zoek_naam.lower() in m["volledige_naam"].lower()]
+    
+        if filter_categorie != "Alle":
+            filtered = [m for m in filtered if m["categorie"] == filter_categorie]
+    
+        if filter_ervaring != "Alle":
+            filtered = [m for m in filtered if m["ervaringsniveau"] == filter_ervaring]
+    
+        if filter_rol != "Alle":
+            filtered = [m for m in filtered if m["rol"] == filter_rol]
+    
+        # ---------------- STATISTIEKEN ----------------
+        st.markdown("### Statistieken")
+    
+        totaal = len(filtered)
+        gemiddelde_dagen = (
+            sum(m["beschikbare_dagen"] for m in filtered) / totaal
+            if totaal > 0 else 0
+        )
+    
+        col_s1, col_s2 = st.columns(2)
+    
+        with col_s1:
+            st.metric("Totaal medewerkers", totaal)
+    
+        with col_s2:
+            st.metric("Gemiddelde beschikbare dagen", round(gemiddelde_dagen, 1))
+    
+        # ---------------- GRAFIEKEN ----------------
+        import pandas as pd
+    
+        df = pd.DataFrame(filtered)
+    
+        st.markdown("### Grafieken")
+    
+        col_g1, col_g2 = st.columns(2)
+    
+        with col_g1:
+            st.bar_chart(df["ervaringsniveau"].value_counts())
+    
+        with col_g2:
+            st.bar_chart(df["categorie"].value_counts())
+    
+        st.line_chart(df["beschikbare_dagen"])
+    
+        # ---------------- TABEL ----------------
+        st.markdown("### Medewerker tabel")
+    
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True
+        )
 
-        st.dataframe(medewerkers, use_container_width=True, hide_index=True)
 
     # ----------- TOEVOEGEN -----------
     elif keuze == "Toevoegen":
