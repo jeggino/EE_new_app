@@ -3,18 +3,43 @@ from utils.supabase_client import supabase
 from utils.auth import check_password
 from config.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
 
-def medewerker_aanmaken():
-    st.title("Nieuwe medewerker aanmaken")
+st.set_page_config(page_title="Medewerkers", layout="wide")
 
-    # ---------------- AUTH CHECK ----------------
-    if not check_password():
+# ---------------- AUTH CHECK ----------------
+if not check_password():
+    st.stop()
+
+st.title("Medewerkersbeheer")
+
+# Navigation
+keuze = st.pills(
+    "Acties",
+    ["Aanmaken", "Overzicht", "Bewerken / Verwijderen"],
+    default="Aanmaken",
+)
+
+# ============================================================
+# 1️⃣ AANMAKEN — Koppel medewerker aan bestaande Supabase user
+# ============================================================
+if keuze == "Aanmaken":
+    st.subheader("Nieuwe medewerker koppelen aan bestaande gebruiker")
+
+    # Fetch existing Supabase Auth users
+    users = supabase.auth.admin.list_users().users
+
+    if not users:
+        st.warning("Er zijn nog geen gebruikers in Supabase Auth.")
         st.stop()
 
-    # ---------------- FORM ----------------
+    # Select user
+    user_map = {f"{u.email} ({u.id})": u for u in users}
+    gekozen_user = st.selectbox("Kies een bestaande gebruiker", list(user_map.keys()))
+    user = user_map[gekozen_user]
+
+    st.markdown("### Medewerkergegevens")
+
     with st.form("create_employee_form"):
         volledige_naam = st.text_input("Volledige naam")
-        email = st.text_input("Email")
-        wachtwoord = st.text_input("Wachtwoord", type="password")
         mobiel_nummer = st.text_input("Mobiel nummer")
         beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7)
 
@@ -22,30 +47,14 @@ def medewerker_aanmaken():
         rol = st.selectbox("Rol", ROLLEN)
         categorie = st.selectbox("Categorie", CATEGORIEËN)
 
-        submit = st.form_submit_button("Aanmaken")
+        submit = st.form_submit_button("Medewerker aanmaken")
 
         if submit:
             try:
-                # 1. Create Supabase Auth user
-                res = supabase.auth.sign_up({
-                    "email": email,
-                    "password": wachtwoord,
-                    "options": {
-                        "data": {
-                            "volledige_naam": volledige_naam,
-                            "rol": rol,
-                            "categorie": categorie
-                        }
-                    }
-                })
-
-                gebruiker_id = res.user.id
-
-                # 2. Insert employee record
                 supabase.table("new_app_employees").insert({
-                    "gebruiker_id": gebruiker_id,
+                    "gebruiker_id": user.id,
                     "volledige_naam": volledige_naam,
-                    "email": email,
+                    "email": user.email,
                     "mobiel_nummer": mobiel_nummer,
                     "beschikbare_dagen": beschikbare_dagen,
                     "ervaringsniveau": ervaringsniveau,
@@ -53,13 +62,73 @@ def medewerker_aanmaken():
                     "categorie": categorie
                 }).execute()
 
-                st.success("Medewerker en account succesvol aangemaakt.")
+                st.success("Medewerker succesvol aangemaakt en gekoppeld aan gebruiker.")
 
             except Exception as e:
                 st.error(f"Fout bij aanmaken: {e}")
 
-    if st.button("⬅️ Terug naar menu"):
-        st.switch_page("Home.py")
+# ============================================================
+# 2️⃣ OVERZICHT — Simpele lijst
+# ============================================================
+elif keuze == "Overzicht":
+    st.subheader("Medewerkers overzicht")
 
-medewerker_aanmaken()
+    res = supabase.table("new_app_employees").select("*").execute()
+    medewerkers = res.data
+
+    if not medewerkers:
+        st.info("Er zijn nog geen medewerkers toegevoegd.")
+        st.stop()
+
+    st.dataframe(medewerkers, use_container_width=True, hide_index=True)
+
+# ============================================================
+# 3️⃣ BEWERKEN / VERWIJDEREN — Simpel beheer
+# ============================================================
+elif keuze == "Bewerken / Verwijderen":
+    st.subheader("Medewerker bewerken of verwijderen")
+
+    res = supabase.table("new_app_employees").select("*").execute()
+    medewerkers = res.data
+
+    if not medewerkers:
+        st.info("Geen medewerkers beschikbaar.")
+        st.stop()
+
+    keuze_medewerker = st.selectbox(
+        "Kies een medewerker",
+        [f"{m['volledige_naam']} ({m['email']})" for m in medewerkers]
+    )
+
+    medewerker = next(m for m in medewerkers if f"{m['volledige_naam']} ({m['email']})" == keuze_medewerker)
+
+    with st.form("edit_form"):
+        volledige_naam = st.text_input("Volledige naam", medewerker["volledige_naam"])
+        mobiel_nummer = st.text_input("Mobiel nummer", medewerker["mobiel_nummer"])
+        beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7, value=medewerker["beschikbare_dagen"])
+
+        ervaringsniveau = st.selectbox("Ervaringsniveau", ERVARINGSNIVEAU, index=ERVARINGSNIVEAU.index(medewerker["ervaringsniveau"]))
+        rol = st.selectbox("Rol", ROLLEN, index=ROLLEN.index(medewerker["rol"]))
+        categorie = st.selectbox("Categorie", CATEGORIEËN, index=CATEGORIEËN.index(medewerker["categorie"]))
+
+        opslaan = st.form_submit_button("Opslaan")
+
+        if opslaan:
+            supabase.table("new_app_employees").update({
+                "volledige_naam": volledige_naam,
+                "mobiel_nummer": mobiel_nummer,
+                "beschikbare_dagen": beschikbare_dagen,
+                "ervaringsniveau": ervaringsniveau,
+                "rol": rol,
+                "categorie": categorie
+            }).eq("id", medewerker["id"]).execute()
+
+            st.success("Medewerker bijgewerkt.")
+            st.rerun()
+
+    if st.button("Medewerker verwijderen"):
+        supabase.table("new_app_employees").delete().eq("id", medewerker["id"]).execute()
+        st.success("Medewerker verwijderd.")
+        st.rerun()
+
 
