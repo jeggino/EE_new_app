@@ -33,7 +33,9 @@ if keuze == "Gebruiker + Medewerker aanmaken":
     with st.form("create_user_employee_form"):
         st.markdown("### Gebruiker")
         email = st.text_input("Email")
+
         password = st.text_input("Wachtwoord", type="password")
+        password_confirm = st.text_input("Bevestig wachtwoord", type="password")
 
         st.markdown("### Medewerkergegevens")
         volledige_naam = st.text_input("Volledige naam")
@@ -47,6 +49,11 @@ if keuze == "Gebruiker + Medewerker aanmaken":
         submit = st.form_submit_button("Aanmaken")
 
     if submit:
+        # --- Check wachtwoorden ---
+        if password != password_confirm:
+            st.error("De wachtwoorden komen niet overeen.")
+            st.stop()
+
         try:
             # 1. Create Supabase Auth user (Admin API)
             res = supabase_admin.auth.admin.create_user({
@@ -78,6 +85,7 @@ if keuze == "Gebruiker + Medewerker aanmaken":
 
         except Exception as e:
             st.error(f"Fout bij aanmaken: {e}")
+
 
 # ============================================================
 # 2️⃣ OVERZICHT
