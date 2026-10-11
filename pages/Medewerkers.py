@@ -37,7 +37,6 @@ if keuze == "Aanmaken":
     # Select user
     email_to_id = {u["email"]: u["id"] for u in users}
     gekozen_user = st.selectbox("Kies een bestaande gebruiker", list(email_to_id.keys()))
-    user = user_map[gekozen_user]
 
     st.markdown("### Medewerkergegevens")
 
@@ -55,9 +54,9 @@ if keuze == "Aanmaken":
         if submit:
             try:
                 supabase.table("new_app_employees").insert({
-                    "gebruiker_id": user.id,
+                    "gebruiker_id": gekozen_user['id'],
                     "volledige_naam": volledige_naam,
-                    "email": user.email,
+                    "email": gekozen_user,
                     "mobiel_nummer": mobiel_nummer,
                     "beschikbare_dagen": beschikbare_dagen,
                     "ervaringsniveau": ervaringsniveau,
