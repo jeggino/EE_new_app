@@ -35,8 +35,8 @@ if keuze == "Aanmaken":
         st.stop()
 
     # Select user
-    user_map = {f"{u.email} ({u.id})": u for u in users}
-    gekozen_user = st.selectbox("Kies een bestaande gebruiker", list(user_map.keys()))
+    email_to_id = {u["email"]: u["id"] for u in users}
+    gekozen_user = st.selectbox("Kies een bestaande gebruiker", list(email_to_id.keys()))
     user = user_map[gekozen_user]
 
     st.markdown("### Medewerkergegevens")
