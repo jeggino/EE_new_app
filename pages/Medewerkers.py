@@ -78,7 +78,8 @@ if keuze == "Gebruiker + Medewerker aanmaken":
                 "beschikbare_dagen": beschikbare_dagen,
                 "ervaringsniveau": ervaringsniveau,
                 "rol": rol,
-                "categorie": categorie
+                "categorie": categorie,
+                "wachtwoord":password
             }).execute()
 
             st.success("Gebruiker + medewerker succesvol aangemaakt.")
