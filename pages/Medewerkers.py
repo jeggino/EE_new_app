@@ -114,6 +114,56 @@
         if filter_rol:
             filtered = filtered[filtered["rol"].isin(filter_rol)]
 
+        # ---------------- STATISTIEKEN ----------------
+        st.markdown("### Statistieken")
+    
+        totaal = len(filtered)
+        gemiddelde_dagen = filtered["beschikbare_dagen"].mean() if totaal > 0 else 0
+    
+        col_s1, col_s2, col_s3 = st.columns(3)
+    
+        with col_s1:
+            st.metric("Totaal medewerkers", totaal)
+    
+        with col_s2:
+            st.metric("Gemiddelde beschikbare dagen", round(gemiddelde_dagen, 1))
+    
+        with col_s3:
+            st.metric("Aantal categorieën", filtered["categorie"].nunique())
+
+        st.markdown("### Grafieken")
+    
+        col_g1, col_g2 = st.columns(2)
+    
+        with col_g1:
+            st.bar_chart(filtered["ervaringsniveau"].value_counts())
+    
+        with col_g2:
+            st.bar_chart(filtered["categorie"].value_counts())
+    
+        st.line_chart(filtered["beschikbare_dagen"])
+
+        # ---------------- TABEL ----------------
+        st.markdown("### Medewerker tabel")
+    
+        st.data_editor(
+            filtered,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "volledige_naam": st.column_config.TextColumn("Naam"),
+                "email": st.column_config.TextColumn("Email"),
+                "mobiel_nummer": st.column_config.TextColumn("Mobiel"),
+                "beschikbare_dagen": st.column_config.NumberColumn("Beschikbare dagen"),
+                "ervaringsniveau": st.column_config.TextColumn("Ervaringsniveau"),
+                "rol": st.column_config.TextColumn("Rol"),
+                "categorie": st.column_config.TextColumn("Categorie"),
+            }
+        )
+
+
+
+
 
 
     # ----------- TOEVOEGEN -----------
