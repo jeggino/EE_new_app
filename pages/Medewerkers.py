@@ -5,6 +5,13 @@ from config.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
 
 st.set_page_config(page_title="Medewerkers", layout="wide")
 
+st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {display: none;}
+        [data-testid="stSidebarNav"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
+
 # ---------------- AUTH CHECK ----------------
 if not check_password():
     st.stop()
