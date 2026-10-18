@@ -42,7 +42,7 @@ def save_inventarisatie(
         # ----------------------------------------------------
         # 2. Upload geometry using project_id.json
         # ----------------------------------------------------
-        geometry_filename = f"{project_id}.json"
+        geometry_filename = f"{project_id}.geojson"
         geometry_json = json.dumps(geometry)
         geometry_bytes = geometry_json.encode("utf-8")
 
