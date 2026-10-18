@@ -59,15 +59,26 @@ if check_password():
         project_beschrijving = st.text_area("Beschrijving")
         actief = st.toggle("Project actief?", value=True)
 
-        # --- Users from Supabase Auth ---
-        auth_users = supabase.auth.admin.list_users()
-        user_emails = [u.email for u in auth_users.users]
+        # --- Users from new_app_employees ---
+        resp = supabase.table("new_app_employees").select("id, volledige_naam, email").execute()
+        employees = resp.data
+        
+        if not employees:
+            st.warning("Geen medewerkers gevonden in 'new_app_employees'.")
+            employee_labels = {}
+        else:
+            employee_labels = {
+                emp["email"]: f"{emp['volledige_naam']} ({emp['email']})"
+                for emp in employees
+            }
         
         gebruikers = st.multiselect(
             "Gebruikers die toegang hebben tot dit project",
-            options=user_emails,
+            options=list(employee_labels.keys()),
+            format_func=lambda email: employee_labels[email],
             placeholder="Selecteer één of meerdere gebruikers"
         )
+
 
 
         # --- Survey info (JSON) ---
