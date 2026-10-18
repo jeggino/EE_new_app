@@ -2,6 +2,7 @@ import streamlit as st
 from utils.auth import check_password
 from utils.supabase_client import supabase
 
+
 # Geometry tools (we will create these next)
 from utils.inventarisatie.geometry_tools_inventarisatie import (
     draw_inventarisatie_geometry,
@@ -58,11 +59,16 @@ if check_password():
         project_beschrijving = st.text_area("Beschrijving")
         actief = st.toggle("Project actief?", value=True)
 
-        # --- Users ---
-        gebruikers = st.text_input(
-            "Gebruikers (komma gescheiden)",
-            placeholder="bijv. luigi, piet, klaas"
+        # --- Users from Supabase Auth ---
+        auth_users = supabase.auth.admin.list_users()
+        user_emails = [u.email for u in auth_users.users]
+        
+        gebruikers = st.multiselect(
+            "Gebruikers die toegang hebben tot dit project",
+            options=user_emails,
+            placeholder="Selecteer één of meerdere gebruikers"
         )
+
 
         # --- Survey info (JSON) ---
         st.subheader("Survey informatie")
