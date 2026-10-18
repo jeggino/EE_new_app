@@ -51,7 +51,7 @@ if check_password():
         # --- Draw geometry ---
         st.markdown("<h2 style='color:#2A8C55;'>Teken het projectgebied</h2>", unsafe_allow_html=True)
         geojson = draw_inventarisatie_geometry(key="new_inv_map")
-
+        geojson
         # --- Basic project info ---
         st.markdown("<h2 style='color:#2A8C55;'>Projectinformatie</h2>", unsafe_allow_html=True)
 
