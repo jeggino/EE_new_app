@@ -19,6 +19,16 @@ SURVEY_DEFAULTS = {
         }
     },
 
+    "rugstreeppad": {
+        "type": "toggle_group",
+        "default": False,
+        "fields": {
+            "aantal_rondes": 0,
+            "aantal_personen": 0,
+            "uren_per_survey": 0
+        }
+    },
+
     "vleermuizen": {
         "type": "multi_phase_toggle",
         "default": False,
