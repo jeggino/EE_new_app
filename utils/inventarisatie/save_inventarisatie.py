@@ -15,14 +15,13 @@ def save_inventarisatie(
 ):
     """
     Save a new Inventarisatie project into Supabase.
-    Step 1: Insert metadata (without geometry)
+    Step 1: Insert metadata
     Step 2: Upload geometry using project ID as filename
-    Step 3: Update row with geometry filename
     """
 
     try:
         # ----------------------------------------------------
-        # 1. Insert metadata (geometry_file will be added later)
+        # 1. Insert metadata
         # ----------------------------------------------------
         insert_data = {
             "project_naam": project_naam,
@@ -35,10 +34,12 @@ def save_inventarisatie(
 
         insert_resp = supabase.table("new_app_inventarisatie").insert(insert_data).execute()
 
-        if "error" in insert_resp:
-            return {"success": False, "error": insert_resp["error"]["message"]}
+        # Supabase v2: check error
+        if insert_resp.error:
+            return {"success": False, "error": insert_resp.error.message}
 
-        project_id = insert_resp["data"][0]["id"]
+        # Supabase v2: access data
+        project_id = insert_resp.data[0]["id"]
 
         # ----------------------------------------------------
         # 2. Upload geometry using project_id.json
@@ -52,24 +53,14 @@ def save_inventarisatie(
             file_options={"content-type": "application/json"}
         )
 
-        if upload_resp.get("error"):
+        if upload_resp.error:
             return {
                 "success": False,
-                "error": f"Geometry upload failed: {upload_resp['error']['message']}"
+                "error": f"Geometry upload failed: {upload_resp.error.message}"
             }
 
-        # # ----------------------------------------------------
-        # # 3. Update row with geometry filename
-        # # ----------------------------------------------------
-        # update_resp = supabase.table("new_app_inventarisatie").update(
-        #     {"geometry_file": geometry_filename}
-        # ).eq("id", project_id).execute()
-
-        # if "error" in update_resp:
-        #     return {"success": False, "error": update_resp["error"]["message"]}
-
         # ----------------------------------------------------
-        # 4. Success
+        # 3. Success
         # ----------------------------------------------------
         return {
             "success": True,
@@ -79,4 +70,5 @@ def save_inventarisatie(
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
 
