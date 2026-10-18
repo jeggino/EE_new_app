@@ -47,7 +47,6 @@ if check_password():
     # ============================================================
     if menu == "Nieuwe Inventarisatie":
 
-        st.header("Nieuwe Inventarisatie")
 
         # --- Draw geometry ---
         st.markdown("<h2 style='color:#2A8C55;'>Teken het projectgebied</h2>", unsafe_allow_html=True)
