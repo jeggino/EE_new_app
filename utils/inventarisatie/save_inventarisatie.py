@@ -53,23 +53,8 @@ def save_inventarisatie(
         upload_resp = supabase.storage.from_("new_app").upload(
             path=f"inventarisatie/geometries/{geometry_filename}",
             file=geometry_bytes,
-            file_options={"content-type": "application/json"}
+            file_options={"content-type": "application/geo+json", "x-upsert": "true"}
         )
-
-        if upload_resp.error:
-            return {
-                "success": False,
-                "error": f"Geometry upload failed: {upload_resp.error.message}"
-            }
-
-        # ----------------------------------------------------
-        # 3. Success
-        # ----------------------------------------------------
-        return {
-            "success": True,
-            "project_id": project_id,
-            "geometry_file": geometry_filename
-        }
 
 
     except Exception as e:
