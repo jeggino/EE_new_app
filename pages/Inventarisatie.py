@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.auth import check_password
 from utils.supabase_client import supabase
+from utils.inventarisatie.survey_defaults import SURVEY_DEFAULTS
 
 
 # Geometry tools (we will create these next)
@@ -83,10 +84,85 @@ if check_password():
 
         # --- Survey info (JSON) ---
         st.subheader("Survey informatie")
-        survey_informatie = st.text_area(
-            "Survey informatie (JSON)",
-            placeholder='{"type": "flora", "periode": "zomer"}'
-        )
+        
+        survey_informatie = {}
+        
+        for soort, config in SURVEY_DEFAULTS.items():
+        
+            st.markdown(f"### {soort.capitalize()}")
+        
+            # ---------------------------------------------------------
+            # 1. Toggle-based species (mussen/spreeuwen, gierzwaluwen)
+            # ---------------------------------------------------------
+            if config["type"] == "toggle_group":
+                actief = st.toggle(
+                    f"Is een survey nodig voor {soort}?",
+                    value=config["default"],
+                    key=f"{soort}_toggle"
+                )
+        
+                if actief:
+                    defaults = config["fields"]
+                    fields = {}
+        
+                    fields["aantal_rondes"] = st.number_input(
+                        f"Aantal rondes ({soort})",
+                        min_value=0,
+                        value=defaults["aantal_rondes"],
+                        key=f"{soort}_rondes"
+                    )
+        
+                    fields["aantal_personen"] = st.number_input(
+                        f"Aantal personen ({soort})",
+                        min_value=0,
+                        value=defaults["aantal_personen"],
+                        key=f"{soort}_personen"
+                    )
+        
+                    fields["uren_per_survey"] = st.number_input(
+                        f"Uren per survey ({soort})",
+                        min_value=0,
+                        value=defaults["uren_per_survey"],
+                        key=f"{soort}_uren"
+                    )
+        
+                    survey_informatie[soort] = fields
+        
+                else:
+                    survey_informatie[soort] = None
+        
+            # ---------------------------------------------------------
+            # 2. Multi-phase species (vleermuizen)
+            # ---------------------------------------------------------
+            elif config["type"] == "multi_phase":
+                phases = {}
+        
+                for fase, defaults in config["phases"].items():
+                    st.markdown(f"#### {fase.capitalize()}")
+        
+                    phases[fase] = {
+                        "aantal_rondes": st.number_input(
+                            f"Aantal rondes ({fase})",
+                            min_value=0,
+                            value=defaults["aantal_rondes"],
+                            key=f"{soort}_{fase}_rondes"
+                        ),
+                        "aantal_personen": st.number_input(
+                            f"Aantal personen ({fase})",
+                            min_value=0,
+                            value=defaults["aantal_personen"],
+                            key=f"{soort}_{fase}_personen"
+                        ),
+                        "uren_per_survey": st.number_input(
+                            f"Uren per survey ({fase})",
+                            min_value=0,
+                            value=defaults["uren_per_survey"],
+                            key=f"{soort}_{fase}_uren"
+                        )
+                    }
+        
+                survey_informatie[soort] = phases
+
 
         # --- Client info (JSON) ---
         st.subheader("Klant informatie")
