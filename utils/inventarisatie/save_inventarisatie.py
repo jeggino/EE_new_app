@@ -5,12 +5,9 @@ from utils.supabase_client import supabase
 
 
 def _resp_error(resp):
-    """Safely extract an error message from a Supabase APIResponse or dict."""
     try:
-        # v2 style: APIResponse with .error
         if hasattr(resp, "error") and resp.error:
             return getattr(resp.error, "message", str(resp.error))
-        # v1 style: dict with "error"
         if isinstance(resp, dict) and "error" in resp and resp["error"]:
             err = resp["error"]
             return err.get("message") if isinstance(err, dict) else str(err)
@@ -20,7 +17,6 @@ def _resp_error(resp):
 
 
 def _resp_data(resp):
-    """Safely extract data list from a Supabase APIResponse or dict."""
     try:
         if hasattr(resp, "data") and resp.data is not None:
             return resp.data
@@ -40,26 +36,22 @@ def save_inventarisatie(
     klant_informatie: dict,
     geometry: dict
 ):
-    """
-    Save a new Inventarisatie project into Supabase.
-    Step 1: Insert metadata
-    Step 2: Upload geometry using project ID as filename
-    """
 
     # ----------------------------------------------------
-    # 0. Prevent duplicate project names
+    # 0. Prevent duplicate project names (simple version)
     # ----------------------------------------------------
-    check = supabase.table("new_app_inventarisatie") \
-        .select("id") \
+    existing = supabase.table("new_app_inventarisatie") \
+        .select("project_naam") \
         .eq("project_naam", project_naam) \
         .execute()
-    
-    if hasattr(check, "data") and check.data:
+
+    existing_data = _resp_data(existing)
+
+    if existing_data and len(existing_data) > 0:
         return {
             "success": False,
             "error": f"Er bestaat al een project met de naam '{project_naam}'."
         }
-
 
     try:
         # ----------------------------------------------------
@@ -75,8 +67,6 @@ def save_inventarisatie(
         }
 
         insert_resp = supabase.table("new_app_inventarisatie").insert(insert_data).execute()
-
-        # DEBUG: see what Supabase returns
         print("INSERT RESP:", insert_resp)
 
         err = _resp_error(insert_resp)
@@ -94,7 +84,6 @@ def save_inventarisatie(
         # ----------------------------------------------------
         geometry_filename = f"{project_id}.json"
 
-        # geometry must be JSON-serializable
         try:
             geometry_json = json.dumps(geometry)
         except Exception as e:
@@ -107,7 +96,6 @@ def save_inventarisatie(
             file=geometry_bytes
         )
 
-        # DEBUG: see what storage returns
         print("UPLOAD RESP:", upload_resp)
 
         err_up = _resp_error(upload_resp)
@@ -125,6 +113,7 @@ def save_inventarisatie(
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
 
 
 
