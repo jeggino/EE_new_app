@@ -2,7 +2,7 @@ import streamlit as st
 from utils.auth import check_password
 from utils.supabase_client import supabase
 from utils.inventarisatie.survey_defaults import SURVEY_DEFAULTS
-
+from utils.inventarisatie.save_inventarisatie import save_inventarisatie
 
 # Geometry tools (we will create these next)
 from utils.inventarisatie.geometry_tools_inventarisatie import (
@@ -240,10 +240,20 @@ if check_password():
                 st.error("Voer een projectnaam in.")
                 st.stop()
 
-            st.success("Inventarisatie wordt opgeslagen…")
-
-            # Placeholder — will be replaced by real function
-            st.info("⚠️ save_inventarisatie() moet nog worden geïmplementeerd.")
+            result = save_inventarisatie(
+                project_naam,
+                project_beschrijving,
+                actief,
+                gebruikers,
+                survey_informatie,
+                klant_informatie,
+                geometry
+            )
+        
+            if result["success"]:
+                st.success(f"Project opgeslagen! ID: {result['project_id']}")
+            else:
+                st.error(f"Fout bij opslaan: {result['error']}")
 
     # ============================================================
     # 2. INVENTARISATIE BEWERKEN
