@@ -20,7 +20,8 @@ SURVEY_DEFAULTS = {
     },
 
     "vleermuizen": {
-        "type": "multi_phase",
+        "type": "multi_phase_toggle",
+        "default": False,
         "phases": {
             "ochtend": {
                 "aantal_rondes": 0,
@@ -40,5 +41,6 @@ SURVEY_DEFAULTS = {
         }
     }
 }
+
 
 
