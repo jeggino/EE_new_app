@@ -82,14 +82,18 @@ if check_password():
 
 
 
-        # --- Survey info (JSON) ---
-        st.subheader("Survey informatie")
+        # --- Survey info (JSON) ---        
+        st.markdown("<h2 style='color:#2A8C55;'>Survey informatie</h2>", unsafe_allow_html=True)
         
         survey_informatie = {}
         
         for soort, config in SURVEY_DEFAULTS.items():
         
-            st.markdown(f"### {soort.capitalize()}")
+            # MAIN SPECIES HEADER
+            st.markdown(
+                f"<h3 style='color:#1F4E79; margin-top:25px;'>{soort.capitalize()}</h3>",
+                unsafe_allow_html=True
+            )
         
             # ---------------------------------------------------------
             # 1. Toggle-based species (mussen/spreeuwen, gierzwaluwen)
@@ -145,7 +149,12 @@ if check_password():
                     phases = {}
         
                     for fase, defaults in config["phases"].items():
-                        st.markdown(f"#### {fase.capitalize()}")
+        
+                        # PHASE HEADER
+                        st.markdown(
+                            f"<h4 style='color:#6A1B9A; margin-left:20px;'>{fase.capitalize()}</h4>",
+                            unsafe_allow_html=True
+                        )
         
                         phases[fase] = {
                             "aantal_rondes": st.number_input(
@@ -172,6 +181,7 @@ if check_password():
         
                 else:
                     survey_informatie[soort] = None
+
 
 
 
