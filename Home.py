@@ -34,13 +34,13 @@ if check_password():
     # --- Quickscan ---
     with col1:
         # st.image("utils/pictures/icons/quickscan.png", width=120)
-        if st.button("Quickscan", icon=":material/visibility:", use_container_width=True):
+        if st.button("Quickscan", icon=":material/visibility:", use_container_width=True,disabled=False):
             st.switch_page("pages/Quickscan.py")
     
     # --- Inventarisatie ---
     with col2:
         # st.image("utils/pictures/icons/inventarisatie.png", width=120)
-        if st.button("Inventarisatie",disabled=True, icon=":material/note_alt:", use_container_width=True):
+        if st.button("Inventarisatie",disabled=False, icon=":material/note_alt:", use_container_width=True):
             st.switch_page("pages/Inventarisatie.py")
     
     # --- Control ---
@@ -52,7 +52,7 @@ if check_password():
             st.switch_page("pages/Control.py")
 
     with col4:
-        if st.button("Account aanmaken", icon=":material/person_add:", use_container_width=True):
+        if st.button("Account aanmaken", icon=":material/person_add:", use_container_width=True,disabled=False):
             st.switch_page("pages/Medewerkers.py")
 
 
