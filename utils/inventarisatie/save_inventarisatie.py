@@ -58,15 +58,15 @@ def save_inventarisatie(
                 "error": f"Geometry upload failed: {upload_resp['error']['message']}"
             }
 
-        # ----------------------------------------------------
-        # 3. Update row with geometry filename
-        # ----------------------------------------------------
-        update_resp = supabase.table("new_app_inventarisatie").update(
-            {"geometry_file": geometry_filename}
-        ).eq("id", project_id).execute()
+        # # ----------------------------------------------------
+        # # 3. Update row with geometry filename
+        # # ----------------------------------------------------
+        # update_resp = supabase.table("new_app_inventarisatie").update(
+        #     {"geometry_file": geometry_filename}
+        # ).eq("id", project_id).execute()
 
-        if "error" in update_resp:
-            return {"success": False, "error": update_resp["error"]["message"]}
+        # if "error" in update_resp:
+        #     return {"success": False, "error": update_resp["error"]["message"]}
 
         # ----------------------------------------------------
         # 4. Success
