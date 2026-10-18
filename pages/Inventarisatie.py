@@ -50,11 +50,11 @@ if check_password():
         st.header("Nieuwe Inventarisatie")
 
         # --- Draw geometry ---
-        st.subheader("Teken het projectgebied")
+        st.markdown("<h2 style='color:#2A8C55;'>Teken het projectgebied</h2>", unsafe_allow_html=True)
         geojson = draw_inventarisatie_geometry(key="new_inv_map")
 
         # --- Basic project info ---
-        st.subheader("Projectinformatie")
+        st.markdown("<h2 style='color:#2A8C55;'>Projectinformatie</h2>", unsafe_allow_html=True)
 
         project_naam = st.text_input("Projectnaam")
         project_beschrijving = st.text_area("Beschrijving")
@@ -186,11 +186,49 @@ if check_password():
 
 
         # --- Client info (JSON) ---
-        st.subheader("Klant informatie")
-        klant_informatie = st.text_area(
-            "Klant informatie (JSON)",
-            placeholder='{"naam": "Gemeente X", "contact": "info@gemeente.nl"}'
+        st.markdown("<h2 style='color:#2A8C55;'>Klant informatie</h2>", unsafe_allow_html=True)
+        
+        klant_informatie = {}
+        
+        # Ask if a contact person is needed
+        heeft_contactpersoon = st.toggle(
+            "Is er een contactpersoon?",
+            value=False,
+            key="heeft_contactpersoon"
         )
+        
+        if heeft_contactpersoon:
+            st.markdown("<h4 style='color:#1F4E79;'>Contactpersoon</h4>", unsafe_allow_html=True)
+        
+            naam = st.text_input(
+                "Naam contactpersoon",
+                placeholder="Voor- en achternaam"
+            )
+        
+            email = st.text_input(
+                "E-mailadres contactpersoon",
+                placeholder="naam@organisatie.nl"
+            )
+        
+            telefoon = st.text_input(
+                "Telefoonnummer contactpersoon",
+                placeholder="06-12345678"
+            )
+        
+            klant_informatie["contactpersoon"] = {
+                "naam": naam if naam else "unknown",
+                "email": email if email else "unknown",
+                "telefoon": telefoon if telefoon else "unknown"
+            }
+        
+        else:
+            # No contact person → store unknown values
+            klant_informatie["contactpersoon"] = {
+                "naam": "unknown",
+                "email": "unknown",
+                "telefoon": "unknown"
+            }
+
 
         # --- Save button ---
         if st.button("Inventarisatie opslaan"):
