@@ -247,7 +247,7 @@ if check_password():
                 gebruikers,
                 survey_informatie,
                 klant_informatie,
-                geometry
+                geojson
             )
         
             if result["success"]:
