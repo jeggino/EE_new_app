@@ -4,6 +4,33 @@ import json
 from utils.supabase_client import supabase
 
 
+def _resp_error(resp):
+    """Safely extract an error message from a Supabase APIResponse or dict."""
+    try:
+        # v2 style: APIResponse with .error
+        if hasattr(resp, "error") and resp.error:
+            return getattr(resp.error, "message", str(resp.error))
+        # v1 style: dict with "error"
+        if isinstance(resp, dict) and "error" in resp and resp["error"]:
+            err = resp["error"]
+            return err.get("message") if isinstance(err, dict) else str(err)
+    except Exception:
+        pass
+    return None
+
+
+def _resp_data(resp):
+    """Safely extract data list from a Supabase APIResponse or dict."""
+    try:
+        if hasattr(resp, "data") and resp.data is not None:
+            return resp.data
+        if isinstance(resp, dict) and "data" in resp:
+            return resp["data"]
+    except Exception:
+        pass
+    return None
+
+
 def save_inventarisatie(
     project_naam: str,
     project_beschrijving: str,
@@ -34,16 +61,30 @@ def save_inventarisatie(
 
         insert_resp = supabase.table("new_app_inventarisatie").insert(insert_data).execute()
 
-        if insert_resp.error:
-            return {"success": False, "error": insert_resp.error.message}
+        # DEBUG: see what Supabase returns
+        print("INSERT RESP:", insert_resp)
 
-        project_id = insert_resp.data[0]["id"]
+        err = _resp_error(insert_resp)
+        if err:
+            return {"success": False, "error": f"Insert failed: {err}"}
+
+        data = _resp_data(insert_resp)
+        if not data or not isinstance(data, list) or not data[0].get("id"):
+            return {"success": False, "error": "Insert succeeded but no ID returned."}
+
+        project_id = data[0]["id"]
 
         # ----------------------------------------------------
         # 2. Upload geometry using project_id.json
         # ----------------------------------------------------
         geometry_filename = f"{project_id}.geojson"
-        geometry_json = json.dumps(geometry)
+
+        # geometry must be JSON-serializable
+        try:
+            geometry_json = json.dumps(geometry)
+        except Exception as e:
+            return {"success": False, "error": f"Geometry not JSON-serializable: {e}"}
+
         geometry_bytes = geometry_json.encode("utf-8")
 
         upload_resp = supabase.storage.from_("new_app").upload(
@@ -51,11 +92,12 @@ def save_inventarisatie(
             file=geometry_bytes
         )
 
-        if upload_resp.error:
-            return {
-                "success": False,
-                "error": upload_resp.error.message
-            }
+        # DEBUG: see what storage returns
+        print("UPLOAD RESP:", upload_resp)
+
+        err_up = _resp_error(upload_resp)
+        if err_up:
+            return {"success": False, "error": f"Geometry upload failed: {err_up}"}
 
         # ----------------------------------------------------
         # 3. Success
@@ -68,6 +110,7 @@ def save_inventarisatie(
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
 
 
 
