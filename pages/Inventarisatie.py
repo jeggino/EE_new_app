@@ -251,7 +251,7 @@ if check_password():
             )
         
             if result["success"]:
-                st.success(f"Project opgeslagen! ID: {result['project_id']}")
+                st.success(f"Project opgeslagen!")
             else:
                 st.error(f"Fout bij opslaan: {result['error']}")
 
