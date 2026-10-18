@@ -48,7 +48,7 @@ def save_inventarisatie(
         geometry_json = json.dumps(geometry)
 
         upload_resp = supabase.storage.from_("new_app").upload(
-            path=f"inventarisatie_geometry/{geometry_filename}",
+            path=f"inventarisatie/geometries/{geometry_filename}",
             file=geometry_json,
             file_options={"content-type": "application/json"}
         )
