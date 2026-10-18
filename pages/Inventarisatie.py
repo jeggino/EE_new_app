@@ -183,7 +183,6 @@ if check_password():
 
 
 
-
         # --- Client info (JSON) ---
         st.markdown("<h2 style='color:#2A8C55;'>Klant informatie</h2>", unsafe_allow_html=True)
         
