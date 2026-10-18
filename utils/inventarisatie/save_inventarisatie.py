@@ -46,6 +46,21 @@ def save_inventarisatie(
     Step 2: Upload geometry using project ID as filename
     """
 
+    # ----------------------------------------------------
+    # 0. Prevent duplicate project names
+    # ----------------------------------------------------
+    check = supabase.table("new_app_inventarisatie") \
+        .select("id") \
+        .eq("project_naam", project_naam) \
+        .execute()
+    
+    if hasattr(check, "data") and check.data:
+        return {
+            "success": False,
+            "error": f"Er bestaat al een project met de naam '{project_naam}'."
+        }
+
+
     try:
         # ----------------------------------------------------
         # 1. Insert metadata
