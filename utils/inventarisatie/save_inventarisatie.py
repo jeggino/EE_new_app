@@ -47,9 +47,12 @@ def save_inventarisatie(
         geometry_filename = f"{project_id}.json"
         geometry_json = json.dumps(geometry)
 
+        # encode to bytes for upload
+        geometry_bytes = geometry_json.encode("utf-8")
+
         upload_resp = supabase.storage.from_("new_app").upload(
             path=f"inventarisatie/geometries/{geometry_filename}",
-            file=geometry_json,
+            file=geometry_bytes,
             file_options={"content-type": "application/json"}
         )
 
@@ -67,6 +70,7 @@ def save_inventarisatie(
             "project_id": project_id,
             "geometry_file": geometry_filename
         }
+
 
     except Exception as e:
         return {"success": False, "error": str(e)}
