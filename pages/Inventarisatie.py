@@ -132,36 +132,47 @@ if check_password():
                     survey_informatie[soort] = None
         
             # ---------------------------------------------------------
-            # 2. Multi-phase species (vleermuizen)
+            # 2. Multi-phase species WITH toggle (vleermuizen)
             # ---------------------------------------------------------
-            elif config["type"] == "multi_phase":
-                phases = {}
+            elif config["type"] == "multi_phase_toggle":
+                actief = st.toggle(
+                    f"Is een survey nodig voor {soort}?",
+                    value=config["default"],
+                    key=f"{soort}_toggle"
+                )
         
-                for fase, defaults in config["phases"].items():
-                    st.markdown(f"#### {fase.capitalize()}")
+                if actief:
+                    phases = {}
         
-                    phases[fase] = {
-                        "aantal_rondes": st.number_input(
-                            f"Aantal rondes ({fase})",
-                            min_value=0,
-                            value=defaults["aantal_rondes"],
-                            key=f"{soort}_{fase}_rondes"
-                        ),
-                        "aantal_personen": st.number_input(
-                            f"Aantal personen ({fase})",
-                            min_value=0,
-                            value=defaults["aantal_personen"],
-                            key=f"{soort}_{fase}_personen"
-                        ),
-                        "uren_per_survey": st.number_input(
-                            f"Uren per survey ({fase})",
-                            min_value=0,
-                            value=defaults["uren_per_survey"],
-                            key=f"{soort}_{fase}_uren"
-                        )
-                    }
+                    for fase, defaults in config["phases"].items():
+                        st.markdown(f"#### {fase.capitalize()}")
         
-                survey_informatie[soort] = phases
+                        phases[fase] = {
+                            "aantal_rondes": st.number_input(
+                                f"Aantal rondes ({fase})",
+                                min_value=0,
+                                value=defaults["aantal_rondes"],
+                                key=f"{soort}_{fase}_rondes"
+                            ),
+                            "aantal_personen": st.number_input(
+                                f"Aantal personen ({fase})",
+                                min_value=0,
+                                value=defaults["aantal_personen"],
+                                key=f"{soort}_{fase}_personen"
+                            ),
+                            "uren_per_survey": st.number_input(
+                                f"Uren per survey ({fase})",
+                                min_value=0,
+                                value=defaults["uren_per_survey"],
+                                key=f"{soort}_{fase}_uren"
+                            )
+                        }
+        
+                    survey_informatie[soort] = phases
+        
+                else:
+                    survey_informatie[soort] = None
+
 
 
         # --- Client info (JSON) ---
