@@ -34,11 +34,9 @@ def save_inventarisatie(
 
         insert_resp = supabase.table("new_app_inventarisatie").insert(insert_data).execute()
 
-        # Supabase v2: check error
         if insert_resp.error:
             return {"success": False, "error": insert_resp.error.message}
 
-        # Supabase v2: access data
         project_id = insert_resp.data[0]["id"]
 
         # ----------------------------------------------------
@@ -46,18 +44,30 @@ def save_inventarisatie(
         # ----------------------------------------------------
         geometry_filename = f"{project_id}.json"
         geometry_json = json.dumps(geometry)
-
-        # encode to bytes for upload
         geometry_bytes = geometry_json.encode("utf-8")
 
         upload_resp = supabase.storage.from_("new_app").upload(
             path=f"inventarisatie/geometries/{geometry_filename}",
-            file=geometry_bytes,
-            file_options={"content-type": "application/geo+json", "x-upsert": "true"}
+            file=geometry_bytes
         )
 
+        if upload_resp.error:
+            return {
+                "success": False,
+                "error": upload_resp.error.message
+            }
+
+        # ----------------------------------------------------
+        # 3. Success
+        # ----------------------------------------------------
+        return {
+            "success": True,
+            "project_id": project_id,
+            "geometry_file": geometry_filename
+        }
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
 
 
