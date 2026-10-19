@@ -435,7 +435,7 @@ if check_password():
     
         heeft_contactpersoon = st.toggle(
             "Is er een contactpersoon?",
-            value=(existing_contact["naam"] != "unknown")
+            value=(existing_contact != None)
         )
     
         klant_informatie = {}
