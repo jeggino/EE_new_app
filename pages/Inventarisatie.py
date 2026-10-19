@@ -472,10 +472,6 @@ if check_password():
                 if success:
                     st.success("Inventarisatie bijgewerkt.")
         
-                    # Force full page reload (new Streamlit API)
-                    st.query_params = {"reload": project_id}
-        
-                    st.rerun()
                 else:
                     st.error(f"Fout bij opslaan: {error}")
 
@@ -524,47 +520,91 @@ if check_password():
     # 3. INVENTARISATIE BEKIJKEN
     # ============================================================
     elif menu == "Inventarisatie bekijken":
-
+    
+        from utils.inventarisatie.helpers import get_full_name, load_geometry
+        from utils.inventarisatie.map_viewer import show_geometry_map
+    
         st.header("Inventarisatie bekijken")
-
+    
+        # Load all projects
         resp = supabase.table("new_app_inventarisatie") \
-            .select("id, project_naam, aangemaakt_op") \
-            .order("aangemaakt_op", desc=True) \
+            .select("id, project_naam, actief, aangemaakt_op") \
+            .order("project_naam", desc=False) \
             .execute()
-
+    
         projecten = resp.data
-
+    
         if not projecten:
             st.info("Geen inventarisaties beschikbaar.")
             st.stop()
-
+    
+        # -----------------------------
+        # Filters
+        # -----------------------------
+        st.subheader("Filters")
+    
+        # 1. Actief / Niet actief
+        status_filter = st.radio(
+            "Status:",
+            ["Actief", "Niet actief"],
+            horizontal=True
+        )
+        status_bool = True if status_filter == "Actief" else False
+    
+        projecten = [p for p in projecten if p["actief"] == status_bool]
+    
+        # 2. Year filter
+        jaren = sorted({p["aangemaakt_op"][:4] for p in projecten})
+        gekozen_jaar = st.selectbox("Jaar:", jaren)
+    
+        projecten = [p for p in projecten if p["aangemaakt_op"][:4] == gekozen_jaar]
+    
+        # 3. Project name (alphabetical)
+        projecten = sorted(projecten, key=lambda x: x["project_naam"])
+    
         keuze = st.selectbox(
-            "Kies een project:",
+            "Project:",
             options=projecten,
             format_func=lambda x: f"{x['project_naam']} ({x['aangemaakt_op'][:10]})"
         )
-
+    
         project_id = keuze["id"]
-
+    
+        # Load full project
         project = supabase.table("new_app_inventarisatie") \
             .select("*") \
             .eq("id", project_id) \
             .single() \
             .execute().data
-
+    
+        # Load geometry
+        geometry = load_geometry(project_id)
+    
+        # -----------------------------
+        # Layout
+        # -----------------------------
+        st.subheader("Geometrie")
+        show_geometry_map(geometry, key=f"map_{project_id}")
+    
         st.subheader("Projectinformatie")
-        st.write(f"**Naam:** {project['project_naam']}")
-        st.write(f"**Beschrijving:** {project['project_beschrijving']}")
-        st.write(f"**Actief:** {'Ja' if project['actief'] else 'Nee'}")
-        st.write(f"**Gebruikers:** {', '.join(project['gebruikers'])}")
-
+    
+        col1, col2 = st.columns(2)
+    
+        with col1:
+            st.markdown(f"### {project['project_naam']}")
+            st.write(f"**Beschrijving:** {project['project_beschrijving']}")
+            st.write(f"**Status:** {'Actief' if project['actief'] else 'Niet actief'}")
+    
+        with col2:
+            st.markdown("### Team")
+            full_names = [get_full_name(email) for email in project["gebruikers"]]
+            for name in full_names:
+                st.write(f"- {name}")
+    
         st.subheader("Survey informatie")
         st.json(project["survey_informatie"])
-
+    
         st.subheader("Klant informatie")
         st.json(project["klant_informatie"])
 
-        # Geometry preview
-        st.subheader("Geometrie")
-        st.info("⚠️ Kaartweergave moet nog worden geïmplementeerd.")
 
