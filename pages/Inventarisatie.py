@@ -69,7 +69,7 @@ if check_password():
         st.markdown("<h2 style='color:#2A8C55;'>Projectinformatie</h2>", unsafe_allow_html=True)
 
         project_naam = st.text_input("Projectnaam")
-        project_beschrijving = st.text_area("Beschrijving")
+        project_beschrijving = st.text_area("Beschrijving",placeholder="Plak hier de relevante informatie uit de Quickscan: projectomschrijving, locatie, aanleiding en context.")
         actief = st.toggle("Project actief?", value=True)
 
         # --- Users from new_app_employees ---
