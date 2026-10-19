@@ -593,16 +593,13 @@ if check_password():
     
         st.subheader("Projectinformatie")
     
-        col1, col2 = st.columns([3,1])
     
-        with col1:
-            st.write(f"**Beschrijving:** {project['project_beschrijving']}")
+        st.write(f"**Beschrijving:** {project['project_beschrijving']}")
     
-        with col2:
-            st.markdown("### Team")
-            full_names = [get_full_name(email) for email in project["gebruikers"]]
-            for name in full_names:
-                st.write(f"- {name}")
+        st.markdown("### Team")
+        full_names = [get_full_name(email) for email in project["gebruikers"]]
+        for name in full_names:
+            st.write(f"- {name}")
     
         render_nested_dict("Survey informatie", project["survey_informatie"])
         render_info_block("Klant informatie", project["klant_informatie"])
