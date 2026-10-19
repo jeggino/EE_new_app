@@ -19,3 +19,4 @@ geojson
 geopandas 
 
 python-docx
+streamlit_calendar 
