@@ -429,22 +429,25 @@ if check_password():
         # -----------------------------
         st.subheader("Klant informatie")
     
-        existing_contact = meta["klant_informatie"]["contactpersoon"]
-
-        existing_contact 
-    
+        existing_contact = meta["klant_informatie"].get("contactpersoon")
+        
         heeft_contactpersoon = st.toggle(
             "Is er een contactpersoon?",
-            value=(existing_contact != None)
+            value=isinstance(existing_contact, dict)
         )
-    
+        
         klant_informatie = {}
-    
+        
         if heeft_contactpersoon:
-            naam = st.text_input("Naam contactpersoon", value=existing_contact["naam"])
-            email = st.text_input("Email contactpersoon", value=existing_contact["email"])
-            telefoon = st.text_input("Telefoon contactpersoon", value=existing_contact["telefoon"])
-    
+            # Als er geen bestaande contactpersoon is → lege velden
+            naam_default = existing_contact.get("naam") if isinstance(existing_contact, dict) else ""
+            email_default = existing_contact.get("email") if isinstance(existing_contact, dict) else ""
+            telefoon_default = existing_contact.get("telefoon") if isinstance(existing_contact, dict) else ""
+        
+            naam = st.text_input("Naam contactpersoon", value=naam_default)
+            email = st.text_input("Email contactpersoon", value=email_default)
+            telefoon = st.text_input("Telefoon contactpersoon", value=telefoon_default)
+        
             klant_informatie["contactpersoon"] = {
                 "naam": naam,
                 "email": email,
@@ -452,6 +455,7 @@ if check_password():
             }
         else:
             klant_informatie["contactpersoon"] = None
+
     
         # -----------------------------
         # 8. Save button
