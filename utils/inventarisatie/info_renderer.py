@@ -2,21 +2,63 @@
 
 import streamlit as st
 
-def format_value(value):
-    if isinstance(value, dict):
-        formatted = "<ul>"
-        for k, v in value.items():
-            formatted += f"<li><strong>{k}:</strong> {v}</li>"
-        formatted += "</ul>"
-        return formatted
 
-    if isinstance(value, list):
-        return ", ".join(str(v) for v in value)
+def pretty_label(key: str) -> str:
+    """Convert snake_case into 'Title Case' without underscores."""
+    return " ".join(word.capitalize() for word in key.split("_"))
 
-    return str(value)
+
+def render_nested_dict(title, data: dict):
+    """Render nested dictionaries (like avond/ochtend/paarperiode) professionally."""
+
+    st.markdown(f"### {title}")
+
+    if not data:
+        st.info("Geen informatie beschikbaar.")
+        return
+
+    for section, values in data.items():
+
+        # Section card
+        st.markdown(
+            f"""
+            <div style="
+                padding: 14px 18px;
+                margin-bottom: 12px;
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(4px);
+            ">
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                    {pretty_label(section)}
+                </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Fields inside the section
+        for key, value in values.items():
+            st.markdown(
+                f"""
+                <div style="
+                    margin-left: 10px;
+                    margin-bottom: 6px;
+                    font-size: 14px;
+                ">
+                    <strong>{pretty_label(key)}:</strong> {value}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        # Close card
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_info_block(title, data: dict):
+    """Render simple dictionaries professionally."""
+
     st.markdown(f"### {title}")
 
     if not data:
@@ -27,15 +69,21 @@ def render_info_block(title, data: dict):
         st.markdown(
             f"""
             <div style="
-                padding: 10px 15px;
-                margin-bottom: 8px;
-                border-radius: 6px;
-                background-color: #f7f7f9;
-                border: 1px solid #e0e0e0;
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(4px);
             ">
-                <strong>{key.replace('_', ' ').title()}:</strong><br>
-                {format_value(value)}
+                <strong style="font-size: 15px;">
+                    {pretty_label(key)}:
+                </strong>
+                <div style="margin-top: 4px; font-size: 14px;">
+                    {value}
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
+
