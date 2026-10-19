@@ -261,231 +261,231 @@ if check_password():
     # ============================================================
     # 2. INVENTARISATIE BEWERKEN
     # ============================================================
-elif menu == "Inventarisatie bewerken":
-
-
-    st.header("Inventarisatie bewerken")
-
-    # -----------------------------
-    # 1. Year filter
-    # -----------------------------
-    years_resp = supabase.table("new_app_inventarisatie") \
-        .select("id, project_naam, aangemaakt_op") \
-        .execute()
-
-    all_projects = years_resp.data
-
-    all_projects
-
-    if not all_projects:
-        st.info("Geen inventarisaties gevonden.")
-        st.stop()
-
-    # Extract years
-    years = sorted({p["aangemaakt_op"][:4] for p in all_projects})
-
-    selected_year = st.selectbox("Selecteer jaar:", years)
-
-    # Filter projects by year
-    filtered = [p for p in all_projects if p["aangemaakt_op"].startswith(selected_year)]
-
-    selected_project = st.selectbox(
-        "Selecteer project:",
-        filtered,
-        format_func=lambda p: p["project_naam"]
-    )
-
-    project_id = selected_project["id"]
-
-    # -----------------------------
-    # 2. Load project
-    # -----------------------------
-    project, err = load_inventarisatie(project_id)
-
-    if err:
-        st.error(err)
-        st.stop()
-
-    meta = project["metadata"]
-    geometry = project["geometry"]
-
-    # -----------------------------
-    # 3. Geometry editor
-    # -----------------------------
-    st.subheader("Geometrie")
-
-    new_geojson = draw_inventarisatie_geometry(
-        key=f"edit_inv_map_{project_id}",
-        existing_geometry=geometry
-    )
-
-    # -----------------------------
-    # 4. Metadata fields
-    # -----------------------------
-    st.subheader("Projectinformatie")
-
-    project_naam = st.text_input("Projectnaam", value=meta["project_naam"])
-    project_beschrijving = st.text_area("Beschrijving", value=meta["project_beschrijving"])
-    actief = st.toggle("Project actief?", value=meta["actief"])
-
-    # -----------------------------
-    # 5. Gebruikers
-    # -----------------------------
-    employees = supabase.table("new_app_employees").select("email, volledige_naam").execute().data
-
-    employee_labels = {e["email"]: f"{e['volledige_naam']} ({e['email']})" for e in employees}
-
-    gebruikers = st.multiselect(
-        "Gebruikers",
-        options=list(employee_labels.keys()),
-        default=meta["gebruikers"],
-        format_func=lambda email: employee_labels[email]
-    )
-
-    # -----------------------------
-    # 6. Survey informatie (same UI as creation)
-    # -----------------------------
-    st.subheader("Survey informatie")
-
-    survey_informatie = {}
-    for soort, config in SURVEY_DEFAULTS.items():
-
-        st.markdown(f"### {soort.capitalize()}")
-
-        existing = meta["survey_informatie"].get(soort)
-
-        if config["type"] == "toggle_group":
-            actief_survey = st.toggle(
-                f"Survey nodig voor {soort}?",
-                value=(existing is not None)
-            )
-
-            if actief_survey:
-                fields = {}
-                defaults = config["fields"]
-
-                fields["aantal_rondes"] = st.number_input(
-                    f"Aantal rondes ({soort})",
-                    min_value=0,
-                    value=existing["aantal_rondes"] if existing else defaults["aantal_rondes"]
+    elif menu == "Inventarisatie bewerken":
+    
+    
+        st.header("Inventarisatie bewerken")
+    
+        # -----------------------------
+        # 1. Year filter
+        # -----------------------------
+        years_resp = supabase.table("new_app_inventarisatie") \
+            .select("id, project_naam, aangemaakt_op") \
+            .execute()
+    
+        all_projects = years_resp.data
+    
+        all_projects
+    
+        if not all_projects:
+            st.info("Geen inventarisaties gevonden.")
+            st.stop()
+    
+        # Extract years
+        years = sorted({p["aangemaakt_op"][:4] for p in all_projects})
+    
+        selected_year = st.selectbox("Selecteer jaar:", years)
+    
+        # Filter projects by year
+        filtered = [p for p in all_projects if p["aangemaakt_op"].startswith(selected_year)]
+    
+        selected_project = st.selectbox(
+            "Selecteer project:",
+            filtered,
+            format_func=lambda p: p["project_naam"]
+        )
+    
+        project_id = selected_project["id"]
+    
+        # -----------------------------
+        # 2. Load project
+        # -----------------------------
+        project, err = load_inventarisatie(project_id)
+    
+        if err:
+            st.error(err)
+            st.stop()
+    
+        meta = project["metadata"]
+        geometry = project["geometry"]
+    
+        # -----------------------------
+        # 3. Geometry editor
+        # -----------------------------
+        st.subheader("Geometrie")
+    
+        new_geojson = draw_inventarisatie_geometry(
+            key=f"edit_inv_map_{project_id}",
+            existing_geometry=geometry
+        )
+    
+        # -----------------------------
+        # 4. Metadata fields
+        # -----------------------------
+        st.subheader("Projectinformatie")
+    
+        project_naam = st.text_input("Projectnaam", value=meta["project_naam"])
+        project_beschrijving = st.text_area("Beschrijving", value=meta["project_beschrijving"])
+        actief = st.toggle("Project actief?", value=meta["actief"])
+    
+        # -----------------------------
+        # 5. Gebruikers
+        # -----------------------------
+        employees = supabase.table("new_app_employees").select("email, volledige_naam").execute().data
+    
+        employee_labels = {e["email"]: f"{e['volledige_naam']} ({e['email']})" for e in employees}
+    
+        gebruikers = st.multiselect(
+            "Gebruikers",
+            options=list(employee_labels.keys()),
+            default=meta["gebruikers"],
+            format_func=lambda email: employee_labels[email]
+        )
+    
+        # -----------------------------
+        # 6. Survey informatie (same UI as creation)
+        # -----------------------------
+        st.subheader("Survey informatie")
+    
+        survey_informatie = {}
+        for soort, config in SURVEY_DEFAULTS.items():
+    
+            st.markdown(f"### {soort.capitalize()}")
+    
+            existing = meta["survey_informatie"].get(soort)
+    
+            if config["type"] == "toggle_group":
+                actief_survey = st.toggle(
+                    f"Survey nodig voor {soort}?",
+                    value=(existing is not None)
                 )
-
-                fields["aantal_personen"] = st.number_input(
-                    f"Aantal personen ({soort})",
-                    min_value=0,
-                    value=existing["aantal_personen"] if existing else defaults["aantal_personen"]
+    
+                if actief_survey:
+                    fields = {}
+                    defaults = config["fields"]
+    
+                    fields["aantal_rondes"] = st.number_input(
+                        f"Aantal rondes ({soort})",
+                        min_value=0,
+                        value=existing["aantal_rondes"] if existing else defaults["aantal_rondes"]
+                    )
+    
+                    fields["aantal_personen"] = st.number_input(
+                        f"Aantal personen ({soort})",
+                        min_value=0,
+                        value=existing["aantal_personen"] if existing else defaults["aantal_personen"]
+                    )
+    
+                    fields["uren_per_survey"] = st.number_input(
+                        f"Uren per survey ({soort})",
+                        min_value=0,
+                        value=existing["uren_per_survey"] if existing else defaults["uren_per_survey"]
+                    )
+    
+                    survey_informatie[soort] = fields
+                else:
+                    survey_informatie[soort] = None
+    
+            elif config["type"] == "multi_phase_toggle":
+                actief_survey = st.toggle(
+                    f"Survey nodig voor {soort}?",
+                    value=(existing is not None)
                 )
-
-                fields["uren_per_survey"] = st.number_input(
-                    f"Uren per survey ({soort})",
-                    min_value=0,
-                    value=existing["uren_per_survey"] if existing else defaults["uren_per_survey"]
-                )
-
-                survey_informatie[soort] = fields
-            else:
-                survey_informatie[soort] = None
-
-        elif config["type"] == "multi_phase_toggle":
-            actief_survey = st.toggle(
-                f"Survey nodig voor {soort}?",
-                value=(existing is not None)
-            )
-
-            if actief_survey:
-                phases = {}
-                for fase, defaults in config["phases"].items():
-                    st.markdown(f"#### {fase.capitalize()}")
-
-                    ex = existing.get(fase) if existing else None
-
-                    phases[fase] = {
-                        "aantal_rondes": st.number_input(
-                            f"Aantal rondes ({fase})",
-                            min_value=0,
-                            value=ex["aantal_rondes"] if ex else defaults["aantal_rondes"]
-                        ),
-                        "aantal_personen": st.number_input(
-                            f"Aantal personen ({fase})",
-                            min_value=0,
-                            value=ex["aantal_personen"] if ex else defaults["aantal_personen"]
-                        ),
-                        "uren_per_survey": st.number_input(
-                            f"Uren per survey ({fase})",
-                            min_value=0,
-                            value=ex["uren_per_survey"] if ex else defaults["uren_per_survey"]
-                        )
-                    }
-
-                survey_informatie[soort] = phases
-            else:
-                survey_informatie[soort] = None
-
-    # -----------------------------
-    # 7. Klant informatie
-    # -----------------------------
-    st.subheader("Klant informatie")
-
-    existing_contact = meta["klant_informatie"]["contactpersoon"]
-
-    heeft_contactpersoon = st.toggle(
-        "Is er een contactpersoon?",
-        value=(existing_contact["naam"] != "unknown")
-    )
-
-    klant_informatie = {}
-
-    if heeft_contactpersoon:
-        naam = st.text_input("Naam contactpersoon", value=existing_contact["naam"])
-        email = st.text_input("Email contactpersoon", value=existing_contact["email"])
-        telefoon = st.text_input("Telefoon contactpersoon", value=existing_contact["telefoon"])
-
-        klant_informatie["contactpersoon"] = {
-            "naam": naam,
-            "email": email,
-            "telefoon": telefoon
-        }
-    else:
-        klant_informatie["contactpersoon"] = {
-            "naam": "unknown",
-            "email": "unknown",
-            "telefoon": "unknown"
-        }
-
-    # -----------------------------
-    # 8. Save button
-    # -----------------------------
-    if st.button("Inventarisatie opslaan"):
-
-        update_data = {
-            "project_naam": project_naam,
-            "project_beschrijving": project_beschrijving,
-            "actief": actief,
-            "gebruikers": gebruikers,
-            "survey_informatie": survey_informatie,
-            "klant_informatie": klant_informatie
-        }
-
-        success, error = update_inventarisatie(project_id, update_data, new_geojson)
-
-        if success:
-            st.success("Inventarisatie bijgewerkt.")
-            st.rerun()
+    
+                if actief_survey:
+                    phases = {}
+                    for fase, defaults in config["phases"].items():
+                        st.markdown(f"#### {fase.capitalize()}")
+    
+                        ex = existing.get(fase) if existing else None
+    
+                        phases[fase] = {
+                            "aantal_rondes": st.number_input(
+                                f"Aantal rondes ({fase})",
+                                min_value=0,
+                                value=ex["aantal_rondes"] if ex else defaults["aantal_rondes"]
+                            ),
+                            "aantal_personen": st.number_input(
+                                f"Aantal personen ({fase})",
+                                min_value=0,
+                                value=ex["aantal_personen"] if ex else defaults["aantal_personen"]
+                            ),
+                            "uren_per_survey": st.number_input(
+                                f"Uren per survey ({fase})",
+                                min_value=0,
+                                value=ex["uren_per_survey"] if ex else defaults["uren_per_survey"]
+                            )
+                        }
+    
+                    survey_informatie[soort] = phases
+                else:
+                    survey_informatie[soort] = None
+    
+        # -----------------------------
+        # 7. Klant informatie
+        # -----------------------------
+        st.subheader("Klant informatie")
+    
+        existing_contact = meta["klant_informatie"]["contactpersoon"]
+    
+        heeft_contactpersoon = st.toggle(
+            "Is er een contactpersoon?",
+            value=(existing_contact["naam"] != "unknown")
+        )
+    
+        klant_informatie = {}
+    
+        if heeft_contactpersoon:
+            naam = st.text_input("Naam contactpersoon", value=existing_contact["naam"])
+            email = st.text_input("Email contactpersoon", value=existing_contact["email"])
+            telefoon = st.text_input("Telefoon contactpersoon", value=existing_contact["telefoon"])
+    
+            klant_informatie["contactpersoon"] = {
+                "naam": naam,
+                "email": email,
+                "telefoon": telefoon
+            }
         else:
-            st.error(f"Fout bij opslaan: {error}")
-
-    # -----------------------------
-    # 9. Delete button
-    # -----------------------------
-    if st.button("Verwijder inventarisatie"):
-        confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
-        if confirm:
-            ok, err = delete_inventarisatie(project_id)
-            if ok:
-                st.success("Project verwijderd.")
+            klant_informatie["contactpersoon"] = {
+                "naam": "unknown",
+                "email": "unknown",
+                "telefoon": "unknown"
+            }
+    
+        # -----------------------------
+        # 8. Save button
+        # -----------------------------
+        if st.button("Inventarisatie opslaan"):
+    
+            update_data = {
+                "project_naam": project_naam,
+                "project_beschrijving": project_beschrijving,
+                "actief": actief,
+                "gebruikers": gebruikers,
+                "survey_informatie": survey_informatie,
+                "klant_informatie": klant_informatie
+            }
+    
+            success, error = update_inventarisatie(project_id, update_data, new_geojson)
+    
+            if success:
+                st.success("Inventarisatie bijgewerkt.")
                 st.rerun()
             else:
-                st.error(f"Fout bij verwijderen: {err}")
+                st.error(f"Fout bij opslaan: {error}")
+    
+        # -----------------------------
+        # 9. Delete button
+        # -----------------------------
+        if st.button("Verwijder inventarisatie"):
+            confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
+            if confirm:
+                ok, err = delete_inventarisatie(project_id)
+                if ok:
+                    st.success("Project verwijderd.")
+                    st.rerun()
+                else:
+                    st.error(f"Fout bij verwijderen: {err}")
 
     # ============================================================
     # 3. INVENTARISATIE BEKIJKEN
