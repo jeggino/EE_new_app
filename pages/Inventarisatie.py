@@ -12,6 +12,8 @@ from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
 from utils.inventarisatie.helpers import get_full_name, load_geometry
 from utils.inventarisatie.map_viewer import show_geometry_map
+from utils.inventarisatie.info_renderer import render_info_block
+
 
 
 # Geometry tools (we will create these next)
@@ -603,10 +605,8 @@ if check_password():
             for name in full_names:
                 st.write(f"- {name}")
     
-        st.subheader("Survey informatie")
-        st.json(project["survey_informatie"])
-    
-        st.subheader("Klant informatie")
-        st.json(project["klant_informatie"])
+        render_info_block("Survey informatie", project["survey_informatie"])
+        render_info_block("Klant informatie", project["klant_informatie"])
+
 
 
