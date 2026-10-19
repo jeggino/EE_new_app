@@ -210,19 +210,17 @@ elif pagina == "Agenda":
     if filter_type == "Project":
         projecten = sorted(list({p["project_naam"] for p in planning}))
         gekozen_project = st.selectbox("Kies een project:", projecten)
-
         gefilterd = [p for p in planning if p["project_naam"] == gekozen_project]
 
     else:
         alle_werkers = sorted(list({w for p in planning for w in p["veldwerkers"]}))
         gekozen_werker = st.selectbox("Kies een veldwerker:", alle_werkers)
-
         gefilterd = [p for p in planning if gekozen_werker in p["veldwerkers"]]
 
     # ------------------------------------------
     # Kalenderweergave
     # ------------------------------------------
-
+    from streamlit_calendar import calendar
 
     events = []
 
@@ -234,7 +232,9 @@ elif pagina == "Agenda":
             "extendedProps": {
                 "project": item["project_naam"],
                 "veldwerkers": ", ".join(item["veldwerkers"]),
-                "aangemaakt_door": item["aangemaakt_door"]
+                "aangemaakt_door": item["aangemaakt_door"],
+                "assignment": item["assignment"],
+                "subassignment": item["subassignment"] or "algemeen"
             }
         })
 
@@ -247,7 +247,28 @@ elif pagina == "Agenda":
     }
 
     st.markdown("### Kalender")
-    calendar(events=events, options=calendar_options)
+    clicked = calendar(events=events, options=calendar_options)
+
+    # ------------------------------------------
+    # Event info onder de kalender
+    # ------------------------------------------
+    if clicked and "event" in clicked:
+        event = clicked["event"]
+        props = event.get("extendedProps", {})
+
+        st.markdown("### 📌 Details van geselecteerde survey")
+
+        st.info(
+            f"""
+            **Project:** {props.get('project')}  
+            **Soort:** {props.get('assignment')}  
+            **Surveytype:** {props.get('subassignment')}  
+            **Datum:** {event.get('start')}  
+            **Veldwerkers:** {props.get('veldwerkers')}  
+            **Aangemaakt door:** {props.get('aangemaakt_door')}
+            """
+        )
+
 
 
 
