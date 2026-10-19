@@ -572,6 +572,12 @@ if check_password():
             options=projecten,
             format_func=lambda x: f"{x['project_naam']} ({x['aangemaakt_op'][:10]})"
         )
+
+        # If nothing selected or project missing → stop
+        if not keuze or "id" not in keuze:
+            st.warning("Er is geen project beschikbaar om te bekijken.")
+            st.stop()
+        
     
         project_id = keuze["id"]
     
