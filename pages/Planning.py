@@ -163,7 +163,7 @@ if st.button("Survey plannen"):
         "subassignment": subassignment,
         "datum": str(datum),
         "veldwerkers": geselecteerde_werkers,
-        "aangemaakt_door": st.session_state["username"]
+        "aangemaakt_door": st.session_state["user"]
     }).execute()
 
     st.success("Survey succesvol gepland!")
