@@ -31,7 +31,7 @@ pagina = st.pills(
     "Navigatie",
     ["Plan een survey", "Agenda"],
     default="Plan een survey",
-    icons=["calendar_add_on", "calendar_month"]
+    # icons=["calendar_add_on", "calendar_month"]
 )
 
 
