@@ -13,18 +13,13 @@ def render_nested_dict(title, data: dict):
 
     st.markdown(f"### {title}")
 
-    # Stop if data is None or empty
     if not data:
         st.info("Geen informatie beschikbaar.")
         return
 
-    # Stop if data is not nested (values must be dicts)
-    if any(not isinstance(v, dict) for v in data.values()):
-        st.info("Geen gedetailleerde survey informatie beschikbaar.")
-        return
-
     for section, values in data.items():
 
+        # Section card
         st.markdown(
             f"""
             <div style="
@@ -42,6 +37,7 @@ def render_nested_dict(title, data: dict):
             unsafe_allow_html=True
         )
 
+        # Fields inside the section
         for key, value in values.items():
             st.markdown(
                 f"""
@@ -56,6 +52,7 @@ def render_nested_dict(title, data: dict):
                 unsafe_allow_html=True
             )
 
+        # Close card
         st.markdown("</div>", unsafe_allow_html=True)
 
 
