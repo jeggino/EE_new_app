@@ -593,12 +593,10 @@ if check_password():
     
         st.subheader("Projectinformatie")
     
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([3,1])
     
         with col1:
-            st.markdown(f"### {project['project_naam']}")
             st.write(f"**Beschrijving:** {project['project_beschrijving']}")
-            st.write(f"**Status:** {'Actief' if project['actief'] else 'Niet actief'}")
     
         with col2:
             st.markdown("### Team")
