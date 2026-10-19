@@ -606,7 +606,7 @@ if check_password():
             for name in full_names:
                 st.write(f"- {name}")
     
-        render_info_block("Survey informatie", project["survey_informatie"])
+        render_nested_dict("Survey informatie", project["survey_informatie"])
         render_info_block("Klant informatie", project["klant_informatie"])
 
 
