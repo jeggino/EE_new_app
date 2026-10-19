@@ -170,16 +170,19 @@ st.write({
 # 7. Opslaan
 # ---------------------------------------------------------
 if st.button("Survey plannen"):
+    user = st.session_state.get("user")
+    aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
+
     supabase.table("new_app_planning").insert({
         "project_naam": keuze["project_naam"],
         "assignment": gekozen_soort,
         "subassignment": subassignment,
         "datum": str(datum),
-        "veldwerkers": geselecteerde_werkers,  # nu een lijst van strings
-        "aangemaakt_door": st.session_state.get("user", "Onbekend")
+        "veldwerkers": geselecteerde_werkers,
+        "aangemaakt_door": aangemaakt_door
     }).execute()
 
-
     st.success("Survey succesvol gepland!")
+
 
 
