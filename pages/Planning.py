@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from utils.auth import check_password
 from utils.supabase_client import supabase
-from utils.inventarisatie.protocols import PROTOCOLS
+from utils.planing.protocols import PROTOCOLS
 from utils.inventarisatie.helpers import get_full_name
 
 
