@@ -1,14 +1,14 @@
 import streamlit as st
 from utils.auth import check_password
 from utils.supabase_client import supabase
-from utils.inventarisatie.survey_defaults import SURVEY_DEFAULTS
-from utils.inventarisatie.save_inventarisatie import save_inventarisatie
-from utils.geometry_tools import draw_geometry_with_existing
+# from utils.inventarisatie.survey_defaults import SURVEY_DEFAULTS
+# from utils.inventarisatie.save_inventarisatie import save_inventarisatie
+# from utils.geometry_tools import draw_geometry_with_existing
 
 
-from utils.inventarisatie.load_inventarisatie import load_inventarisatie
-from utils.inventarisatie.update_inventarisatie import update_inventarisatie
-from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
+# from utils.inventarisatie.load_inventarisatie import load_inventarisatie
+# from utils.inventarisatie.update_inventarisatie import update_inventarisatie
+# from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
 # from utils.inventarisatie.helpers import get_full_name, load_geometry
 # from utils.inventarisatie.map_viewer import show_geometry_map
