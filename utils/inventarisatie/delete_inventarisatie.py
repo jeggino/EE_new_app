@@ -1,3 +1,7 @@
+# utils/inventarisatie/delete_inventarisatie.py
+
+from utils.supabase_client import supabase
+
 def delete_inventarisatie(project_id: str):
     """Delete project + geometry file."""
 
