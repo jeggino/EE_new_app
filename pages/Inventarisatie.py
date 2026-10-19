@@ -3,6 +3,8 @@ from utils.auth import check_password
 from utils.supabase_client import supabase
 from utils.inventarisatie.survey_defaults import SURVEY_DEFAULTS
 from utils.inventarisatie.save_inventarisatie import save_inventarisatie
+from utils.geometry_tools import draw_geometry_with_existing
+
 
 from utils.inventarisatie.load_inventarisatie import load_inventarisatie
 from utils.inventarisatie.update_inventarisatie import update_inventarisatie
@@ -314,11 +316,11 @@ if check_password():
         # -----------------------------
         st.subheader("Geometrie")
     
-        new_geojson = draw_inventarisatie_geometry(
-            key=f"edit_inv_map_{project_id}",
-            existing_geometry=geometry
+        new_geojson = draw_geometry_with_existing(
+            existing_geojson=geometry,
+            key=f"edit_inv_map_{project_id}"
         )
-    
+
         # -----------------------------
         # 4. Metadata fields
         # -----------------------------
