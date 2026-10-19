@@ -7,18 +7,23 @@ from utils.supabase_client import supabase
 def update_inventarisatie(project_id: str, update_data: dict, new_geometry: dict | None):
     """Update metadata + optionally replace geometry file."""
 
-    # Update metadata
-    update_data["bijgewerkt_op"] = "now()"  # let Postgres set timestamp
+    # Let Postgres update the timestamp
+    update_data["bijgewerkt_op"] = "now()"
 
-    resp = supabase.table("new_app_inventarisatie") \
-        .update(update_data) \
-        .eq("id", project_id) \
-        .execute()
+    # -----------------------------
+    # 1. Update metadata
+    # -----------------------------
+    try:
+        supabase.table("new_app_inventarisatie") \
+            .update(update_data) \
+            .eq("id", project_id) \
+            .execute()
+    except Exception as e:
+        return False, str(e)
 
-    if resp.error:
-        return False, resp.error.message
-
-    # Replace geometry if provided
+    # -----------------------------
+    # 2. Replace geometry if provided
+    # -----------------------------
     if new_geometry:
         try:
             geo_json = json.dumps(new_geometry).encode("utf-8")
@@ -33,3 +38,4 @@ def update_inventarisatie(project_id: str, update_data: dict, new_geometry: dict
             return False, f"Geometry update failed: {e}"
 
     return True, None
+
