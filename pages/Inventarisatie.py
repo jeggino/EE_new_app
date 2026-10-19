@@ -490,6 +490,8 @@ if check_password():
                 if success:
                     st.success("Project verwijderd.")
                     st.rerun()
+                else:
+                    st.error(f"Fout bij verwijderen: {err}")
 
 
 
