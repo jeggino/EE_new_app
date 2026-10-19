@@ -9,7 +9,7 @@ def delete_inventarisatie(project_id: str):
     # 1. Delete geometry file (list of paths!)
     try:
         path = f"inventarisatie/geometries/{project_id}.geojson"
-        result = supabase.storage.from_("new_app").remove([path])
+        result = supabase.storage.from_("new_app").remove(path)
         print("Geometry delete result:", result)
     except Exception as e:
         print("Geometry delete error:", e)
