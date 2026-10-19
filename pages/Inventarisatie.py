@@ -430,6 +430,8 @@ if check_password():
         st.subheader("Klant informatie")
     
         existing_contact = meta["klant_informatie"]["contactpersoon"]
+
+        existing_contact 
     
         heeft_contactpersoon = st.toggle(
             "Is er een contactpersoon?",
