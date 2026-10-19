@@ -62,10 +62,21 @@ gekozen_soort = st.selectbox("Soort:", soorten)
 
 st.markdown("### Kies een surveytype")
 
-surveytypes = list(survey_info[gekozen_soort].keys())
-gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
+# Sommige soorten hebben GEEN subtypes (zoals gierzwaluwen)
+value = survey_info[gekozen_soort]
 
-survey_details = survey_info[gekozen_soort][gekozen_surveytype]
+if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
+    # soort heeft subassignments (avond/ochtend/paarperiode)
+    surveytypes = list(value.keys())
+    gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
+    survey_details = value[gekozen_surveytype]
+    subassignment = gekozen_surveytype
+else:
+    # soort heeft GEEN subassignments
+    gekozen_surveytype = "algemeen"
+    survey_details = value
+    subassignment = None  # geen subtype
+
 aantal_personen = survey_details["aantal_personen"]
 
 st.markdown(f"Deze survey vereist **{aantal_personen} veldwerkers**.")
@@ -103,8 +114,8 @@ regels = None
 
 if soort in PROTOCOLS:
     # vleermuizen heeft subtypes
-    if surveytype in PROTOCOLS[soort]:
-        regels = PROTOCOLS[soort][surveytype]
+    if subassignment and subassignment.lower() in PROTOCOLS[soort]:
+        regels = PROTOCOLS[soort][subassignment.lower()]
     # andere soorten hebben "algemeen"
     elif "algemeen" in PROTOCOLS[soort]:
         regels = PROTOCOLS[soort]["algemeen"]
@@ -114,11 +125,10 @@ if regels:
     verplichte_maand = regels["verplichte_maand_derde_survey"]
 
     # Haal eerdere surveys op
-    eerdere_surveys = supabase.table("planning") \
+    eerdere_surveys = supabase.table("new_app_planning") \
         .select("*") \
-        .eq("project_id", project_id) \
-        .eq("soort", gekozen_soort) \
-        .eq("survey_type", gekozen_surveytype) \
+        .eq("project_naam", keuze["project_naam"]) \
+        .eq("assignment", gekozen_soort) \
         .execute().data
 
     # Regel 1: minimum dagen tussen surveys
@@ -147,13 +157,15 @@ if regels:
 # 7. Opslaan
 # ---------------------------------------------------------
 if st.button("Survey plannen"):
-    supabase.table("planning").insert({
-        "project_id": project_id,
-        "soort": gekozen_soort,
-        "survey_type": gekozen_surveytype,
+    supabase.table("new_app_planning").insert({
+        "project_naam": keuze["project_naam"],
+        "assignment": gekozen_soort,
+        "subassignment": subassignment,
         "datum": str(datum),
-        "veldwerkers": geselecteerde_werkers
+        "veldwerkers": geselecteerde_werkers,
+        "aangemaakt_door": st.session_state["username"]
     }).execute()
 
     st.success("Survey succesvol gepland!")
+
 
