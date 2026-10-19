@@ -55,6 +55,14 @@ if check_password():
         if st.button("Account aanmaken", icon=":material/person_add:", use_container_width=True,disabled=False):
             st.switch_page("pages/Medewerkers.py")
 
+    # --- Control ---
+    col5, col6 = st.columns(2)
+
+    with col5:
+        # st.image("utils/pictures/icons/control.png", width=120)
+        if st.button("Planning",disabled=True, icon=":material/calendar:", use_container_width=True):
+            st.switch_page("pages/Planning.py")
+
 
 
 
