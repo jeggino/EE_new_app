@@ -6,6 +6,8 @@ from utils.supabase_client import supabase
 from utils.planing.protocols import PROTOCOLS
 from utils.inventarisatie.helpers import get_full_name
 
+from streamlit_calendar import calendar
+
 
 # Verberg sidebar
 st.markdown("""
@@ -25,166 +27,228 @@ col1, col2 = st.columns([2, 1])
 if col2.button("⬅️ Terug naar menu"):
     st.switch_page("Home.py")
     
-st.title("Planning van Surveys")
-
-
-# ---------------------------------------------------------
-# 1. Laad actieve projecten
-# ---------------------------------------------------------
-projecten = supabase.table("new_app_inventarisatie") \
-    .select("id, project_naam, aangemaakt_op, survey_informatie, gebruikers") \
-    .eq("actief", True) \
-    .execute().data
-
-
-if not projecten:
-    st.info("Er zijn geen actieve projecten om te plannen.")
-    st.stop()
-
-
-# ---------------------------------------------------------
-# 2. Kies project
-# ---------------------------------------------------------
-keuze = st.selectbox(
-    "Kies een project:",
-    options=projecten,
-    format_func=lambda p: f"{p['project_naam']} ({p['aangemaakt_op'][:10]})"
-)
-
-project_id = keuze["id"]
-survey_info = keuze["survey_informatie"]
-gebruikers = keuze["gebruikers"]
-
-
-# ---------------------------------------------------------
-# 3. Kies soort + surveytype
-# ---------------------------------------------------------
-st.markdown("### Kies een soort")
-
-soorten = list(survey_info.keys())
-gekozen_soort = st.selectbox("Soort:", soorten)
-
-st.markdown("### Kies een surveytype")
-
-# Sommige soorten hebben GEEN subtypes (zoals gierzwaluwen)
-value = survey_info[gekozen_soort]
-
-if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
-    # soort heeft subassignments (avond/ochtend/paarperiode)
-    surveytypes = list(value.keys())
-    gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
-    survey_details = value[gekozen_surveytype]
-    subassignment = gekozen_surveytype
-else:
-    # soort heeft GEEN subassignments
-    gekozen_surveytype = "algemeen"
-    survey_details = value
-    subassignment = None  # geen subtype
-
-aantal_personen = survey_details["aantal_personen"]
-
-st.markdown(f"Deze survey vereist **{aantal_personen} veldwerkers**.")
-
-
-# ---------------------------------------------------------
-# 4. Kies datum
-# ---------------------------------------------------------
-datum = st.date_input("Datum van de survey")
-
-
-# ---------------------------------------------------------
-# 5. Kies veldwerkers
-# ---------------------------------------------------------
-alle_namen = [get_full_name(email) for email in gebruikers]
-
-geselecteerde_werkers = st.multiselect(
-    "Kies veldwerkers:",
-    options=gebruikers,            # email-adressen
-    format_func=get_full_name      # toont naam
+pagina = st.pills(
+    "Navigatie",
+    ["Plan een survey", "Agenda"],
+    default="Plan een survey",
+    icons=["calendar_add_on", "calendar_month"]
 )
 
 
-# Validatie: aantal personen moet kloppen
-if len(geselecteerde_werkers) != aantal_personen:
-    st.error(f"Je moet precies **{aantal_personen}** veldwerkers kiezen.")
-    st.stop()
+if pagina == "Plan een survey":
+    # ---------------------------------------------------------
+    # 1. Laad actieve projecten
+    # ---------------------------------------------------------
+    projecten = supabase.table("new_app_inventarisatie") \
+        .select("id, project_naam, aangemaakt_op, survey_informatie, gebruikers") \
+        .eq("actief", True) \
+        .execute().data
+    
+    
+    if not projecten:
+        st.info("Er zijn geen actieve projecten om te plannen.")
+        st.stop()
+    
+    
+    # ---------------------------------------------------------
+    # 2. Kies project
+    # ---------------------------------------------------------
+    keuze = st.selectbox(
+        "Kies een project:",
+        options=projecten,
+        format_func=lambda p: f"{p['project_naam']} ({p['aangemaakt_op'][:10]})"
+    )
+    
+    project_id = keuze["id"]
+    survey_info = keuze["survey_informatie"]
+    gebruikers = keuze["gebruikers"]
+    
+    
+    # ---------------------------------------------------------
+    # 3. Kies soort + surveytype
+    # ---------------------------------------------------------
+    st.markdown("### Kies een soort")
+    
+    soorten = list(survey_info.keys())
+    gekozen_soort = st.selectbox("Soort:", soorten)
+    
+    st.markdown("### Kies een surveytype")
+    
+    # Sommige soorten hebben GEEN subtypes (zoals gierzwaluwen)
+    value = survey_info[gekozen_soort]
+    
+    if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
+        # soort heeft subassignments (avond/ochtend/paarperiode)
+        surveytypes = list(value.keys())
+        gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
+        survey_details = value[gekozen_surveytype]
+        subassignment = gekozen_surveytype
+    else:
+        # soort heeft GEEN subassignments
+        gekozen_surveytype = "algemeen"
+        survey_details = value
+        subassignment = None  # geen subtype
+    
+    aantal_personen = survey_details["aantal_personen"]
+    
+    st.markdown(f"Deze survey vereist **{aantal_personen} veldwerkers**.")
+    
+    
+    # ---------------------------------------------------------
+    # 4. Kies datum
+    # ---------------------------------------------------------
+    datum = st.date_input("Datum van de survey")
+    
+    
+    # ---------------------------------------------------------
+    # 5. Kies veldwerkers
+    # ---------------------------------------------------------
+    alle_namen = [get_full_name(email) for email in gebruikers]
+    
+    geselecteerde_werkers = st.multiselect(
+        "Kies veldwerkers:",
+        options=gebruikers,            # email-adressen
+        format_func=get_full_name      # toont naam
+    )
+    
+    
+    # Validatie: aantal personen moet kloppen
+    if len(geselecteerde_werkers) != aantal_personen:
+        st.error(f"Je moet precies **{aantal_personen}** veldwerkers kiezen.")
+        st.stop()
+    
+    
+    # ---------------------------------------------------------
+    # 6. Protocolvalidatie
+    # ---------------------------------------------------------
+    soort = gekozen_soort.lower()
+    surveytype = gekozen_surveytype.lower()
+    
+    regels = None
+    
+    if soort in PROTOCOLS:
+        # vleermuizen heeft subtypes
+        if subassignment and subassignment.lower() in PROTOCOLS[soort]:
+            regels = PROTOCOLS[soort][subassignment.lower()]
+        # andere soorten hebben "algemeen"
+        elif "algemeen" in PROTOCOLS[soort]:
+            regels = PROTOCOLS[soort]["algemeen"]
+    
+    if regels:
+        min_dagen = regels["min_dagen_tussen_surveys"]
+        verplichte_maand = regels["verplichte_maand_derde_survey"]
+    
+        # Haal eerdere surveys op
+        eerdere_surveys = supabase.table("new_app_planning") \
+            .select("*") \
+            .eq("project_naam", keuze["project_naam"]) \
+            .eq("assignment", gekozen_soort) \
+            .execute().data
+    
+        # Regel 1: minimum dagen tussen surveys
+        if eerdere_surveys:
+            laatste_datum = max([datetime.fromisoformat(s["datum"]) for s in eerdere_surveys])
+            verschil = (datum - laatste_datum.date()).days
+    
+            if verschil < min_dagen:
+                st.error(
+                    f"Volgens het protocol moeten er minimaal **{min_dagen} dagen** tussen deze surveys zitten."
+                )
+                st.stop()
+    
+        # Regel 2: derde survey moet in specifieke maand
+        if verplichte_maand and len(eerdere_surveys) == 2:
+            if datum.month != verplichte_maand:
+                maandnaam = ["januari","februari","maart","april","mei","juni",
+                             "juli","augustus","september","oktober","november","december"][verplichte_maand-1]
+                st.error(
+                    f"De derde survey moet volgens protocol in **{maandnaam}** plaatsvinden."
+                )
+                st.stop()
+    
+    
+    # ---------------------------------------------------------
+    # 7. Opslaan
+    # ---------------------------------------------------------
+    if st.button("Survey plannen"):
+        user = st.session_state.get("user")
+        aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
+    
+        supabase.table("new_app_planning").insert({
+            "project_naam": keuze["project_naam"],
+            "assignment": gekozen_soort,
+            "subassignment": subassignment,
+            "datum": str(datum),
+            "veldwerkers": geselecteerde_werkers,
+            "aangemaakt_door": aangemaakt_door
+        }).execute()
+    
+        st.success("Survey succesvol gepland!")
 
+elif pagina == "Agenda":
+    st.header("Agenda-overzicht")
 
-# ---------------------------------------------------------
-# 6. Protocolvalidatie
-# ---------------------------------------------------------
-soort = gekozen_soort.lower()
-surveytype = gekozen_surveytype.lower()
-
-regels = None
-
-if soort in PROTOCOLS:
-    # vleermuizen heeft subtypes
-    if subassignment and subassignment.lower() in PROTOCOLS[soort]:
-        regels = PROTOCOLS[soort][subassignment.lower()]
-    # andere soorten hebben "algemeen"
-    elif "algemeen" in PROTOCOLS[soort]:
-        regels = PROTOCOLS[soort]["algemeen"]
-
-if regels:
-    min_dagen = regels["min_dagen_tussen_surveys"]
-    verplichte_maand = regels["verplichte_maand_derde_survey"]
-
-    # Haal eerdere surveys op
-    eerdere_surveys = supabase.table("new_app_planning") \
+    # Haal alle geplande surveys op
+    planning = supabase.table("new_app_planning") \
         .select("*") \
-        .eq("project_naam", keuze["project_naam"]) \
-        .eq("assignment", gekozen_soort) \
+        .order("datum") \
         .execute().data
 
-    # Regel 1: minimum dagen tussen surveys
-    if eerdere_surveys:
-        laatste_datum = max([datetime.fromisoformat(s["datum"]) for s in eerdere_surveys])
-        verschil = (datum - laatste_datum.date()).days
+    if not planning:
+        st.info("Er zijn nog geen geplande surveys.")
+        st.stop()
 
-        if verschil < min_dagen:
-            st.error(
-                f"Volgens het protocol moeten er minimaal **{min_dagen} dagen** tussen deze surveys zitten."
-            )
-            st.stop()
+    # ------------------------------------------
+    # Filters: project of veldwerker
+    # ------------------------------------------
+    filter_type = st.radio(
+        "Filter op:",
+        ["Project", "Veldwerker"],
+        horizontal=True
+    )
 
-    # Regel 2: derde survey moet in specifieke maand
-    if verplichte_maand and len(eerdere_surveys) == 2:
-        if datum.month != verplichte_maand:
-            maandnaam = ["januari","februari","maart","april","mei","juni",
-                         "juli","augustus","september","oktober","november","december"][verplichte_maand-1]
-            st.error(
-                f"De derde survey moet volgens protocol in **{maandnaam}** plaatsvinden."
-            )
-            st.stop()
+    if filter_type == "Project":
+        projecten = sorted(list({p["project_naam"] for p in planning}))
+        gekozen_project = st.selectbox("Kies een project:", projecten)
 
-user = st.session_state.get("user")
-aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
-st.write({
-        "project_naam": keuze["project_naam"],
-        "assignment": gekozen_soort,
-        "subassignment": subassignment,
-        "datum": str(datum),
-        "veldwerkers": geselecteerde_werkers,  # nu een lijst van strings
-        "aangemaakt_door": aangemaakt_door
-    })
-# ---------------------------------------------------------
-# 7. Opslaan
-# ---------------------------------------------------------
-if st.button("Survey plannen"):
-    user = st.session_state.get("user")
-    aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
+        gefilterd = [p for p in planning if p["project_naam"] == gekozen_project]
 
-    supabase.table("new_app_planning").insert({
-        "project_naam": keuze["project_naam"],
-        "assignment": gekozen_soort,
-        "subassignment": subassignment,
-        "datum": str(datum),
-        "veldwerkers": geselecteerde_werkers,
-        "aangemaakt_door": aangemaakt_door
-    }).execute()
+    else:
+        alle_werkers = sorted(list({w for p in planning for w in p["veldwerkers"]}))
+        gekozen_werker = st.selectbox("Kies een veldwerker:", alle_werkers)
 
-    st.success("Survey succesvol gepland!")
+        gefilterd = [p for p in planning if gekozen_werker in p["veldwerkers"]]
+
+    # ------------------------------------------
+    # Kalenderweergave
+    # ------------------------------------------
+
+
+    events = []
+
+    for item in gefilterd:
+        events.append({
+            "title": f"{item['assignment']} ({item['subassignment'] or 'algemeen'})",
+            "start": item["datum"],
+            "end": item["datum"],
+            "extendedProps": {
+                "project": item["project_naam"],
+                "veldwerkers": ", ".join(item["veldwerkers"]),
+                "aangemaakt_door": item["aangemaakt_door"]
+            }
+        })
+
+    calendar_options = {
+        "initialView": "dayGridMonth",
+        "locale": "nl",
+        "height": 650,
+        "eventColor": "#2E7D32",
+        "eventDisplay": "block"
+    }
+
+    st.markdown("### Kalender")
+    calendar(events=events, options=calendar_options)
+
 
 
 
