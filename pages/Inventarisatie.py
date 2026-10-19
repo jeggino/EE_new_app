@@ -13,7 +13,7 @@ from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 from utils.inventarisatie.helpers import get_full_name, load_geometry
 from utils.inventarisatie.map_viewer import show_geometry_map
 
-from utils.inventarisatie.info_renderer import render_nested_dict, render_info_block
+from utils.inventarisatie.info_renderer import render_survey_info, render_info_block
 
 
 
@@ -599,7 +599,7 @@ if check_password():
         for name in full_names:
             st.write(f"- {name}")
     
-        render_nested_dict("Survey informatie", project["survey_informatie"])
+        render_survey_info("Survey informatie", project["survey_informatie"])
         render_info_block("Klant informatie", project["klant_informatie"])
 
 
