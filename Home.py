@@ -60,7 +60,7 @@ if check_password():
 
     with col5:
         # st.image("utils/pictures/icons/control.png", width=120)
-        if st.button("Planning",disabled=True, icon=":material/event:", use_container_width=True):
+        if st.button("Planning",disabled=False, icon=":material/event:", use_container_width=True):
             st.switch_page("pages/Planning.py")
 
 
