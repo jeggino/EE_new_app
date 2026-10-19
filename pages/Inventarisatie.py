@@ -472,12 +472,13 @@ if check_password():
                 if success:
                     st.success("Inventarisatie bijgewerkt.")
         
-                    # Force full page reload
-                    st.experimental_set_query_params(reload=project_id)
+                    # Force full page reload (new Streamlit API)
+                    st.query_params = {"reload": project_id}
         
                     st.rerun()
                 else:
                     st.error(f"Fout bij opslaan: {error}")
+
 
     
 
