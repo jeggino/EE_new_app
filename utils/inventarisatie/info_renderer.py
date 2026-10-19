@@ -18,7 +18,7 @@ def render_nested_dict(title, data: dict):
         st.info("Geen informatie beschikbaar.")
         return
 
-    # Stop if data is not nested (flat dict)
+    # Stop if data is not nested (values must be dicts)
     if any(not isinstance(v, dict) for v in data.values()):
         st.info("Geen gedetailleerde survey informatie beschikbaar.")
         return
@@ -59,7 +59,6 @@ def render_nested_dict(title, data: dict):
         st.markdown("</div>", unsafe_allow_html=True)
 
 
-
 def render_info_block(title, data: dict):
     """Render simple dictionaries professionally."""
 
@@ -90,4 +89,5 @@ def render_info_block(title, data: dict):
             """,
             unsafe_allow_html=True
         )
+
 
