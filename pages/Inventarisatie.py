@@ -17,11 +17,11 @@ from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
 
 
-# Geometry tools (we will create these next)
-from utils.inventarisatie.geometry_tools_inventarisatie import (
-    draw_inventarisatie_geometry,
-    draw_inventarisatie_geometry_with_existing
-)
+# # Geometry tools (we will create these next)
+# from utils.inventarisatie.geometry_tools_inventarisatie import (
+#     draw_inventarisatie_geometry,
+#     draw_inventarisatie_geometry_with_existing
+# )
 
 # Hide sidebar
 st.markdown("""
