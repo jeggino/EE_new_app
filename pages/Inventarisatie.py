@@ -483,16 +483,18 @@ if check_password():
         if "delete_confirm" not in st.session_state:
             st.session_state.delete_confirm = False
         
-        # First click → ask confirmation
-        if not st.session_state.delete_confirm:
-            if st.button("Verwijder inventarisatie"):
-                st.session_state.delete_confirm = True
-                st.warning("Weet je zeker dat je dit project wilt verwijderen? Klik opnieuw op **'Ja, verwijderen'** om te bevestigen.")
-                st.stop()
+        # User clicks delete → show confirmation buttons immediately
+        if st.button("Verwijder inventarisatie"):
+            st.session_state.delete_confirm = True
         
-        # Second click → actually delete
-        else:
-            if st.button("Ja, verwijderen"):
+        # Show confirmation buttons
+        if st.session_state.delete_confirm:
+        
+            st.warning("Weet je zeker dat je dit project wilt verwijderen? Klik op **'Ja, verwijderen'** om te bevestigen.")
+        
+            col1, col2 = st.columns(2)
+        
+            if col1.button("Ja, verwijderen"):
                 with st.spinner("Project wordt verwijderd..."):
                     success, err = delete_inventarisatie(project_id)
         
@@ -503,9 +505,11 @@ if check_password():
                 else:
                     st.error(f"Fout bij verwijderen: {err}")
         
-            if st.button("Nee, annuleren"):
+            if col2.button("Nee, annuleren"):
                 st.session_state.delete_confirm = False
+                st.info("Verwijderen geannuleerd.")
                 st.rerun()
+
 
 
 
