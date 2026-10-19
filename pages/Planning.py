@@ -20,7 +20,11 @@ st.markdown("""
 if not check_password():
     st.stop()
 
-
+col1, col2 = st.columns([2, 1])
+# col1.title("Quickscan",text_alignment="center",)
+if col2.button("⬅️ Terug naar menu"):
+    st.switch_page("Home.py")
+    
 st.title("Planning van Surveys")
 
 
