@@ -487,7 +487,7 @@ if check_password():
         if not st.session_state.delete_confirm:
             if st.button("Verwijder inventarisatie"):
                 st.session_state.delete_confirm = True
-                st.warning("Weet je zeker dat je dit project wilt verwijderen?")
+                st.warning("Weet je zeker dat je dit project wilt verwijderen? Klik opnieuw op **'Ja, verwijderen'** om te bevestigen.")
                 st.stop()
         
         # Second click → actually delete
