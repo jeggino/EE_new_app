@@ -6,42 +6,47 @@ def pretty_label(key: str) -> str:
     return " ".join(word.capitalize() for word in key.split("_"))
 
 
-def render_nested_dict(title, data: dict):
-    """Simple, safe renderer for nested survey info."""
+def render_survey_info(title, data: dict):
+    """Render ANY survey structure safely and cleanly."""
 
     st.markdown(f"### {title}")
 
-    # If empty or None → show nothing
     if not data:
         st.info("Geen survey informatie beschikbaar.")
         return
 
-    # If not nested → show nothing
-    if any(not isinstance(v, dict) for v in data.values()):
-        st.info("Geen gedetailleerde survey informatie beschikbaar.")
-        return
+    # Loop through top-level categories (vleermuizen, gierzwaluwen, etc.)
+    for category, value in data.items():
+        st.markdown(f"**{pretty_label(category)}**")
 
-    # Render each section
-    for section, values in data.items():
-        st.markdown(f"**{pretty_label(section)}**")
+        # Case 1: value is None
+        if value is None:
+            st.write("- Geen gegevens")
+            st.markdown("---")
+            continue
 
-        # Simple bullet list
-        for key, value in values.items():
-            st.markdown(f"- **{pretty_label(key)}:** {value}")
+        # Case 2: value is a flat dict
+        if isinstance(value, dict) and all(not isinstance(v, dict) for v in value.values()):
+            for key, val in value.items():
+                st.write(f"- **{pretty_label(key)}:** {val}")
+            st.markdown("---")
+            continue
 
-        st.markdown("---")  # simple divider
+        # Case 3: value is a nested dict (avond/ochtend/paarperiode)
+        if isinstance(value, dict):
+            for subkey, subval in value.items():
+                st.markdown(f"- **{pretty_label(subkey)}**")
+                if isinstance(subval, dict):
+                    for k, v in subval.items():
+                        st.write(f"  - **{pretty_label(k)}:** {v}")
+                else:
+                    st.write(f"  - {subval}")
+            st.markdown("---")
+            continue
 
+        # Case 4: fallback for unexpected types
+        st.write(f"- {value}")
+        st.markdown("---")
 
-def render_info_block(title, data: dict):
-    """Simple renderer for flat dictionaries."""
-
-    st.markdown(f"### {title}")
-
-    if not data:
-        st.info("Geen informatie beschikbaar.")
-        return
-
-    for key, value in data.items():
-        st.markdown(f"- **{pretty_label(key)}:** {value}")
 
 
