@@ -1,5 +1,3 @@
-# utils/inventarisatie/info_renderer.py
-
 import streamlit as st
 
 
@@ -9,55 +7,33 @@ def pretty_label(key: str) -> str:
 
 
 def render_nested_dict(title, data: dict):
-    """Render nested dictionaries (like avond/ochtend/paarperiode) professionally."""
+    """Simple, safe renderer for nested survey info."""
 
     st.markdown(f"### {title}")
 
+    # If empty or None → show nothing
     if not data:
-        st.info("Geen informatie beschikbaar.")
+        st.info("Geen survey informatie beschikbaar.")
         return
 
+    # If not nested → show nothing
+    if any(not isinstance(v, dict) for v in data.values()):
+        st.info("Geen gedetailleerde survey informatie beschikbaar.")
+        return
+
+    # Render each section
     for section, values in data.items():
+        st.markdown(f"**{pretty_label(section)}**")
 
-        # Section card
-        st.markdown(
-            f"""
-            <div style="
-                padding: 14px 18px;
-                margin-bottom: 12px;
-                border-radius: 8px;
-                background-color: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(4px);
-            ">
-                <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
-                    {pretty_label(section)}
-                </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # Fields inside the section
+        # Simple bullet list
         for key, value in values.items():
-            st.markdown(
-                f"""
-                <div style="
-                    margin-left: 10px;
-                    margin-bottom: 6px;
-                    font-size: 14px;
-                ">
-                    <strong>{pretty_label(key)}:</strong> {value}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            st.markdown(f"- **{pretty_label(key)}:** {value}")
 
-        # Close card
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("---")  # simple divider
 
 
 def render_info_block(title, data: dict):
-    """Render simple dictionaries professionally."""
+    """Simple renderer for flat dictionaries."""
 
     st.markdown(f"### {title}")
 
@@ -66,24 +42,6 @@ def render_info_block(title, data: dict):
         return
 
     for key, value in data.items():
-        st.markdown(
-            f"""
-            <div style="
-                padding: 12px 16px;
-                margin-bottom: 10px;
-                border-radius: 8px;
-                background-color: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(4px);
-            ">
-                <strong style="font-size: 15px;">
-                    {pretty_label(key)}:
-                </strong>
-                <div style="margin-top: 4px; font-size: 14px;">
-                    {value}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        st.markdown(f"- **{pretty_label(key)}:** {value}")
+
 
