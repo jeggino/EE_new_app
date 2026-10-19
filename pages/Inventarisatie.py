@@ -457,7 +457,7 @@ if check_password():
         # -----------------------------
         if st.button("Inventarisatie opslaan"):
             with st.spinner("..."):
-    
+        
                 update_data = {
                     "project_naam": project_naam,
                     "project_beschrijving": project_beschrijving,
@@ -471,9 +471,14 @@ if check_password():
         
                 if success:
                     st.success("Inventarisatie bijgewerkt.")
+        
+                    # Force full page reload
+                    st.experimental_set_query_params(reload=project_id)
+        
                     st.rerun()
                 else:
                     st.error(f"Fout bij opslaan: {error}")
+
     
 
 
