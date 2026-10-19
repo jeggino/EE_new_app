@@ -276,9 +276,7 @@ if check_password():
             .execute()
     
         all_projects = years_resp.data
-    
-        all_projects
-    
+        
         if not all_projects:
             st.info("Geen inventarisaties gevonden.")
             st.stop()
@@ -458,23 +456,24 @@ if check_password():
         # 8. Save button
         # -----------------------------
         if st.button("Inventarisatie opslaan"):
+            with st.spinner(""):
     
-            update_data = {
-                "project_naam": project_naam,
-                "project_beschrijving": project_beschrijving,
-                "actief": actief,
-                "gebruikers": gebruikers,
-                "survey_informatie": survey_informatie,
-                "klant_informatie": klant_informatie
-            }
-    
-            success, error = update_inventarisatie(project_id, update_data, new_geojson)
-    
-            if success:
-                st.success("Inventarisatie bijgewerkt.")
-                st.rerun()
-            else:
-                st.error(f"Fout bij opslaan: {error}")
+                update_data = {
+                    "project_naam": project_naam,
+                    "project_beschrijving": project_beschrijving,
+                    "actief": actief,
+                    "gebruikers": gebruikers,
+                    "survey_informatie": survey_informatie,
+                    "klant_informatie": klant_informatie
+                }
+        
+                success, error = update_inventarisatie(project_id, update_data, new_geojson)
+        
+                if success:
+                    st.success("Inventarisatie bijgewerkt.")
+                    st.rerun()
+                else:
+                    st.error(f"Fout bij opslaan: {error}")
     
         # -----------------------------
         # 9. Delete button
@@ -482,12 +481,13 @@ if check_password():
         if st.button("Verwijder inventarisatie"):
             confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
             if confirm:
-                ok, err = delete_inventarisatie(project_id)
-                if ok:
-                    st.success("Project verwijderd.")
-                    st.rerun()
-                else:
-                    st.error(f"Fout bij verwijderen: {err}")
+                with st.spinner(""):
+                    ok, err = delete_inventarisatie(project_id)
+                    if ok:
+                        st.success("Project verwijderd.")
+                        st.rerun()
+                    else:
+                        st.error(f"Fout bij verwijderen: {err}")
 
     # ============================================================
     # 3. INVENTARISATIE BEKIJKEN
