@@ -14,12 +14,13 @@ def delete_inventarisatie(project_id: str):
         pass  # geometry may not exist
 
     # Delete row
-    resp = supabase.table("new_app_inventarisatie") \
-        .delete() \
-        .eq("id", project_id) \
-        .execute()
-
-    if resp.error:
-        return False, resp.error.message
+    try:
+        supabase.table("new_app_inventarisatie") \
+            .delete() \
+            .eq("id", project_id) \
+            .execute()
+    except Exception as e:
+        return False, str(e)
 
     return True, None
+
