@@ -154,7 +154,14 @@ if regels:
             )
             st.stop()
 
-
+st.write({
+        "project_naam": keuze["project_naam"],
+        "assignment": gekozen_soort,
+        "subassignment": subassignment,
+        "datum": str(datum),
+        "veldwerkers": geselecteerde_werkers,  # nu een lijst van strings
+        "aangemaakt_door": st.session_state.get("user", "Onbekend")
+    })
 # ---------------------------------------------------------
 # 7. Opslaan
 # ---------------------------------------------------------
