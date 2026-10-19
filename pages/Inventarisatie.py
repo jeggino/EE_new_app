@@ -476,22 +476,37 @@ if check_password():
                     st.error(f"Fout bij opslaan: {error}")
     
 
-        # -----------------------------
-        # 9. Delete project
-        # -----------------------------
-        if st.button("Verwijder inventarisatie"):
-            
-            st.write("Deleting geometry:", f"inventarisatie/geometries/{project_id}.json")
-            st.write("Deleting row:", project_id)
 
-            confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
-            if confirm:
-                success, err = delete_inventarisatie(project_id)
+        # -----------------------------
+        # Delete project
+        # -----------------------------
+        if "delete_confirm" not in st.session_state:
+            st.session_state.delete_confirm = False
+        
+        # First click → ask confirmation
+        if not st.session_state.delete_confirm:
+            if st.button("Verwijder inventarisatie"):
+                st.session_state.delete_confirm = True
+                st.warning("Weet je zeker dat je dit project wilt verwijderen?")
+                st.stop()
+        
+        # Second click → actually delete
+        else:
+            if st.button("Ja, verwijderen"):
+                with st.spinner("Project wordt verwijderd..."):
+                    success, err = delete_inventarisatie(project_id)
+        
                 if success:
                     st.success("Project verwijderd.")
+                    st.session_state.delete_confirm = False
                     st.rerun()
                 else:
                     st.error(f"Fout bij verwijderen: {err}")
+        
+            if st.button("Nee, annuleren"):
+                st.session_state.delete_confirm = False
+                st.rerun()
+
 
 
 
