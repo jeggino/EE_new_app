@@ -10,6 +10,10 @@ from utils.inventarisatie.load_inventarisatie import load_inventarisatie
 from utils.inventarisatie.update_inventarisatie import update_inventarisatie
 from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
+from utils.inventarisatie.helpers import get_full_name, load_geometry
+from utils.inventarisatie.map_viewer import show_geometry_map
+
+
 # Geometry tools (we will create these next)
 from utils.inventarisatie.geometry_tools_inventarisatie import (
     draw_inventarisatie_geometry,
@@ -521,8 +525,6 @@ if check_password():
     # ============================================================
     elif menu == "Inventarisatie bekijken":
     
-        from utils.inventarisatie.helpers import get_full_name, load_geometry
-        from utils.inventarisatie.map_viewer import show_geometry_map
     
         st.header("Inventarisatie bekijken")
     
