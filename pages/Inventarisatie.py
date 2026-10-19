@@ -456,7 +456,7 @@ if check_password():
         # 8. Save button
         # -----------------------------
         if st.button("Inventarisatie opslaan"):
-            with st.spinner(""):
+            with st.spinner("..."):
     
                 update_data = {
                     "project_naam": project_naam,
@@ -479,15 +479,33 @@ if check_password():
         # 9. Delete button
         # -----------------------------
         if st.button("Verwijder inventarisatie"):
-            confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
-            if confirm:
-                with st.spinner(""):
-                    ok, err = delete_inventarisatie(project_id)
-                    if ok:
+            # -----------------------------
+            # Delete project
+            # -----------------------------
+            if "confirm_delete" not in st.session_state:
+                st.session_state.confirm_delete = False
+            
+            if not st.session_state.confirm_delete:
+                if st.button("Verwijder inventarisatie"):
+                    st.session_state.confirm_delete = True
+                    st.warning("Weet je zeker dat je dit project wilt verwijderen?")
+                    st.stop()
+            else:
+                col1, col2 = st.columns(2)
+            
+                if col1.button("Ja, verwijderen"):
+                    success, err = delete_inventarisatie(project_id)
+                    if success:
                         st.success("Project verwijderd.")
+                        st.session_state.confirm_delete = False
                         st.rerun()
                     else:
                         st.error(f"Fout bij verwijderen: {err}")
+            
+                if col2.button("Nee, annuleren"):
+                    st.session_state.confirm_delete = False
+                    st.rerun()
+
 
     # ============================================================
     # 3. INVENTARISATIE BEKIJKEN
