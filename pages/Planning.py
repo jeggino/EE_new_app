@@ -95,8 +95,10 @@ alle_namen = [get_full_name(email) for email in gebruikers]
 
 geselecteerde_werkers = st.multiselect(
     "Kies veldwerkers:",
-    options=alle_namen
+    options=gebruikers,            # email-adressen
+    format_func=get_full_name      # toont naam
 )
+
 
 # Validatie: aantal personen moet kloppen
 if len(geselecteerde_werkers) != aantal_personen:
@@ -162,9 +164,10 @@ if st.button("Survey plannen"):
         "assignment": gekozen_soort,
         "subassignment": subassignment,
         "datum": str(datum),
-        "veldwerkers": geselecteerde_werkers,
-        "aangemaakt_door": st.session_state["user"]
+        "veldwerkers": geselecteerde_werkers,  # nu een lijst van strings
+        "aangemaakt_door": st.session_state.get("user", "Onbekend")
     }).execute()
+
 
     st.success("Survey succesvol gepland!")
 
