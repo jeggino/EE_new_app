@@ -227,18 +227,14 @@ if check_password():
             )
         
             klant_informatie["contactpersoon"] = {
-                "naam": naam if naam else "unknown",
-                "email": email if email else "unknown",
-                "telefoon": telefoon if telefoon else "unknown"
+                "naam": naam if naam else "---",
+                "email": email if email else "---",
+                "telefoon": telefoon if telefoon else "---"
             }
         
         else:
             # No contact person → store unknown values
-            klant_informatie["contactpersoon"] = {
-                "naam": "unknown",
-                "email": "unknown",
-                "telefoon": "unknown"
-            }
+            klant_informatie["contactpersoon"] = None
 
 
         # --- Save button ---
@@ -453,11 +449,7 @@ if check_password():
                 "telefoon": telefoon
             }
         else:
-            klant_informatie["contactpersoon"] = {
-                "naam": "unknown",
-                "email": "unknown",
-                "telefoon": "unknown"
-            }
+            klant_informatie["contactpersoon"] = None
     
         # -----------------------------
         # 8. Save button
