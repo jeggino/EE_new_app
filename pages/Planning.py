@@ -158,13 +158,15 @@ if regels:
             )
             st.stop()
 
+user = st.session_state.get("user")
+aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
 st.write({
         "project_naam": keuze["project_naam"],
         "assignment": gekozen_soort,
         "subassignment": subassignment,
         "datum": str(datum),
         "veldwerkers": geselecteerde_werkers,  # nu een lijst van strings
-        "aangemaakt_door": st.session_state.get("user", "Onbekend")
+        "aangemaakt_door": aangemaakt_door
     })
 # ---------------------------------------------------------
 # 7. Opslaan
