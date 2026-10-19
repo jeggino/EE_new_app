@@ -11,7 +11,7 @@ from utils.inventarisatie.update_inventarisatie import update_inventarisatie
 from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
 from utils.inventarisatie.helpers import get_full_name, load_geometry
-from utils.inventarisatie.map_viewer import show_geometry_map
+# from utils.inventarisatie.map_viewer import show_geometry_map
 
 from utils.inventarisatie.info_renderer import render_nested_dict, render_info_block
 
