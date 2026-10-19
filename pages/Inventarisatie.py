@@ -263,9 +263,6 @@ if check_password():
     # ============================================================
 elif menu == "Inventarisatie bewerken":
 
-    from utils.inventarisatie.load_inventarisatie import load_inventarisatie
-    from utils.inventarisatie.update_inventarisatie import update_inventarisatie
-    from utils.inventarisatie.delete_inventarisatie import delete_inventarisatie
 
     st.header("Inventarisatie bewerken")
 
@@ -277,6 +274,8 @@ elif menu == "Inventarisatie bewerken":
         .execute()
 
     all_projects = years_resp.data
+
+    all_projects
 
     if not all_projects:
         st.info("Geen inventarisaties gevonden.")
