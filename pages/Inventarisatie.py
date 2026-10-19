@@ -481,8 +481,8 @@ if check_password():
         # -----------------------------
         if st.button("Verwijder inventarisatie"):
             
-            print("Deleting geometry:", f"inventarisatie/geometries/{project_id}.json")
-            print("Deleting row:", project_id)
+            st.write("Deleting geometry:", f"inventarisatie/geometries/{project_id}.json")
+            st.write("Deleting row:", project_id)
 
             confirm = st.checkbox("Ik weet zeker dat ik dit project wil verwijderen.")
             if confirm:
