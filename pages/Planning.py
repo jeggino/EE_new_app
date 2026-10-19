@@ -29,8 +29,9 @@ st.title("Planning van Surveys")
 # ---------------------------------------------------------
 projecten = supabase.table("new_app_inventarisatie") \
     .select("id, project_naam, aangemaakt_op, survey_informatie, gebruikers") \
-    .eq("status", "actief") \
+    .eq("actief", True) \
     .execute().data
+
 
 if not projecten:
     st.info("Er zijn geen actieve projecten om te plannen.")
