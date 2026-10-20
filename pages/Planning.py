@@ -123,45 +123,55 @@ if pagina == "Plan een survey":
     # ---------------------------------------------------------
     # 6. Protocolvalidatie
     # ---------------------------------------------------------
-    soort = gekozen_soort.lower()
-    surveytype = gekozen_surveytype.lower()
+    regels = PROTOCOLS.get(soort, {}).get(surveytype, {})
+    
+    min_dagen = regels.get("min_dagen")
+    derde_maand = regels.get("derde_survey_maand")
+    periode_start = regels.get("periode_start")
+    periode_eind = regels.get("periode_eind")
+    
+    # -----------------------------------------
+    # 1. Minimum dagen tussen surveys
+    # -----------------------------------------
+    if min_dagen and eerdere_surveys:
+        laatste_datum = max([datetime.fromisoformat(s["datum"]) for s in eerdere_surveys])
+        verschil = (datum - laatste_datum.date()).days
+    
+        if verschil < min_dagen:
+            st.error(
+                f"Er moeten minimaal **{min_dagen} dagen** tussen twee surveys zitten."
+            )
+            st.stop()
+    
+    # -----------------------------------------
+    # 2. Derde survey verplichte maand
+    # -----------------------------------------
+    if derde_maand and len(eerdere_surveys) == 2:
+        if datum.month != derde_maand:
+            maandnaam = [
+                "januari","februari","maart","april","mei","juni",
+                "juli","augustus","september","oktober","november","december"
+            ][derde_maand - 1]
+    
+            st.error(
+                f"De derde survey moet plaatsvinden in **{maandnaam}**."
+            )
+            st.stop()
+    
+    # -----------------------------------------
+    # 3. Periode waarin surveys mogen plaatsvinden
+    # -----------------------------------------
+    if periode_start and periode_eind:
+        start = datetime.fromisoformat(periode_start).date()
+        eind = datetime.fromisoformat(periode_eind).date()
+    
+        if not (start <= datum <= eind):
+            st.error(
+                f"Deze survey moet plaatsvinden tussen **{start.strftime('%d-%m-%Y')}** "
+                f"en **{eind.strftime('%d-%m-%Y')}**."
+            )
+            st.stop()
 
-    regels = None
-
-    if soort in PROTOCOLS:
-        if subassignment and subassignment.lower() in PROTOCOLS[soort]:
-            regels = PROTOCOLS[soort][subassignment.lower()]
-        elif "algemeen" in PROTOCOLS[soort]:
-            regels = PROTOCOLS[soort]["algemeen"]
-
-    if regels:
-        min_dagen = regels["min_dagen_tussen_surveys"]
-        verplichte_maand = regels["verplichte_maand_derde_survey"]
-
-        eerdere_surveys = supabase.table("new_app_planning") \
-            .select("*") \
-            .eq("project_naam", keuze["project_naam"]) \
-            .eq("assignment", gekozen_soort) \
-            .execute().data
-
-        if eerdere_surveys:
-            laatste_datum = max([datetime.fromisoformat(s["datum"]) for s in eerdere_surveys])
-            verschil = (datum - laatste_datum.date()).days
-
-            if verschil < min_dagen:
-                st.error(
-                    f"Volgens het protocol moeten er minimaal **{min_dagen} dagen** tussen deze surveys zitten."
-                )
-                st.stop()
-
-        if verplichte_maand and len(eerdere_surveys) == 2:
-            if datum.month != verplichte_maand:
-                maandnaam = ["januari","februari","maart","april","mei","juni",
-                             "juli","augustus","september","oktober","november","december"][verplichte_maand-1]
-                st.error(
-                    f"De derde survey moet volgens protocol in **{maandnaam}** plaatsvinden."
-                )
-                st.stop()
 
     # ---------------------------------------------------------
     # 7. Opslaan
