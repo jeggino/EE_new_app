@@ -230,7 +230,7 @@ elif pagina == "Agenda":
     # ---------------------------------------------------------
     user = st.session_state.get("user")
     user_name = user.user_metadata.get("volledige_naam", user.email)
-
+    st.write(user_name)
     planning_user = [p for p in planning if user_name in p["veldwerkers"]]
 
     if not planning_user:
