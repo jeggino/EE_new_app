@@ -195,76 +195,83 @@ elif pagina == "Agenda":
         st.info("Er zijn nog geen geplande surveys.")
         st.stop()
 
-    # ------------------------------------------
-    # Filters: project of veldwerker
-    # ------------------------------------------
-    filter_type = st.radio(
-        "Filter op:",
-        ["Project", "Veldwerker"],
-        horizontal=True
-    )
+    # ---------------------------------------------------------
+    # 1. Toon alleen events waar de ingelogde gebruiker in zit
+    # ---------------------------------------------------------
+    user = st.session_state.get("user")
+    user_email = user.email
 
-    if filter_type == "Project":
-        projecten = sorted(list({p["project_naam"] for p in planning}))
-        gekozen_project = st.selectbox("Kies een project:", projecten)
-        gefilterd = [p for p in planning if p["project_naam"] == gekozen_project]
+    planning_user = [p for p in planning if user_email in p["veldwerkers"]]
 
-    else:
-        alle_werkers = sorted(list({w for p in planning for w in p["veldwerkers"]}))
-        gekozen_werker = st.selectbox("Kies een veldwerker:", alle_werkers)
-        gefilterd = [p for p in planning if gekozen_werker in p["veldwerkers"]]
+    if not planning_user:
+        st.info("Je hebt geen geplande surveys.")
+        st.stop()
 
-    # ------------------------------------------
-    # Kalenderweergave
-    # ------------------------------------------
-    from streamlit_calendar import calendar
-
-    events = []
-
-    for item in gefilterd:
-        events.append({
-            "title": f"{item['assignment']} ({item['subassignment'] or 'algemeen'})",
-            "start": item["datum"],
-            "end": item["datum"],
-            "extendedProps": {
-                "project": item["project_naam"],
-                "veldwerkers": ", ".join(item["veldwerkers"]),
-                "aangemaakt_door": item["aangemaakt_door"],
-                "assignment": item["assignment"],
-                "subassignment": item["subassignment"] or "algemeen"
-            }
-        })
-
-    calendar_options = {
-        "initialView": "dayGridMonth",
-        "locale": "nl",
-        "height": 650,
-        "eventColor": "#2E7D32",
-        "eventDisplay": "block"
+    # ---------------------------------------------------------
+    # 2. Filter op maand
+    # ---------------------------------------------------------
+    maanden = {
+        1: "Januari", 2: "Februari", 3: "Maart", 4: "April",
+        5: "Mei", 6: "Juni", 7: "Juli", 8: "Augustus",
+        9: "September", 10: "Oktober", 11: "November", 12: "December"
     }
 
-    st.markdown("### Kalender")
-    clicked = calendar(events=events, options=calendar_options)
+    gekozen_maand = st.select_slider(
+        "Filter op maand:",
+        options=list(maanden.keys()),
+        format_func=lambda m: maanden[m]
+    )
 
-    # ------------------------------------------
-    # Event info onder de kalender
-    # ------------------------------------------
-    if clicked and "event" in clicked:
-        event = clicked["event"]
-        props = event.get("extendedProps", {})
+    planning_user = [
+        p for p in planning_user
+        if datetime.fromisoformat(p["datum"]).month == gekozen_maand
+    ]
 
+    # ---------------------------------------------------------
+    # 3. Filter op project
+    # ---------------------------------------------------------
+    projecten = sorted(list({p["project_naam"] for p in planning_user}))
+    gekozen_project = st.selectbox("Filter op project:", ["Alle projecten"] + projecten)
+
+    if gekozen_project != "Alle projecten":
+        planning_user = [p for p in planning_user if p["project_naam"] == gekozen_project]
+
+    # ---------------------------------------------------------
+    # 4. Lijstweergave van events
+    # ---------------------------------------------------------
+    st.markdown("### 📅 Jouw geplande surveys")
+
+    if not planning_user:
+        st.info("Geen surveys gevonden voor deze filters.")
+        st.stop()
+
+    # Maak een lijst met knoppen
+    geselecteerd_event = None
+
+    for p in planning_user:
+        datum_str = datetime.fromisoformat(p["datum"]).strftime("%d-%m-%Y")
+        label = f"{datum_str} — {p['assignment']} ({p['subassignment'] or 'algemeen'}) — {p['project_naam']}"
+
+        if st.button(label):
+            geselecteerd_event = p
+
+    # ---------------------------------------------------------
+    # 5. Details onder de lijst
+    # ---------------------------------------------------------
+    if geselecteerd_event:
         st.markdown("### 📌 Details van geselecteerde survey")
 
         st.info(
             f"""
-            **Project:** {props.get('project')}  
-            **Soort:** {props.get('assignment')}  
-            **Surveytype:** {props.get('subassignment')}  
-            **Datum:** {event.get('start')}  
-            **Veldwerkers:** {props.get('veldwerkers')}  
-            **Aangemaakt door:** {props.get('aangemaakt_door')}
+            **Project:** {geselecteerd_event['project_naam']}  
+            **Soort:** {geselecteerd_event['assignment']}  
+            **Surveytype:** {geselecteerd_event['subassignment'] or 'algemeen'}  
+            **Datum:** {geselecteerd_event['datum']}  
+            **Veldwerkers:** {", ".join(geselecteerd_event['veldwerkers'])}  
+            **Aangemaakt door:** {geselecteerd_event['aangemaakt_door']}
             """
         )
+
 
 
 
