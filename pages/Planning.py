@@ -59,8 +59,9 @@ if pagina == "Plan een survey":
         st.error("Er zijn geen medewerkers beschikbaar.")
         st.stop()
 
-    email_to_name = {e["email"]: e["volledige_naam"] for e in employees}
-    alle_emails = list(email_to_name.keys())
+    name_to_email = {e["volledige_naam"]: e["email"] for e in employees}
+    alle_namen = list(name_to_email.keys())
+
 
     # ---------------------------------------------------------
     # 2. Kies project
