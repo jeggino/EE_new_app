@@ -115,15 +115,19 @@ if pagina == "Plan een survey":
     # ---------------------------------------------------------
     # 5. Kies veldwerkers (uit new_app_employees)
     # ---------------------------------------------------------
-    geselecteerde_werkers = st.multiselect(
+    geselecteerde_namen = st.multiselect(
         "Kies veldwerkers:",
-        options=alle_emails,
-        format_func=lambda e: email_to_name[e]
+        options=alle_namen
     )
+    
+    # converteer namen → emails
+    geselecteerde_werkers = [name_to_email[n] for n in geselecteerde_namen]
+
 
     if len(geselecteerde_werkers) != aantal_personen:
         st.error(f"Je moet precies **{aantal_personen}** veldwerkers kiezen.")
         st.stop()
+
 
     # ---------------------------------------------------------
     # 6. Protocolvalidatie
