@@ -226,11 +226,25 @@ elif pagina == "Agenda":
         st.stop()
 
     # ---------------------------------------------------------
-    # 1. Toon alleen events waar de ingelogde gebruiker in zit (namen!)
+    # 1. Haal correcte naam van ingelogde gebruiker op
     # ---------------------------------------------------------
     user = st.session_state.get("user")
-    user_name = user.user_metadata.get("volledige_naam", user.email)
-    st.write(user_name)
+    user_email = user.email
+
+    employee_record = supabase.table("new_app_employees") \
+        .select("volledige_naam") \
+        .eq("email", user_email) \
+        .single() \
+        .execute().data
+
+    if employee_record:
+        user_name = employee_record["volledige_naam"]
+    else:
+        user_name = user_email  # fallback
+
+    # ---------------------------------------------------------
+    # 2. Filter alleen surveys waar deze gebruiker in zit
+    # ---------------------------------------------------------
     planning_user = [p for p in planning if user_name in p["veldwerkers"]]
 
     if not planning_user:
@@ -238,7 +252,7 @@ elif pagina == "Agenda":
         st.stop()
 
     # ---------------------------------------------------------
-    # 2. Range slider voor maanden
+    # 3. Range slider voor maanden
     # ---------------------------------------------------------
     maanden = {
         1: "Januari", 2: "Februari", 3: "Maart", 4: "April",
@@ -263,7 +277,7 @@ elif pagina == "Agenda":
     ]
 
     # ---------------------------------------------------------
-    # 3. Filter op project
+    # 4. Filter op project
     # ---------------------------------------------------------
     projecten = sorted(list({p["project_naam"] for p in planning_user}))
     gekozen_project = st.selectbox("Filter op project:", ["Alle projecten"] + projecten)
@@ -272,7 +286,7 @@ elif pagina == "Agenda":
         planning_user = [p for p in planning_user if p["project_naam"] == gekozen_project]
 
     # ---------------------------------------------------------
-    # 4. Lijstweergave van events
+    # 5. Lijstweergave
     # ---------------------------------------------------------
     st.markdown("### 📅 Jouw geplande surveys")
 
@@ -290,7 +304,7 @@ elif pagina == "Agenda":
             geselecteerd_event = p
 
     # ---------------------------------------------------------
-    # 5. Details + Edit + Delete
+    # 6. Details + Edit + Delete
     # ---------------------------------------------------------
     if geselecteerd_event:
         st.markdown("### 📌 Details van geselecteerde survey")
@@ -313,7 +327,6 @@ elif pagina == "Agenda":
             datetime.fromisoformat(geselecteerd_event["datum"]).date()
         )
 
-        # veldwerkers opnieuw kiezen
         employees = supabase.table("new_app_employees") \
             .select("volledige_naam") \
             .execute().data
@@ -326,7 +339,6 @@ elif pagina == "Agenda":
             default=geselecteerd_event["veldwerkers"]
         )
 
-        # Opslaan
         if st.button("Opslaan wijzigingen"):
             supabase.table("new_app_planning") \
                 .update({
@@ -349,6 +361,7 @@ elif pagina == "Agenda":
 
             st.success("Survey verwijderd!")
             st.experimental_rerun()
+
 
 
 
