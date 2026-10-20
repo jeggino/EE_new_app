@@ -106,8 +106,6 @@ if pagina == "Plan een survey":
 
     aantal_personen = survey_details["aantal_personen"]
 
-    st.markdown(f"Deze survey vereist **{aantal_personen} veldwerkers**.")
-
     # ---------------------------------------------------------
     # 4. Kies datum
     # ---------------------------------------------------------
