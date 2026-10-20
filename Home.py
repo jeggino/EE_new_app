@@ -86,7 +86,7 @@ if check_password():
     # MEDEWERKERS MENU
     # ---------------------------------------------------------
     if employee_pages:
-        with st.expander("👷 Medewerkers", expanded=False):
+        with st.expander("🦺 Veldwerkers", expanded=False):
     
             col5, col6 = st.columns(2)
     
