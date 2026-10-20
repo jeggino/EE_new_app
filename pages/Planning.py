@@ -78,23 +78,31 @@ if pagina == "Plan een survey":
     # 3. Kies soort + surveytype
     # ---------------------------------------------------------
     st.markdown("### Kies een soort")
-
-    soorten = list(survey_info.keys())
+    
+    # Filter soorten die null zijn
+    soorten = [s for s, v in survey_info.items() if v is not None]
     gekozen_soort = st.selectbox("Soort:", soorten)
-
+    
     st.markdown("### Kies een surveytype")
-
+    
     value = survey_info[gekozen_soort]
-
+    
+    # Filter subtypes die null zijn
+    if isinstance(value, dict):
+        value = {k: v for k, v in value.items() if v is not None}
+    
     if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
+        # soort heeft subassignments
         surveytypes = list(value.keys())
         gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
         survey_details = value[gekozen_surveytype]
         subassignment = gekozen_surveytype
     else:
+        # soort heeft GEEN subassignments
         gekozen_surveytype = "algemeen"
         survey_details = value
         subassignment = ""
+
 
     aantal_personen = survey_details["aantal_personen"]
 
