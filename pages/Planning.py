@@ -83,21 +83,25 @@ if pagina == "Plan een survey":
         
     value = survey_info[gekozen_soort]
     
-    # Filter subtypes die null zijn
-    if isinstance(value, dict):
-        value = {k: v for k, v in value.items() if v is not None}
+    # soort heeft subtypes als value een dict is met minstens 1 geldige subtype
+    heeft_subtypes = isinstance(value, dict) and any(
+        isinstance(v, dict) for v in value.values()
+    )
     
-    if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
-        # soort heeft subassignments
+    if heeft_subtypes:
+        # Filter subtypes die null zijn
+        value = {k: v for k, v in value.items() if isinstance(v, dict)}
+    
         surveytypes = list(value.keys())
         gekozen_surveytype = st.selectbox("onderzoektype:", surveytypes)
         survey_details = value[gekozen_surveytype]
         subassignment = gekozen_surveytype
     else:
-        # soort heeft GEEN subassignments
+        # soort heeft GEEN subtypes
         gekozen_surveytype = "algemeen"
         survey_details = value
         subassignment = ""
+
 
 
     aantal_personen = survey_details["aantal_personen"]
