@@ -3,7 +3,7 @@ from utils.auth import check_password, logout
 from utils.buttons import image_button
 from utils.info_dialog import show_info_dialog
 from utils.supabase_client import supabase
-from utils.role_config import ROL_PAGINA_TOEGANG
+from utils.home.role_config import ROL_PAGINA_TOEGANG
 
 
 
