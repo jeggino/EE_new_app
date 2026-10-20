@@ -127,6 +127,14 @@ if pagina == "Plan een survey":
     # ---------------------------------------------------------
     # 6. Protocolvalidatie
     # ---------------------------------------------------------
+    
+    # Haal eerdere surveys op voor dit project + soort
+    eerdere_surveys = supabase.table("new_app_planning") \
+        .select("*") \
+        .eq("project_naam", keuze["project_naam"]) \
+        .eq("assignment", gekozen_soort) \
+        .execute().data
+    
     regels = PROTOCOLS.get(gekozen_soort, {}).get(gekozen_surveytype, {})
     
     min_dagen = regels.get("min_dagen")
@@ -175,6 +183,7 @@ if pagina == "Plan een survey":
                 f"en **{eind.strftime('%d-%m-%Y')}**."
             )
             st.stop()
+
 
 
     # ---------------------------------------------------------
