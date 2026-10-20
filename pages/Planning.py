@@ -127,7 +127,7 @@ if pagina == "Plan een survey":
     # ---------------------------------------------------------
     # 6. Protocolvalidatie
     # ---------------------------------------------------------
-    regels = PROTOCOLS.get(soort, {}).get(surveytype, {})
+    regels = PROTOCOLS.get(gekozen_soort, {}).get(surveytype, {})
     
     min_dagen = regels.get("min_dagen")
     derde_maand = regels.get("derde_survey_maand")
