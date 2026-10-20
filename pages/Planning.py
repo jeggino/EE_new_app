@@ -208,7 +208,7 @@ elif pagina == "Agenda":
         st.stop()
 
     # ---------------------------------------------------------
-    # 2. Filter op maand
+    # 2. Range slider voor maanden
     # ---------------------------------------------------------
     maanden = {
         1: "Januari", 2: "Februari", 3: "Maart", 4: "April",
@@ -216,15 +216,20 @@ elif pagina == "Agenda":
         9: "September", 10: "Oktober", 11: "November", 12: "December"
     }
 
-    gekozen_maand = st.select_slider(
-        "Filter op maand:",
+    st.markdown("### Filter op maanden")
+
+    gekozen_maanden = st.select_slider(
+        "Kies een periode:",
         options=list(maanden.keys()),
+        value=(1, 12),  # standaard: hele jaar
         format_func=lambda m: maanden[m]
     )
 
+    maand_start, maand_eind = gekozen_maanden
+
     planning_user = [
         p for p in planning_user
-        if datetime.fromisoformat(p["datum"]).month == gekozen_maand
+        if maand_start <= datetime.fromisoformat(p["datum"]).month <= maand_eind
     ]
 
     # ---------------------------------------------------------
@@ -245,7 +250,6 @@ elif pagina == "Agenda":
         st.info("Geen surveys gevonden voor deze filters.")
         st.stop()
 
-    # Maak een lijst met knoppen
     geselecteerd_event = None
 
     for p in planning_user:
@@ -271,6 +275,7 @@ elif pagina == "Agenda":
             **Aangemaakt door:** {geselecteerd_event['aangemaakt_door']}
             """
         )
+
 
 
 
