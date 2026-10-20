@@ -90,7 +90,7 @@ if pagina == "Plan een survey":
     if isinstance(value, dict) and all(isinstance(v, dict) for v in value.values()):
         # soort heeft subassignments
         surveytypes = list(value.keys())
-        gekozen_surveytype = st.selectbox("Surveytype:", surveytypes)
+        gekozen_surveytype = st.selectbox("onderzoektype:", surveytypes)
         survey_details = value[gekozen_surveytype]
         subassignment = gekozen_surveytype
     else:
@@ -105,7 +105,7 @@ if pagina == "Plan een survey":
     # ---------------------------------------------------------
     # 4. Kies datum
     # ---------------------------------------------------------
-    datum = st.date_input("Datum van de survey")
+    datum = st.date_input("Datum van de onderzoek")
 
     # ---------------------------------------------------------
     # 5. Kies veldwerkers (uit new_app_employees)
