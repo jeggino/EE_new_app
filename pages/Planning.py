@@ -76,15 +76,11 @@ if pagina == "Plan een survey":
 
     # ---------------------------------------------------------
     # 3. Kies soort + surveytype
-    # ---------------------------------------------------------
-    st.markdown("### Kies een soort")
-    
+    # ---------------------------------------------------------    
     # Filter soorten die null zijn
     soorten = [s for s, v in survey_info.items() if v is not None]
     gekozen_soort = st.selectbox("Soort:", soorten)
-    
-    st.markdown("### Kies een surveytype")
-    
+        
     value = survey_info[gekozen_soort]
     
     # Filter subtypes die null zijn
