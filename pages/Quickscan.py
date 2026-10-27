@@ -18,7 +18,7 @@ from utils.quickscan_tools import save_quickscan
 from utils.supabase_client import supabase
 from utils.species_groups import SPECIES_GROUPS
 from utils.media_tools import save_photos
-# from utils.gis_analyse import voer_gis_analyse_uit
+from utils.gis_natura2000 import voer_gis_analyse_natura2000
 from utils.gis_nnn import voer_gis_analyse_nnn
 from utils.buttons import image_button
 from utils.delete_quickscan import verwijder_quickscan
@@ -773,6 +773,7 @@ if check_password():
 
         if run_analysis:
             voer_gis_analyse_nnn(qs)
+            voer_gis_analyse_natura2000(qs)
 
         "---"
         st.markdown("### Conclusie van de Quickscan")
