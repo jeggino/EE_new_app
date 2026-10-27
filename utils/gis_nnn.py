@@ -137,7 +137,7 @@ def voer_gis_analyse_nnn(qs):
     layer_buffers.add_to(m)
 
     # Legend
-    legend_html_nnn = """
+    legend_html = """
     <div style="
         position: fixed;
         top: 15px;
