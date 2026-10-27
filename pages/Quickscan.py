@@ -79,25 +79,6 @@ if check_password():
             ["Geen", "Licht", "Matig", "Hevig"]
         )
 
-        # st.subheader("Soortgeschiktheid")
-        
-        # soorten_results = {}
-        
-        # for group, species_list in SPECIES_GROUPS.items():
-        #     suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
-        
-        #     if suitable:
-        #         if species_list:
-        #             selected = st.multiselect(
-        #                 f"Welke soorten binnen {group}?",
-        #                 species_list,
-        #                 key=f"species_{group}"
-        #             )
-        #             soorten_results[group] = selected
-        #         else:
-        #             soorten_results[group] = True
-        #     else:
-        #         soorten_results[group] = False
 
         st.subheader("Soortgeschiktheid")
         
@@ -756,17 +737,6 @@ if check_password():
         ### Extra GIS‑analyse: NNN & Natura 2000
         
         Deze analyse toont twee kaarten die laten zien hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
-        
-        #### 🟩 Natuurnetwerk Nederland (NNN)
-        Het Natuurnetwerk Nederland (NNN) bestaat uit door provincies aangewezen natuurgebieden die samen een ecologisch netwerk vormen.  
-        Voor deze kaart wordt een **zoekvenster van 15 km** rondom het Quickscan‑gebied gebruikt.  
-        Binnen dit venster worden alle NNN‑gebieden geselecteerd en weergegeven.  
-        Rond het centroid van het Quickscan‑gebied wordt een **buffer van 1 km** getoond.
-        
-        #### 🟥 Natura 2000‑gebieden
-        Natura 2000 is een Europees netwerk van beschermde natuurgebieden.  
-        Ook hier wordt een **zoekvenster van 15 km** toegepast om relevante gebieden te selecteren.  
-        Rond het centroid wordt een **buffer van 3 km** weergegeven om de nabijheid van deze gebieden te visualiseren.
         
         Klik op de knop hieronder om beide kaarten te genereren.
         """)
