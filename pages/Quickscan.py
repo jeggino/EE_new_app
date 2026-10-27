@@ -124,26 +124,37 @@ if check_password():
         
             # --- CASE 2: species_data is a dict (e.g. vogels) ---
             elif isinstance(species_data, dict):
+        
                 group_results = {}
         
-                for subcat, species_list in species_data.items():
-                    sub_suitable = st.toggle(f"Is het gebied geschikt voor {group} – {subcat}?")
+                # Create indentation using columns
+                main_col, sub_col = st.columns([1, 3])
         
-                    if sub_suitable:
-                        selected = st.multiselect(
-                            f"Welke soorten binnen {group} – {subcat}?",
-                            species_list,
-                            key=f"species_{group}_{subcat}"
+                with sub_col:
+                    st.markdown("### Subcategorieën")
+        
+                    for subcat, species_list in species_data.items():
+        
+                        sub_suitable = st.toggle(
+                            f"{subcat}",
+                            key=f"toggle_{group}_{subcat}"
                         )
-                        group_results[subcat] = selected
-                    else:
-                        group_results[subcat] = False
+        
+                        if sub_suitable:
+                            selected = st.multiselect(
+                                f"Welke soorten binnen {subcat}?",
+                                species_list,
+                                key=f"species_{group}_{subcat}"
+                            )
+                            group_results[subcat] = selected
+                        else:
+                            group_results[subcat] = False
         
                 soorten_results[group] = group_results
         
-            # --- fallback (should not occur) ---
             else:
                 soorten_results[group] = True
+
 
 
         st.subheader("Foto's")
