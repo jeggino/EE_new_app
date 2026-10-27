@@ -7,6 +7,7 @@ import base64
 from branca.element import Element
 from streamlit_folium import st_folium
 from utils.supabase_client import supabase
+import streamlit as st
 
 RD = "EPSG:28992"
 WGS = "EPSG:4326"
