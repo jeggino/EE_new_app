@@ -688,23 +688,71 @@ if check_password():
         
         "---"
         st.subheader("Soortgeschiktheid")
-
         
         soorten = qs["soorten"]
         
         rows = []
         
         for group, value in soorten.items():
-            if value is True:
-                rows.append([group, "Geschikt", "—"])
-            elif value is False:
-                rows.append([group, "Niet geschikt", "—"])
-            elif isinstance(value, list):
-                rows.append([group, "Geschikt", ", ".join(value)])
         
+            # Replace underscores with spaces for display
+            display_group = group.replace("_", " ")
+        
+            # CASE 1: group is simply True
+            if value is True:
+                rows.append([display_group, "Geschikt", "—"])
+        
+            # CASE 2: group is simply False
+            elif value is False:
+                rows.append([display_group, "Niet geschikt", "—"])
+        
+            # CASE 3: group is a list of selected species
+            elif isinstance(value, list):
+                soorten_str = ", ".join(value)
+                rows.append([display_group, "Geschikt", soorten_str])
+        
+            # CASE 4: group has subcategories (vogels)
+            elif isinstance(value, dict):
+        
+                # Loop through subcategories
+                for subcat, subvalue in value.items():
+        
+                    display_subcat = subcat.replace("_", " ")
+        
+                    if subvalue is True:
+                        rows.append([
+                            f"{display_group} – {display_subcat}",
+                            "Geschikt",
+                            "—"
+                        ])
+        
+                    elif subvalue is False:
+                        rows.append([
+                            f"{display_group} – {display_subcat}",
+                            "Niet geschikt",
+                            "—"
+                        ])
+        
+                    elif isinstance(subvalue, list):
+                        soorten_str = ", ".join(subvalue)
+                        rows.append([
+                            f"{display_group} – {display_subcat}",
+                            "Geschikt",
+                            soorten_str
+                        ])
+        
+        # Build DataFrame
         df = pd.DataFrame(rows, columns=["Soortgroep", "Geschiktheid", "Soorten"])
         
-        st.table(df)
+        # Make table prettier
+        st.dataframe(
+            df.style.set_properties(**{
+                "text-align": "left",
+                "font-size": "14px"
+            }).hide(axis="index"),
+            use_container_width=True
+        )
+
         
     
         "---"
