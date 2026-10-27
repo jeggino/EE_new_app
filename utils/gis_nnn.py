@@ -151,7 +151,7 @@ def voer_gis_analyse_nnn(qs):
     <div id="map-logo" style="
         position: fixed;
         top: 15px;
-        right: 210px;
+        right: 15px;
         z-index: 999999;
         background: rgba(255,255,255,0.7);
         padding: 6px;
@@ -162,6 +162,29 @@ def voer_gis_analyse_nnn(qs):
     </div>
     """
     m.get_root().html.add_child(Element(logo_html))
+
+    # -----------------------------
+    # Shrink the scale bar (Leaflet control)
+    # -----------------------------
+    scale_css = """
+    <style>
+    .leaflet-control-scale {
+        font-size: 10px !important;      /* smaller text */
+    }
+    
+    .leaflet-control-scale-line {
+        border: 1px solid #333 !important;  /* thinner line */
+        padding: 2px !important;            /* smaller padding */
+    }
+    
+    .leaflet-control-scale-line:not(:first-child) {
+        margin-top: 2px !important;         /* reduce spacing */
+    }
+    </style>
+    """
+    
+    m.get_root().html.add_child(folium.Element(scale_css))
+
 
 
     # Display in Streamlit
