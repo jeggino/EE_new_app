@@ -110,7 +110,7 @@ def voer_gis_analyse_natura2000(qs):
     n2000 = load_n2000_cached()
 
     # Bounding box (10 km)
-    bbox = Point(x_rd, y_rd).buffer(10000)
+    bbox = Point(x_rd, y_rd).buffer(15000)
     n2000_filtered = n2000[n2000.intersects(bbox)]
 
     print("Aantal Natura2000 polygonen binnen 5 km:", len(n2000_filtered))
