@@ -137,12 +137,12 @@ def voer_gis_analyse_nnn(qs):
     layer_buffers.add_to(m)
 
     # Legend
-    legend_html = """
+    legend_html_nnn = """
     <div style="
         position: fixed;
         top: 15px;
         left: 15px;
-        width: 150px;
+        width: 160px;
         background: rgba(255, 255, 255, 0.85);
         border: 1px solid #444;
         border-radius: 6px;
@@ -151,26 +151,31 @@ def voer_gis_analyse_nnn(qs):
         font-size: 12px;
         color: black;
     ">
+    
+    <b>NNN gebieden</b><br><br>
+    
     <i class="fa fa-home" style="color: blue;"></i> Locatie<br><br>
     
+    <!-- Buffer circle -->
     <span style="
         display:inline-block;
         width:12px;
         height:12px;
         background:blue;
         border-radius:50%;
-    "></span> 1 km buffer<br>
+    "></span> Buffer 1 km<br>
     
+    <!-- Polygon square -->
     <span style="
         display:inline-block;
         width:12px;
         height:12px;
         background:green;
-        border-radius:50%;
     "></span> NNN gebied<br>
     
     </div>
     """
+
 
     m.get_root().html.add_child(folium.Element(legend_html))
 
