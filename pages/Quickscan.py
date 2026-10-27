@@ -355,37 +355,7 @@ if check_password():
             index=["Geen", "Licht", "Matig", "Hevig"].index(qs["regen"]),
             key=f"regen_{qs['id']}"
         )
-        
-        # # -----------------------------
-        # # 4. Soortgeschiktheid
-        # # -----------------------------
-        # st.subheader("Soortgeschiktheid")
-        
-        # soorten_results = qs["soorten"]  # dit is jouw JSON dict uit de database
-        # nieuwe_soorten = {}
-        
-        # for group, species_list in SPECIES_GROUPS.items():
-        #     huidige_waarde = soorten_results.get(group)
-        
-        #     suitable = st.toggle(
-        #         f"Is het gebied geschikt voor {group}?",
-        #         value=(huidige_waarde is True or isinstance(huidige_waarde, list)),
-        #         key=f"suitable_{group}_{qs['id']}"
-        #     )
-        
-        #     if suitable:
-        #         if species_list:
-        #             selected = st.multiselect(
-        #                 f"Welke soorten binnen {group}?",
-        #                 species_list,
-        #                 default=huidige_waarde if isinstance(huidige_waarde, list) else [],
-        #                 key=f"species_{group}_{qs['id']}"
-        #             )
-        #             nieuwe_soorten[group] = selected
-        #         else:
-        #             nieuwe_soorten[group] = True
-        #     else:
-        #         nieuwe_soorten[group] = False
+
 
         # -----------------------------
         # 4. Soortgeschiktheid
@@ -515,10 +485,29 @@ if check_password():
         beschikbare_soortgroepen = []
         
         for group, value in soorten_results.items():
+        
+            # CASE 1: group is simply True (no species list)
             if value is True:
                 beschikbare_soortgroepen.append(group)
+        
+            # CASE 2: group is a list of selected species
             elif isinstance(value, list) and len(value) > 0:
                 beschikbare_soortgroepen.extend(value)
+        
+            # CASE 3: group has subcategories (vogels)
+            elif isinstance(value, dict):
+                for subcat, subvalue in value.items():
+        
+                    # Subcategory marked suitable but no species selected
+                    if subvalue is True:
+                        beschikbare_soortgroepen.append(f"{group} – {subcat}")
+        
+                    # Species selected inside this subcategory
+                    elif isinstance(subvalue, list) and len(subvalue) > 0:
+                        beschikbare_soortgroepen.extend(subvalue)
+        
+                    # If subvalue is False → nothing added
+
         
         for foto in fotos:
             import os
