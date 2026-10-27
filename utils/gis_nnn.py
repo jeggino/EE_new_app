@@ -35,15 +35,29 @@ def flatten_geometry(gdf):
     return gdf
 
 
-def load_nnn_from_supabase():
-    """Load NNN GML file from Supabase bucket."""
+def load_nnn_cached():
+    # Cache key
+    key = "cached_nnn_gdf"
+
+    # If already loaded, return cached version
+    if key in st.session_state:
+        return st.session_state[key]
+
+    # Otherwise load from Supabase
     file_bytes = supabase.storage.from_("new_app").download(
         "quickscan/data/inspire-pv-ps.nlps-nnn.gml"
     )
+
     gdf = gpd.read_file(file_bytes, driver="GML")
     gdf = gdf.set_crs("EPSG:3035", allow_override=True)
-    gdf = gdf.to_crs(RD)
-    return flatten_geometry(gdf)
+    gdf = gdf.to_crs("EPSG:28992")
+    gdf = flatten_geometry(gdf)
+
+    # Store in cache
+    st.session_state[key] = gdf
+
+    return gdf
+
 
 
 def voer_gis_analyse_nnn(qs):
@@ -61,7 +75,8 @@ def voer_gis_analyse_nnn(qs):
     x_rd, y_rd = transform(project_to_rd, Point(lon, lat)).coords[0]
 
     # Load NNN from Supabase
-    nnn = load_nnn_from_supabase()
+    nnn = load_nnn_cached()
+
 
     # Bounding box (10 km)
     bbox = Point(x_rd, y_rd).buffer(10000)
@@ -203,5 +218,6 @@ def voer_gis_analyse_nnn(qs):
 
 
     # Display in Streamlit
-    st_folium(m, width=700, height=500)
+    st_folium(m, width=700, height=500, returned_objects=[])
+
 
