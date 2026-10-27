@@ -63,8 +63,8 @@ def voer_gis_analyse_nnn(qs):
     # Load NNN from Supabase
     nnn = load_nnn_from_supabase()
 
-    # Bounding box (5 km)
-    bbox = Point(x_rd, y_rd).buffer(5000)
+    # Bounding box (10 km)
+    bbox = Point(x_rd, y_rd).buffer(10000)
     nnn_filtered = nnn[nnn.intersects(bbox)]
 
     # Convert to WGS
@@ -164,26 +164,39 @@ def voer_gis_analyse_nnn(qs):
     m.get_root().html.add_child(Element(logo_html))
 
     # -----------------------------
-    # Shrink the scale bar (Leaflet control)
+    # Shrink & simplify the scale bar (Leaflet control)
     # -----------------------------
     scale_css = """
     <style>
+    /* Make the whole scale control smaller */
     .leaflet-control-scale {
-        font-size: 10px !important;      /* smaller text */
+        font-size: 11px !important;
+        line-height: 11px !important;
+        padding: 2px !important;
     }
     
+    /* Style the km line (keep original look but smaller) */
     .leaflet-control-scale-line {
-        border: 1px solid #333 !important;  /* thinner line */
-        padding: 2px !important;            /* smaller padding */
+        border: 1px solid #000 !important;
+        padding: 2px 4px !important;
+        background: rgba(255,255,255,0.9) !important;
+        color: #000 !important;
     }
     
+    /* Hide the meters line completely */
+    .leaflet-control-scale-line:first-child {
+        display: none !important;
+    }
+    
+    /* Slightly reduce spacing */
     .leaflet-control-scale-line:not(:first-child) {
-        margin-top: 2px !important;         /* reduce spacing */
+        margin-top: 0px !important;
     }
     </style>
     """
     
     m.get_root().html.add_child(folium.Element(scale_css))
+
 
 
 
