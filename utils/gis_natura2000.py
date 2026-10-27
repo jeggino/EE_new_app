@@ -169,12 +169,12 @@ def voer_gis_analyse_natura2000(qs):
     layer_buffers.add_to(m)
 
     # Legend
-    legend_html = """
+    legend_html_n2000 = """
     <div style="
         position: fixed;
         top: 15px;
         left: 15px;
-        width: 170px;
+        width: 180px;
         background: rgba(255, 255, 255, 0.85);
         border: 1px solid #444;
         border-radius: 6px;
@@ -188,12 +188,21 @@ def voer_gis_analyse_natura2000(qs):
     
     <i class="fa fa-home" style="color: blue;"></i> Locatie<br><br>
     
+    <!-- Buffer circle -->
     <span style="
         display:inline-block;
         width:12px;
         height:12px;
         background:red;
         border-radius:50%;
+    "></span> Buffer 3 km<br><br>
+    
+    <!-- Polygon squares -->
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:red;
     "></span> HR<br>
     
     <span style="
@@ -201,7 +210,6 @@ def voer_gis_analyse_natura2000(qs):
         width:12px;
         height:12px;
         background:purple;
-        border-radius:50%;
     "></span> VR<br>
     
     <span style="
@@ -209,7 +217,6 @@ def voer_gis_analyse_natura2000(qs):
         width:12px;
         height:12px;
         background:orange;
-        border-radius:50%;
     "></span> VR+HR<br>
     
     <span style="
@@ -217,11 +224,11 @@ def voer_gis_analyse_natura2000(qs):
         width:12px;
         height:12px;
         background:darkred;
-        border-radius:50%;
     "></span> HR groeve<br>
     
     </div>
     """
+
     m.get_root().html.add_child(folium.Element(legend_html))
 
     # Logo
