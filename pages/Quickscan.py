@@ -356,36 +356,147 @@ if check_password():
             key=f"regen_{qs['id']}"
         )
         
+        # # -----------------------------
+        # # 4. Soortgeschiktheid
+        # # -----------------------------
+        # st.subheader("Soortgeschiktheid")
+        
+        # soorten_results = qs["soorten"]  # dit is jouw JSON dict uit de database
+        # nieuwe_soorten = {}
+        
+        # for group, species_list in SPECIES_GROUPS.items():
+        #     huidige_waarde = soorten_results.get(group)
+        
+        #     suitable = st.toggle(
+        #         f"Is het gebied geschikt voor {group}?",
+        #         value=(huidige_waarde is True or isinstance(huidige_waarde, list)),
+        #         key=f"suitable_{group}_{qs['id']}"
+        #     )
+        
+        #     if suitable:
+        #         if species_list:
+        #             selected = st.multiselect(
+        #                 f"Welke soorten binnen {group}?",
+        #                 species_list,
+        #                 default=huidige_waarde if isinstance(huidige_waarde, list) else [],
+        #                 key=f"species_{group}_{qs['id']}"
+        #             )
+        #             nieuwe_soorten[group] = selected
+        #         else:
+        #             nieuwe_soorten[group] = True
+        #     else:
+        #         nieuwe_soorten[group] = False
+
         # -----------------------------
         # 4. Soortgeschiktheid
         # -----------------------------
         st.subheader("Soortgeschiktheid")
         
-        soorten_results = qs["soorten"]  # dit is jouw JSON dict uit de database
+        soorten_results = qs["soorten"]  # JSON dict from database
         nieuwe_soorten = {}
         
-        for group, species_list in SPECIES_GROUPS.items():
+        for group, species_data in SPECIES_GROUPS.items():
+        
             huidige_waarde = soorten_results.get(group)
+        
+            # Determine if the group was previously marked suitable
+            if isinstance(huidige_waarde, dict):
+                # vogels → suitable if ANY subcategory was True or had selected species
+                suitable_default = any(
+                    (v is True) or (isinstance(v, list) and len(v) > 0)
+                    for v in huidige_waarde.values()
+                )
+            else:
+                suitable_default = (huidige_waarde is True or isinstance(huidige_waarde, list))
         
             suitable = st.toggle(
                 f"Is het gebied geschikt voor {group}?",
-                value=(huidige_waarde is True or isinstance(huidige_waarde, list)),
+                value=suitable_default,
                 key=f"suitable_{group}_{qs['id']}"
             )
         
-            if suitable:
-                if species_list:
+            # ---------------------------
+            # CASE 1: group is NOT suitable
+            # ---------------------------
+            if not suitable:
+                nieuwe_soorten[group] = False
+                continue
+        
+            # ---------------------------
+            # CASE 2: group has NO subcategories (simple list)
+            # ---------------------------
+            if isinstance(species_data, list):
+        
+                if species_data:
+                    default_list = (
+                        huidige_waarde if isinstance(huidige_waarde, list) else []
+                    )
+        
                     selected = st.multiselect(
                         f"Welke soorten binnen {group}?",
-                        species_list,
-                        default=huidige_waarde if isinstance(huidige_waarde, list) else [],
+                        species_data,
+                        default=default_list,
                         key=f"species_{group}_{qs['id']}"
                     )
+        
                     nieuwe_soorten[group] = selected
+        
                 else:
                     nieuwe_soorten[group] = True
+        
+            # ---------------------------
+            # CASE 3: group HAS subcategories (vogels)
+            # ---------------------------
+            elif isinstance(species_data, dict):
+        
+                subcat_results = {}
+        
+                # Indentation using columns
+                main_col, sub_col = st.columns([1, 3])
+        
+                with sub_col:
+                    st.markdown("### Subcategorieën")
+        
+                    for subcat, species_list in species_data.items():
+        
+                        # Determine default toggle state
+                        huidige_sub = None
+                        if isinstance(huidige_waarde, dict):
+                            huidige_sub = huidige_waarde.get(subcat)
+        
+                        sub_default = (
+                            huidige_sub is True or
+                            (isinstance(huidige_sub, list) and len(huidige_sub) > 0)
+                        )
+        
+                        sub_suitable = st.toggle(
+                            f"{subcat}",
+                            value=sub_default,
+                            key=f"toggle_{group}_{subcat}_{qs['id']}"
+                        )
+        
+                        if sub_suitable:
+                            default_species = (
+                                huidige_sub if isinstance(huidige_sub, list) else []
+                            )
+        
+                            selected = st.multiselect(
+                                f"Welke soorten binnen {subcat}?",
+                                species_list,
+                                default=default_species,
+                                key=f"species_{group}_{subcat}_{qs['id']}"
+                            )
+        
+                            subcat_results[subcat] = selected
+        
+                        else:
+                            subcat_results[subcat] = False
+        
+                nieuwe_soorten[group] = subcat_results
+        
             else:
-                nieuwe_soorten[group] = False
+                nieuwe_soorten[group] = True
+
         
         # -----------------------------
         # 5. Foto's beheren
