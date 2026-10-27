@@ -135,6 +135,7 @@ def voer_gis_analyse_nnn(qs):
         font-size: 12px;
         color: black;
     ">
+    <i class="fa fa-home" style="color: blue;"></i> Locatie<br><br>
     <span style="color: blue;">&#9608;</span> 1 km buffer<br>
     <span style="color: green;">&#9608;</span> NNN gebied<br>
     </div>
@@ -168,14 +169,14 @@ def voer_gis_analyse_nnn(qs):
     # -----------------------------
     scale_css = """
     <style>
-    /* Make the whole scale control smaller */
+    /* Make the scale bar smaller */
     .leaflet-control-scale {
         font-size: 11px !important;
         line-height: 11px !important;
         padding: 2px !important;
     }
     
-    /* Style the km line (keep original look but smaller) */
+    /* Style the metric line (keep it visible) */
     .leaflet-control-scale-line {
         border: 1px solid #000 !important;
         padding: 2px 4px !important;
@@ -183,19 +184,20 @@ def voer_gis_analyse_nnn(qs):
         color: #000 !important;
     }
     
-    /* Hide the meters line completely */
-    .leaflet-control-scale-line:first-child {
+    /* Hide the imperial (feet) line ONLY */
+    .leaflet-control-scale-line.leaflet-control-scale-line-imperial {
         display: none !important;
     }
     
-    /* Slightly reduce spacing */
-    .leaflet-control-scale-line:not(:first-child) {
+    /* Reduce spacing */
+    .leaflet-control-scale-line:not(.leaflet-control-scale-line-imperial) {
         margin-top: 0px !important;
     }
     </style>
     """
     
     m.get_root().html.add_child(folium.Element(scale_css))
+
 
 
 
