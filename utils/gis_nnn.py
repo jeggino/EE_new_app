@@ -164,39 +164,39 @@ def voer_gis_analyse_nnn(qs):
     """
     m.get_root().html.add_child(Element(logo_html))
 
-    # -----------------------------
-    # Shrink & simplify the scale bar (Leaflet control)
-    # -----------------------------
-    scale_css = """
-    <style>
-    /* Make the scale bar smaller */
-    .leaflet-control-scale {
-        font-size: 11px !important;
-        line-height: 11px !important;
-        padding: 2px !important;
-    }
+    # # -----------------------------
+    # # Shrink & simplify the scale bar (Leaflet control)
+    # # -----------------------------
+    # scale_css = """
+    # <style>
+    # /* Make the scale bar smaller */
+    # .leaflet-control-scale {
+    #     font-size: 11px !important;
+    #     line-height: 11px !important;
+    #     padding: 2px !important;
+    # }
     
-    /* Style the metric line (keep it visible) */
-    .leaflet-control-scale-line {
-        border: 1px solid #000 !important;
-        padding: 2px 4px !important;
-        background: rgba(255,255,255,0.9) !important;
-        color: #000 !important;
-    }
+    # /* Style the metric line (keep it visible) */
+    # .leaflet-control-scale-line {
+    #     border: 1px solid #000 !important;
+    #     padding: 2px 4px !important;
+    #     background: rgba(255,255,255,0.9) !important;
+    #     color: #000 !important;
+    # }
     
-    /* Hide the imperial (feet) line ONLY */
-    .leaflet-control-scale-line.leaflet-control-scale-line-imperial {
-        display: none !important;
-    }
+    # /* Hide the imperial (feet) line ONLY */
+    # .leaflet-control-scale-line.leaflet-control-scale-line-imperial {
+    #     display: none !important;
+    # }
     
-    /* Reduce spacing */
-    .leaflet-control-scale-line:not(.leaflet-control-scale-line-imperial) {
-        margin-top: 0px !important;
-    }
-    </style>
-    """
+    # /* Reduce spacing */
+    # .leaflet-control-scale-line:not(.leaflet-control-scale-line-imperial) {
+    #     margin-top: 0px !important;
+    # }
+    # </style>
+    # """
     
-    m.get_root().html.add_child(folium.Element(scale_css))
+    # m.get_root().html.add_child(folium.Element(scale_css))
 
 
 
