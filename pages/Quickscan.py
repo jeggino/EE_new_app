@@ -78,25 +78,72 @@ if check_password():
             ["Geen", "Licht", "Matig", "Hevig"]
         )
 
+        # st.subheader("Soortgeschiktheid")
+        
+        # soorten_results = {}
+        
+        # for group, species_list in SPECIES_GROUPS.items():
+        #     suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
+        
+        #     if suitable:
+        #         if species_list:
+        #             selected = st.multiselect(
+        #                 f"Welke soorten binnen {group}?",
+        #                 species_list,
+        #                 key=f"species_{group}"
+        #             )
+        #             soorten_results[group] = selected
+        #         else:
+        #             soorten_results[group] = True
+        #     else:
+        #         soorten_results[group] = False
+
         st.subheader("Soortgeschiktheid")
         
         soorten_results = {}
         
-        for group, species_list in SPECIES_GROUPS.items():
-            suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
+        for group, species_data in SPECIES_GROUPS.items():
         
-            if suitable:
-                if species_list:
+            suitable = st.toggle(f"Is het gebied geschikt voor {group}?")
+            
+            if not suitable:
+                soorten_results[group] = False
+                continue
+        
+            # --- CASE 1: species_data is a simple list ---
+            if isinstance(species_data, list):
+                if species_data:
                     selected = st.multiselect(
                         f"Welke soorten binnen {group}?",
-                        species_list,
+                        species_data,
                         key=f"species_{group}"
                     )
                     soorten_results[group] = selected
                 else:
                     soorten_results[group] = True
+        
+            # --- CASE 2: species_data is a dict (e.g. vogels) ---
+            elif isinstance(species_data, dict):
+                group_results = {}
+        
+                for subcat, species_list in species_data.items():
+                    sub_suitable = st.toggle(f"Is het gebied geschikt voor {group} – {subcat}?")
+        
+                    if sub_suitable:
+                        selected = st.multiselect(
+                            f"Welke soorten binnen {group} – {subcat}?",
+                            species_list,
+                            key=f"species_{group}_{subcat}"
+                        )
+                        group_results[subcat] = selected
+                    else:
+                        group_results[subcat] = False
+        
+                soorten_results[group] = group_results
+        
+            # --- fallback (should not occur) ---
             else:
-                soorten_results[group] = False
+                soorten_results[group] = True
 
 
         st.subheader("Foto's")
