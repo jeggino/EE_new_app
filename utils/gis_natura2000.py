@@ -169,7 +169,7 @@ def voer_gis_analyse_natura2000(qs):
     layer_buffers.add_to(m)
 
     # Legend
-    legend_html_n2000 = """
+    legend_html = """
     <div style="
         position: fixed;
         top: 15px;
