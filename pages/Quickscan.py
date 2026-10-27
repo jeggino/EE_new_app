@@ -695,65 +695,35 @@ if check_password():
         
         for group, value in soorten.items():
         
-            # Replace underscores with spaces for display
-            display_group = group.replace("_", " ")
+            display_group = group.replace("_", " ").capitalize()
         
-            # CASE 1: group is simply True
-            if value is True:
-                rows.append([display_group, "Geschikt", "—"])
+            # CASE 1: simple list of species
+            if isinstance(value, list) and len(value) > 0:
+                soorten_str = ", ".join([s.capitalize() for s in value])
+                rows.append([display_group, soorten_str])
         
-            # CASE 2: group is simply False
-            elif value is False:
-                rows.append([display_group, "Niet geschikt", "—"])
-        
-            # CASE 3: group is a list of selected species
-            elif isinstance(value, list):
-                soorten_str = ", ".join(value)
-                rows.append([display_group, "Geschikt", soorten_str])
-        
-            # CASE 4: group has subcategories (vogels)
+            # CASE 2: vogels with subcategories
             elif isinstance(value, dict):
-        
-                # Loop through subcategories
                 for subcat, subvalue in value.items():
         
-                    display_subcat = subcat.replace("_", " ")
+                    display_subcat = subcat.replace("_", " ").capitalize()
         
-                    if subvalue is True:
-                        rows.append([
-                            f"{display_group} – {display_subcat}",
-                            "Geschikt",
-                            "—"
-                        ])
-        
-                    elif subvalue is False:
-                        rows.append([
-                            f"{display_group} – {display_subcat}",
-                            "Niet geschikt",
-                            "—"
-                        ])
-        
-                    elif isinstance(subvalue, list):
-                        soorten_str = ", ".join(subvalue)
-                        rows.append([
-                            f"{display_group} – {display_subcat}",
-                            "Geschikt",
-                            soorten_str
-                        ])
+                    # Only show rows that actually have species
+                    if isinstance(subvalue, list) and len(subvalue) > 0:
+                        soorten_str = ", ".join([s.capitalize() for s in subvalue])
+                        rows.append([f"{display_group} – {display_subcat}", soorten_str])
         
         # Build DataFrame
-        df = pd.DataFrame(rows, columns=["Soortgroep", "Geschiktheid", "Soorten"])
+        df = pd.DataFrame(rows, columns=["Soortgroep", "Soorten"])
         
-        # Make table prettier
+        # Pretty display
         st.dataframe(
             df.style.set_properties(**{
                 "text-align": "left",
-                "font-size": "14px"
+                "font-size": "15px"
             }).hide(axis="index"),
             use_container_width=True
         )
-
-        
     
         "---"
         st.subheader("Foto's")
