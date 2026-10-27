@@ -128,7 +128,7 @@ if check_password():
                 group_results = {}
         
                 # Create indentation using columns
-                main_col, sub_col = st.columns([1, 3])
+                main_col, sub_col = st.columns([1, 5])
         
                 with sub_col:
                     st.markdown("### Subcategorieën")
@@ -162,14 +162,31 @@ if check_password():
         beschikbare_soortgroepen = []
         
         for group, value in soorten_results.items():
+        
+            # --- CASE 1: group has no subcategories and is simply True ---
             if value is True:
-                # Group was marked suitable but has no subspecies
                 beschikbare_soortgroepen.append(group)
         
-            elif isinstance(value, list) and len(value) > 0:
-                # Add each selected species inside the group
+            # --- CASE 2: group is a list of selected species ---
+            elif isinstance(value, list):
                 for species in value:
                     beschikbare_soortgroepen.append(species)
+        
+            # --- CASE 3: group has subcategories (e.g. vogels) ---
+            elif isinstance(value, dict):
+                for subcat, subvalue in value.items():
+        
+                    # subcategory marked suitable but no species selected
+                    if subvalue is True:
+                        beschikbare_soortgroepen.append(f"{group} – {subcat}")
+        
+                    # species selected inside this subcategory
+                    elif isinstance(subvalue, list) and len(subvalue) > 0:
+                        for species in subvalue:
+                            beschikbare_soortgroepen.append(species)
+        
+                    # if subvalue is False → nothing added
+
 
                 
                 
