@@ -13,6 +13,26 @@ def draw_geometry(key="map"):
 
     m = folium.Map(location=[52.37, 4.90], zoom_start=12,zoom_control=False)
 
+    tiles = 'https://api.mapbox.com/styles/v1/jeggino/cmn7ms1u3001f01pl691k0eyu/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiamVnZ2lubyIsImEiOiJjbHdscmRkZHAxMTl1MmlyeTJpb3Z2eHdzIn0.N9TRN7xxTikk235dVs1YeQ'
+    folium.TileLayer(tiles=tiles,
+                     attr='XXX Mapbox Attribution',
+                         max_zoom=24,
+        max_native_zoom=22,
+        overlay=False,
+        control=False,name="OpenStreetMap").add_to(m)
+    
+    
+    # Satellite
+    folium.TileLayer(
+        tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attr="Esri",
+        name="Satellite",
+        max_native_zoom=21,
+        max_zoom=21,
+        overlay=False,
+        control=False
+    ).add_to(m)
+
     Draw(
         draw_options={
             "polyline": False,
@@ -98,6 +118,26 @@ def draw_geometry_with_existing(existing_geojson=None, key="map"):
             pass
 
     m = folium.Map(location=center, zoom_start=zoom, zoom_control=False)
+
+    tiles = 'https://api.mapbox.com/styles/v1/jeggino/cmn7ms1u3001f01pl691k0eyu/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiamVnZ2lubyIsImEiOiJjbHdscmRkZHAxMTl1MmlyeTJpb3Z2eHdzIn0.N9TRN7xxTikk235dVs1YeQ'
+    folium.TileLayer(tiles=tiles,
+                     attr='XXX Mapbox Attribution',
+                         max_zoom=24,
+        max_native_zoom=22,
+        overlay=False,
+        control=False,name="OpenStreetMap").add_to(m)
+    
+    
+    # Satellite
+    folium.TileLayer(
+        tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attr="Esri",
+        name="Satellite",
+        max_native_zoom=21,
+        max_zoom=21,
+        overlay=False,
+        control=False
+    ).add_to(m)
 
     # Draw old geometry in red
     if existing_geojson:
