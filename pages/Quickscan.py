@@ -752,28 +752,41 @@ if check_password():
                
 
         "---"
-        st.markdown("""
-        ### Extra GIS‑analyse: afstand tot Natura 2000‑gebieden
+        with st.pin():
+            st.markdown("""
+                ### Extra GIS‑analyse: NNN & Natura 2000
         
-        Met deze aanvullende analyse wordt gecontroleerd of het onderzoeksgebied zich binnen een straal van **3 kilometer** van een Natura 2000‑gebied bevindt.  
-        De tool berekent automatisch:
+                In deze uitgebreide ruimtelijke analyse worden twee kaarten gegenereerd die laten zien 
+                hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
         
-        - het **centroid** van het Quickscan‑gebied  
-        - een **buffer van 3 km** rond dit punt  
-        - de **intersectie** met alle Natura 2000‑gebieden  
-        - een **kaartvisualisatie** met alle relevante lagen  
+                #### 🟩 Natuurnetwerk Nederland (NNN)
+                Het Natuurnetwerk Nederland (NNN) bestaat uit natuurgebieden die door provincies zijn aangewezen 
+                als ecologisch waardevol.  
+                Voor deze analyse wordt een **15 km zoekvenster** rondom het Quickscan‑gebied gebruikt.  
+                Binnen dit venster worden alle NNN‑gebieden geselecteerd en weergegeven op de kaart.  
+                Rond het centroid van het Quickscan‑gebied wordt een **buffer van 1 km** getoond.
         
-        Klik op de knop hieronder om de analyse uit te voeren.
-        """)
+                #### 🟥 Natura 2000‑gebieden
+                Natura 2000 is een Europees netwerk van beschermde natuurgebieden.  
+                Ook hier wordt een **15 km zoekvenster** toegepast om relevante gebieden te selecteren.  
+                Rond het centroid wordt een **buffer van 3 km** weergegeven om de nabijheid van deze gebieden te visualiseren.
+        
+                Klik op de knop hieronder om beide kaarten te genereren.
+            """)
+        
+            run_analysis = st.toggle(
+                "Natuurgebieden rond het Quickscan‑gebied bekijken"
+            )
+        
+            if run_analysis:
+                st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
+                voer_gis_analyse_nnn(qs)
+                st.caption("Deze kaart toont alle NNN‑gebieden binnen een straal van 15 km, inclusief een 1 km buffer rond het Quickscan‑centroid.")
+        
+                st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
+                voer_gis_analyse_natura2000(qs)
+                st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen een straal van 15 km, inclusief een 3 km buffer rond het Quickscan‑centroid.")
 
-        run_analysis = st.toggle(
-            "Wil je controleren of het onderzoeksgebied binnen 3 km van een Natura 2000‑gebied ligt?"
-        )
-
-
-        if run_analysis:
-            voer_gis_analyse_nnn(qs)
-            voer_gis_analyse_natura2000(qs)
 
         "---"
         st.markdown("### Conclusie van de Quickscan")
