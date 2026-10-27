@@ -752,40 +752,40 @@ if check_password():
                
 
         "---"
-        with st.pin():
-            st.markdown("""
-                ### Extra GIS‑analyse: NNN & Natura 2000
+        st.markdown("""
+        ### Extra GIS‑analyse: NNN & Natura 2000
         
-                In deze uitgebreide ruimtelijke analyse worden twee kaarten gegenereerd die laten zien 
-                hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
+        Deze analyse toont twee kaarten die laten zien hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
         
-                #### 🟩 Natuurnetwerk Nederland (NNN)
-                Het Natuurnetwerk Nederland (NNN) bestaat uit natuurgebieden die door provincies zijn aangewezen 
-                als ecologisch waardevol.  
-                Voor deze analyse wordt een **15 km zoekvenster** rondom het Quickscan‑gebied gebruikt.  
-                Binnen dit venster worden alle NNN‑gebieden geselecteerd en weergegeven op de kaart.  
-                Rond het centroid van het Quickscan‑gebied wordt een **buffer van 1 km** getoond.
+        #### 🟩 Natuurnetwerk Nederland (NNN)
+        Het Natuurnetwerk Nederland (NNN) bestaat uit door provincies aangewezen natuurgebieden die samen een ecologisch netwerk vormen.  
+        Voor deze kaart wordt een **zoekvenster van 15 km** rondom het Quickscan‑gebied gebruikt.  
+        Binnen dit venster worden alle NNN‑gebieden geselecteerd en weergegeven.  
+        Rond het centroid van het Quickscan‑gebied wordt een **buffer van 1 km** getoond.
         
-                #### 🟥 Natura 2000‑gebieden
-                Natura 2000 is een Europees netwerk van beschermde natuurgebieden.  
-                Ook hier wordt een **15 km zoekvenster** toegepast om relevante gebieden te selecteren.  
-                Rond het centroid wordt een **buffer van 3 km** weergegeven om de nabijheid van deze gebieden te visualiseren.
+        #### 🟥 Natura 2000‑gebieden
+        Natura 2000 is een Europees netwerk van beschermde natuurgebieden.  
+        Ook hier wordt een **zoekvenster van 15 km** toegepast om relevante gebieden te selecteren.  
+        Rond het centroid wordt een **buffer van 3 km** weergegeven om de nabijheid van deze gebieden te visualiseren.
         
-                Klik op de knop hieronder om beide kaarten te genereren.
-            """)
+        Klik op de knop hieronder om beide kaarten te genereren.
+        """)
         
-            run_analysis = st.toggle(
-                "Natuurgebieden rond het Quickscan‑gebied bekijken"
-            )
+        run_analysis = st.toggle(
+        "Natuurgebieden rond het Quickscan‑gebied bekijken"
+        )
         
-            if run_analysis:
-                st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
-                voer_gis_analyse_nnn(qs)
-                st.caption("Deze kaart toont alle NNN‑gebieden binnen een straal van 15 km, inclusief een 1 km buffer rond het Quickscan‑centroid.")
+        if run_analysis:
+        with st.spinner("Bezig met het genereren van de kaarten..."):
+            
+            st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
+            voer_gis_analyse_nnn(qs)
+            st.caption("Deze kaart toont alle NNN‑gebieden binnen 15 km, inclusief een 1 km buffer rond het centroid van het Quickscan‑gebied.")
         
-                st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
-                voer_gis_analyse_natura2000(qs)
-                st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen een straal van 15 km, inclusief een 3 km buffer rond het Quickscan‑centroid.")
+            st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
+            voer_gis_analyse_natura2000(qs)
+            st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen 15 km, inclusief een 3 km buffer rond het centroid van het Quickscan‑gebied.")
+
 
 
         "---"
