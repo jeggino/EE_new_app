@@ -152,17 +152,26 @@ def voer_gis_analyse_nnn(qs):
         color: black;
     ">
     <i class="fa fa-home" style="color: blue;"></i> Locatie<br><br>
+    
     <span style="
         display:inline-block;
         width:12px;
         height:12px;
         background:blue;
         border-radius:50%;
-    "></span> 1 km buffer
-
-    <span style="color: green;">&#9608;</span> NNN gebied<br>
+    "></span> 1 km buffer<br>
+    
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:green;
+        border-radius:50%;
+    "></span> NNN gebied<br>
+    
     </div>
     """
+
     m.get_root().html.add_child(folium.Element(legend_html))
 
 
