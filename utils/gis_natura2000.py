@@ -66,6 +66,10 @@ def load_n2000_cached():
     st.session_state[key] = gdf
     return gdf
 
+print("Natura2000 total rows:", len(n2000))
+print("Natura2000 CRS:", n2000.crs)
+print("Natura2000 geometry type:", n2000.geometry.iloc[0].geom_type)
+print("Natura2000 columns:", n2000.columns)
 
 # ---------------------------------------------------------
 # STYLE FUNCTION FOR NATURA2000 COLORS
@@ -174,7 +178,7 @@ def voer_gis_analyse_natura2000(qs):
         position: fixed;
         top: 15px;
         left: 15px;
-        width: 160px;
+        width: 170px;
         background: rgba(255, 255, 255, 0.85);
         border: 1px solid #444;
         border-radius: 6px;
@@ -183,11 +187,43 @@ def voer_gis_analyse_natura2000(qs):
         font-size: 12px;
         color: black;
     ">
+    
+    <b>Natura 2000 gebieden</b><br><br>
+    
     <i class="fa fa-home" style="color: blue;"></i> Locatie<br><br>
-    <span style="color: red;">&#9608;</span> HR<br>
-    <span style="color: purple;">&#9608;</span> VR<br>
-    <span style="color: orange;">&#9608;</span> VR+HR<br>
-    <span style="color: darkred;">&#9608;</span> HR groeve<br>
+    
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:red;
+        border-radius:50%;
+    "></span> HR<br>
+    
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:purple;
+        border-radius:50%;
+    "></span> VR<br>
+    
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:orange;
+        border-radius:50%;
+    "></span> VR+HR<br>
+    
+    <span style="
+        display:inline-block;
+        width:12px;
+        height:12px;
+        background:darkred;
+        border-radius:50%;
+    "></span> HR groeve<br>
+    
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
