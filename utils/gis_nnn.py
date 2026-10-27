@@ -63,8 +63,8 @@ def voer_gis_analyse_nnn(qs):
     # Load NNN from Supabase
     nnn = load_nnn_from_supabase()
 
-    # Bounding box (10 km)
-    bbox = Point(x_rd, y_rd).buffer(10000)
+    # Bounding box (5 km)
+    bbox = Point(x_rd, y_rd).buffer(5000)
     nnn_filtered = nnn[nnn.intersects(bbox)]
 
     # Convert to WGS
@@ -124,43 +124,47 @@ def voer_gis_analyse_nnn(qs):
     legend_html = """
     <div style="
         position: fixed;
-        top: 20px;
-        left: 20px;
-        width: 240px;
+        top: 15px;
+        left: 15px;
+        width: 150px;
         background: rgba(255, 255, 255, 0.85);
         border: 1px solid #444;
         border-radius: 6px;
-        padding: 12px;
+        padding: 8px;
         z-index: 9999;
+        font-size: 12px;
+        color: black;
     ">
-    <b>NNN Analyse</b><br><br>
+    <b>NNN Analyse</b><br>
     <span style="color: blue;">&#9608;</span> 1 km buffer<br>
     <span style="color: green;">&#9608;</span> NNN gebied<br>
     </div>
     """
     m.get_root().html.add_child(folium.Element(legend_html))
 
+
     # Logo
     logo_path = "utils/pictures/pngwing.com.png"
     with open(logo_path, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
-
+    
     logo_html = f"""
     <div id="map-logo" style="
         position: fixed;
-        bottom: 15px;
-        left: 15px;
+        top: 15px;
+        right: 210px;
         z-index: 999999;
         background: rgba(255,255,255,0.7);
-        padding: 10px;
-        border-radius: 10px;
+        padding: 6px;
+        border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     ">
-        <img src="data:image/jpeg;base64,{encoded}" style="width:75px;">
+        <img src="data:image/jpeg;base64,{encoded}" style="width:55px;">
     </div>
     """
     m.get_root().html.add_child(Element(logo_html))
 
+
     # Display in Streamlit
-    st_folium(m, width=700, height=500)
+    st_folium(m, width=700, height=400)
 
