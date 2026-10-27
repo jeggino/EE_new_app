@@ -80,7 +80,7 @@ def voer_gis_analyse_nnn(qs):
 
 
     # Bounding box (10 km)
-    bbox = Point(x_rd, y_rd).buffer(10000)
+    bbox = Point(x_rd, y_rd).buffer(15000)
     nnn_filtered = nnn[nnn.intersects(bbox)]
 
     # Convert to WGS
