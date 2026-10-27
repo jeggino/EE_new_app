@@ -772,19 +772,20 @@ if check_password():
         """)
         
         run_analysis = st.toggle(
-        "Natuurgebieden rond het Quickscan‑gebied bekijken"
+            "Natuurgebieden rond het Quickscan‑gebied bekijken"
         )
         
         if run_analysis:
-        with st.spinner("Bezig met het genereren van de kaarten..."):
-            
-            st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
-            voer_gis_analyse_nnn(qs)
-            st.caption("Deze kaart toont alle NNN‑gebieden binnen 15 km, inclusief een 1 km buffer rond het centroid van het Quickscan‑gebied.")
+            with st.spinner("Bezig met het genereren van de kaarten..."):
         
-            st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
-            voer_gis_analyse_natura2000(qs)
-            st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen 15 km, inclusief een 3 km buffer rond het centroid van het Quickscan‑gebied.")
+                st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
+                voer_gis_analyse_nnn(qs)
+                st.caption("Deze kaart toont alle NNN‑gebieden binnen 15 km, inclusief een 1 km buffer rond het centroid van het Quickscan‑gebied.")
+        
+                st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
+                voer_gis_analyse_natura2000(qs)
+                st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen 15 km, inclusief een 3 km buffer rond het centroid van het Quickscan‑gebied.")
+
 
 
 
