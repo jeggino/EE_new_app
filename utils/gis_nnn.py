@@ -135,7 +135,6 @@ def voer_gis_analyse_nnn(qs):
         font-size: 12px;
         color: black;
     ">
-    <b>NNN Analyse</b><br>
     <span style="color: blue;">&#9608;</span> 1 km buffer<br>
     <span style="color: green;">&#9608;</span> NNN gebied<br>
     </div>
@@ -166,5 +165,5 @@ def voer_gis_analyse_nnn(qs):
 
 
     # Display in Streamlit
-    st_folium(m, width=700, height=400)
+    st_folium(m, width=700, height=500)
 
