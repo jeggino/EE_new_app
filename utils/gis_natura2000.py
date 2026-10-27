@@ -8,6 +8,8 @@ from branca.element import Element
 from streamlit_folium import st_folium
 from utils.supabase_client import supabase
 import streamlit as st
+import tempfile
+import os
 
 RD = "EPSG:28992"
 WGS = "EPSG:4326"
@@ -17,7 +19,6 @@ project_to_wgs = pyproj.Transformer.from_crs(RD, WGS, always_xy=True).transform
 
 
 def flatten_geometry(gdf):
-    """Remove Z-values from polygons."""
     def flatten(geom):
         if geom is None:
             return None
@@ -46,11 +47,19 @@ def load_n2000_cached():
     if key in st.session_state:
         return st.session_state[key]
 
+    # Download from Supabase
     file_bytes = supabase.storage.from_("new_app").download(
         "quickscan/data/natura2000.gpkg"
     )
 
-    gdf = gpd.read_file(file_bytes)
+    # MUST write to temp file because GeoPandas cannot read bytes directly
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".gpkg") as tmp:
+        tmp.write(file_bytes)
+        tmp_path = tmp.name
+
+    gdf = gpd.read_file(tmp_path)
+    os.remove(tmp_path)
+
     gdf = gdf.set_crs(RD, allow_override=True)
     gdf = flatten_geometry(gdf)
 
@@ -100,9 +109,11 @@ def voer_gis_analyse_natura2000(qs):
     # Load cached Natura2000
     n2000 = load_n2000_cached()
 
-    # Bounding box (5 km)
+    # Bounding box (10 km)
     bbox = Point(x_rd, y_rd).buffer(10000)
     n2000_filtered = n2000[n2000.intersects(bbox)]
+
+    print("Aantal Natura2000 polygonen binnen 5 km:", len(n2000_filtered))
 
     # Convert to WGS
     n2000_wgs = n2000_filtered.to_crs(WGS)
@@ -129,11 +140,11 @@ def voer_gis_analyse_natura2000(qs):
         folium.GeoJson(
             {
                 "type": "Feature",
-                "properties": {"beschermin": row["beschermin"]},
+                "properties": {"beschermin": row.get("beschermin", "Unknown")},
                 "geometry": row.geometry.__geo_interface__
             },
             style_function=n2000_style,
-            tooltip=str(row["beschermin"])
+            tooltip=str(row.get("beschermin", "Unknown"))
         ).add_to(layer_n2000)
 
     # Add buffer
@@ -204,3 +215,4 @@ def voer_gis_analyse_natura2000(qs):
 
     # Display in Streamlit
     st_folium(m, width=700, height=500, returned_objects=[])
+
