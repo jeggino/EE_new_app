@@ -66,10 +66,6 @@ def load_n2000_cached():
     st.session_state[key] = gdf
     return gdf
 
-print("Natura2000 total rows:", len(n2000))
-print("Natura2000 CRS:", n2000.crs)
-print("Natura2000 geometry type:", n2000.geometry.iloc[0].geom_type)
-print("Natura2000 columns:", n2000.columns)
 
 # ---------------------------------------------------------
 # STYLE FUNCTION FOR NATURA2000 COLORS
