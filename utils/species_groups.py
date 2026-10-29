@@ -63,20 +63,10 @@ SPECIES_GROUPS = {
     # VOGELS — 5 CATEGORIEËN
     # -------------------------
     "vogels": {
-        "categorie_1": [
-            "steenuil"
+        "categorie_1-4": [
+            "steenuil","huismus", "gierzwaluw", "roek","grote gele kwikstaart", "kerkuil", "oehoe","ooievaar", "slechtvalk","boomvalk", "buizerd", "havik", "ransuil","sperwer", "wespendief", "zwarte wouw"
         ],
-        "categorie_2": [
-            "huismus", "gierzwaluw", "roek"
-        ],
-        "categorie_3": [
-            "grote gele kwikstaart", "kerkuil", "oehoe",
-            "ooievaar", "slechtvalk"
-        ],
-        "categorie_4": [
-            "boomvalk", "buizerd", "havik", "ransuil",
-            "sperwer", "wespendief", "zwarte wouw"
-        ],
+        
         "categorie_5": [
             "blauwe reiger", "boerenzwaluw", "bonte vliegenvanger",
             "boomklever", "boomkruiper", "bosuil", "brilduiker",
