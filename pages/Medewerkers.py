@@ -27,7 +27,10 @@ keuze = st.pills(
     default="Gebruiker + Medewerker aanmaken",
 )
 
-
+# ============================================================
+# TERUG NAAR HOME
+# ============================================================
+st.button("⬅️ Terug naar Home", on_click=lambda: st.switch_page("Home.py"))
 
 # ============================================================
 # 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
@@ -215,11 +218,6 @@ elif keuze == "Overzicht":
                     )
 
 
-
-
-
-
-
 # ============================================================
 # 3️⃣ BEWERKEN / VERWIJDEREN
 # ============================================================
@@ -240,14 +238,40 @@ elif keuze == "Bewerken / Verwijderen":
 
     medewerker = next(m for m in medewerkers if f"{m['volledige_naam']} ({m['email']})" == keuze_medewerker)
 
+    # --- Formulier ---
     with st.form("edit_form"):
         volledige_naam = st.text_input("Volledige naam", medewerker["volledige_naam"])
         mobiel_nummer = st.text_input("Mobiel nummer", medewerker["mobiel_nummer"])
-        beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7, value=medewerker["beschikbare_dagen"])
+        beschikbare_dagen = st.number_input(
+            "Beschikbare dagen",
+            min_value=0,
+            max_value=7,
+            value=medewerker["beschikbare_dagen"]
+        )
 
-        ervaringsniveau = st.selectbox("Ervaringsniveau", ERVARINGSNIVEAU, index=ERVARINGSNIVEAU.index(medewerker["ervaringsniveau"]))
+        address = st.text_input("Adres", medewerker.get("address", ""))
+
         rol = st.selectbox("Rol", ROLLEN, index=ROLLEN.index(medewerker["rol"]))
         categorie = st.selectbox("Categorie", CATEGORIEËN, index=CATEGORIEËN.index(medewerker["categorie"]))
+
+        # --- Multiselects voor nieuwe velden ---
+        ervarion_ecologie = st.multiselect(
+            "Ecologie ervaring",
+            ERVARION_ECOLOGIE,
+            default=medewerker.get("ervarion_ecologie", [])
+        )
+
+        ervarion_it = st.multiselect(
+            "IT / Geo-informatie ervaring",
+            ERVARION_IT,
+            default=medewerker.get("ervarion_it", [])
+        )
+
+        vervoer = st.multiselect(
+            "Vervoer",
+            VERVOER,
+            default=medewerker.get("vervoer", [])
+        )
 
         # Nieuw: wachtwoord wijzigen
         nieuw_wachtwoord = st.text_input("Nieuw wachtwoord (optioneel)", type="password")
@@ -267,22 +291,23 @@ elif keuze == "Bewerken / Verwijderen":
                 "volledige_naam": volledige_naam,
                 "mobiel_nummer": mobiel_nummer,
                 "beschikbare_dagen": beschikbare_dagen,
-                "ervaringsniveau": ervaringsniveau,
+                "address": address,
                 "rol": rol,
-                "categorie": categorie
+                "categorie": categorie,
+                "ervarion_ecologie": ervarion_ecologie,
+                "ervarion_it": ervarion_it,
+                "vervoer": vervoer
             }
 
             # --- Update wachtwoord in eigen tabel + Auth ---
             if nieuw_wachtwoord:
                 update_data["wachtwoord"] = nieuw_wachtwoord
 
-                # Update in Supabase Auth
                 try:
                     supabase_admin.auth.admin.update_user_by_id(
                         medewerker["gebruiker_id"],
                         {"password": nieuw_wachtwoord}
                     )
-
                 except Exception as e:
                     st.error(f"Kon wachtwoord niet updaten in Auth: {e}")
                     st.stop()
@@ -296,10 +321,7 @@ elif keuze == "Bewerken / Verwijderen":
     # --- Verwijderen ---
     if st.button("Medewerker + gebruiker verwijderen"):
         try:
-            # 1. Verwijder Supabase Auth gebruiker
             supabase_admin.auth.admin.delete_user(medewerker["gebruiker_id"])
-
-            # 2. Verwijder medewerker uit eigen tabel
             supabase.table("new_app_employees").delete().eq("id", medewerker["id"]).execute()
 
             st.success("Gebruiker + medewerker volledig verwijderd.")
@@ -310,10 +332,8 @@ elif keuze == "Bewerken / Verwijderen":
 
 
 
-# ============================================================
-# TERUG NAAR HOME
-# ============================================================
-st.button("⬅️ Terug naar Home", on_click=lambda: st.switch_page("Home.py"))
+
+
 
 
 
