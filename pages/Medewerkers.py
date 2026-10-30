@@ -132,7 +132,7 @@ elif keuze == "Overzicht":
             lambda x: ", ".join(x) if isinstance(x, list) else x
         )
 
-    # --- Rename columns (capital + blue + no underscores) ---
+    # --- Rename columns (capital + no underscores) ---
     rename_map = {
         "volledige_naam": "Naam",
         "rol": "Rol",
@@ -147,9 +147,8 @@ elif keuze == "Overzicht":
         "ervarion_it": "Ervarion it"
     }
 
-    
     df = df.rename(columns=rename_map)
-    
+
     # --- Column order ---
     ordered_cols = [
         "Rol", "Email", "Wachtwoord",
@@ -157,9 +156,8 @@ elif keuze == "Overzicht":
         "Beschikbare dagen", "Vervoer",
         "Categorie", "Ervarion ecologie", "Ervarion it"
     ]
-    
+
     df = df[[c for c in ordered_cols if c in df.columns]]
-    
 
     # --- Filters ---
     st.markdown("### 🔍 Filters")
@@ -178,44 +176,47 @@ elif keuze == "Overzicht":
     if categorie_filter:
         filtered_df = filtered_df[filtered_df["Categorie"].isin(categorie_filter)]
 
-    if ecologie_filter:
+    if ecologie_filter and "Ervarion ecologie" in filtered_df.columns:
         filtered_df = filtered_df[
             filtered_df["Ervarion ecologie"].apply(
                 lambda x: any(item in x for item in ecologie_filter) if isinstance(x, str) else False
             )
         ]
 
-    if it_filter:
+    if it_filter and "Ervarion it" in filtered_df.columns:
         filtered_df = filtered_df[
             filtered_df["Ervarion it"].apply(
                 lambda x: any(item in x for item in it_filter) if isinstance(x, str) else False
             )
         ]
 
-    if vervoer_filter:
+    if vervoer_filter and "Vervoer" in filtered_df.columns:
         filtered_df = filtered_df[
             filtered_df["Vervoer"].apply(
                 lambda x: any(item in x for item in vervoer_filter) if isinstance(x, str) else False
             )
         ]
 
-
+    # --- Table ---
+    st.markdown("### 👥 Gefilterde medewerkers")
+    st.dataframe(filtered_df, use_container_width=True, hide_index=True)
 
     # --- Detail buttons ---
+    st.markdown("### 📌 Details per medewerker")
+
     for idx, row in filtered_df.iterrows():
-        naam = row["volledige_naam"]  # of row["Rol"], wat jij wilt tonen
-    
-       if st.button(f"👤 {naam}"):
+        naam = row["Naam"]  # gebruik de hernoemde kolom
+
+        if st.button(f"👤 {naam}"):
             st.markdown(f"## {naam}")
-    
+
             for key, value in row.items():
-                if key in ["Volledige naam", "Aangemaakt op"]:
-                    continue
-    
+                # niets overslaan, want Naam/Aangemaakt op staan niet in df
                 st.markdown(
                     f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
                     unsafe_allow_html=True
                 )
+
 
 
 
