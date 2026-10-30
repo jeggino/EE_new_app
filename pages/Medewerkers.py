@@ -26,68 +26,7 @@ keuze = st.pills(
     default="Gebruiker + Medewerker aanmaken",
 )
 
-# # ============================================================
-# # 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
-# # ============================================================
-# if keuze == "Gebruiker + Medewerker aanmaken":
-#     st.subheader("Nieuwe gebruiker + medewerker aanmaken")
 
-#     with st.form("create_user_employee_form"):
-#         st.markdown("### Gebruiker")
-#         email = st.text_input("Email")
-
-#         password = st.text_input("Wachtwoord", type="password")
-#         password_confirm = st.text_input("Bevestig wachtwoord", type="password")
-
-#         st.markdown("### Medewerkergegevens")
-#         volledige_naam = st.text_input("Volledige naam")
-#         mobiel_nummer = st.text_input("Mobiel nummer")
-#         beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7)
-
-#         ervaringsniveau = st.selectbox("Ervaringsniveau", ERVARINGSNIVEAU)
-#         rol = st.selectbox("Rol", ROLLEN)
-#         categorie = st.selectbox("Categorie", CATEGORIEËN)
-
-#         submit = st.form_submit_button("Aanmaken")
-
-#     if submit:
-#         # --- Check wachtwoorden ---
-#         if password != password_confirm:
-#             st.error("De wachtwoorden komen niet overeen.")
-#             st.stop()
-
-#         try:
-#             # 1. Create Supabase Auth user (Admin API)
-#             res = supabase_admin.auth.admin.create_user({
-#                 "email": email,
-#                 "password": password,
-#                 "email_confirm": True,
-#                 "user_metadata": {
-#                     "volledige_naam": volledige_naam,
-#                     "rol": rol,
-#                     "categorie": categorie
-#                 }
-#             })
-
-#             user_id = res.user.id
-
-#             # 2. Create employee record
-#             supabase.table("new_app_employees").insert({
-#                 "gebruiker_id": user_id,
-#                 "volledige_naam": volledige_naam,
-#                 "email": email,
-#                 "mobiel_nummer": mobiel_nummer,
-#                 "beschikbare_dagen": beschikbare_dagen,
-#                 "ervaringsniveau": ervaringsniveau,
-#                 "rol": rol,
-#                 "categorie": categorie,
-#                 "wachtwoord":password
-#             }).execute()
-
-#             st.success("Gebruiker + medewerker succesvol aangemaakt.")
-
-#         except Exception as e:
-#             st.error(f"Fout bij aanmaken: {e}")
 
 # ============================================================
 # 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
@@ -171,6 +110,7 @@ if keuze == "Gebruiker + Medewerker aanmaken":
 elif keuze == "Overzicht":
     st.subheader("Medewerkers overzicht")
 
+    # --- Fetch data ---
     res = supabase.table("new_app_employees").select("*").execute()
     medewerkers = res.data
 
@@ -178,7 +118,67 @@ elif keuze == "Overzicht":
         st.info("Er zijn nog geen medewerkers toegevoegd.")
         st.stop()
 
-    st.dataframe(medewerkers, use_container_width=True, hide_index=True)
+    # Convert to DataFrame for easier filtering
+    df = pd.DataFrame(medewerkers)
+
+    st.markdown("### 🔍 Filters")
+
+    # --- Filters ---
+    rol_filter = st.multiselect("Filter op rol", ROLLEN)
+    categorie_filter = st.multiselect("Filter op categorie", CATEGORIEËN)
+    ecologie_filter = st.multiselect("Filter op ecologie", ERVARION_ECOLOGIE)
+    it_filter = st.multiselect("Filter op IT", ERVARION_IT)
+    vervoer_filter = st.multiselect("Filter op vervoer", VERVOER)
+
+    # --- Apply filters ---
+    filtered_df = df.copy()
+
+    if rol_filter:
+        filtered_df = filtered_df[filtered_df["rol"].isin(rol_filter)]
+
+    if categorie_filter:
+        filtered_df = filtered_df[filtered_df["categorie"].isin(categorie_filter)]
+
+    if ecologie_filter:
+        filtered_df = filtered_df[
+            filtered_df["ervarion_ecologie"].apply(
+                lambda x: any(item in x for item in ecologie_filter) if isinstance(x, list) else False
+            )
+        ]
+
+    if it_filter:
+        filtered_df = filtered_df[
+            filtered_df["ervarion_it"].apply(
+                lambda x: any(item in x for item in it_filter) if isinstance(x, list) else False
+            )
+        ]
+
+    if vervoer_filter:
+        filtered_df = filtered_df[
+            filtered_df["vervoer"].apply(
+                lambda x: any(item in x for item in vervoer_filter) if isinstance(x, list) else False
+            )
+        ]
+
+    st.markdown("### 👥 Gefilterde medewerkers")
+    st.dataframe(filtered_df.drop(columns=["gebruiker_id"]), use_container_width=True, hide_index=True)
+
+    st.markdown("### 📌 Details per medewerker")
+
+    # --- Buttons for each medewerker ---
+    for _, row in filtered_df.iterrows():
+        naam = row["volledige_naam"]
+
+        if st.button(f"Bekijk details van {naam}"):
+            st.markdown(f"## 🧑 {naam}")
+
+            # Remove gebruiker_id from display
+            detail = row.drop(labels=["gebruiker_id"])
+
+            # Pretty display
+            for key, value in detail.items():
+                st.write(f"**{key}:** {value}")
+
 
 # ============================================================
 # 3️⃣ BEWERKEN / VERWIJDEREN
