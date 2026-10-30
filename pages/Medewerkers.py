@@ -153,13 +153,14 @@ elif keuze == "Overzicht":
     df = df.rename(columns=rename_map)
 
     # --- Filters ---
-    st.markdown("### 🔍 Filters")
+    with st.expander("🔍 Filters", expanded=False):
+    
+        rol_filter = st.multiselect("Filter op rol", ROLLEN)
+        categorie_filter = st.multiselect("Filter op categorie", CATEGORIEËN)
+        ecologie_filter = st.multiselect("Filter op ecologie", ERVARION_ECOLOGIE)
+        it_filter = st.multiselect("Filter op IT", ERVARION_IT)
+        vervoer_filter = st.multiselect("Filter op vervoer", VERVOER)
 
-    rol_filter = st.multiselect("Filter op rol", ROLLEN)
-    categorie_filter = st.multiselect("Filter op categorie", CATEGORIEËN)
-    ecologie_filter = st.multiselect("Filter op ecologie", ERVARION_ECOLOGIE)
-    it_filter = st.multiselect("Filter op IT", ERVARION_IT)
-    vervoer_filter = st.multiselect("Filter op vervoer", VERVOER)
 
     filtered_df = df.copy()   # KEEP Naam here
 
