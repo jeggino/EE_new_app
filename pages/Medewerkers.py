@@ -119,66 +119,108 @@ elif keuze == "Overzicht":
         st.info("Er zijn nog geen medewerkers toegevoegd.")
         st.stop()
 
-    # Convert to DataFrame for easier filtering
     df = pd.DataFrame(medewerkers)
 
-    st.markdown("### 🔍 Filters")
+    # --- Drop gebruiker_id ---
+    if "gebruiker_id" in df.columns:
+        df = df.drop(columns=["gebruiker_id"])
+
+    # --- Convert list fields to comma-separated strings ---
+    list_fields = ["ervarion_ecologie", "ervarion_it", "vervoer"]
+    for field in list_fields:
+        df[field] = df[field].apply(
+            lambda x: ", ".join(x) if isinstance(x, list) else x
+        )
+
+    # --- Rename columns (capital + blue + no underscores) ---
+    rename_map = {
+        "rol": "Rol",
+        "email": "Email",
+        "wachtwoord": "Wachtwoord",
+        "mobiel_nummer": "Mobiel nummer",
+        "address": "Address",
+        "beschikbare_dagen": "Beschikbare dagen",
+        "vervoer": "Vervoer",
+        "categorie": "Categorie",
+        "ervarion_ecologie": "Ervarion ecologie",
+        "ervarion_it": "Ervarion it",
+        "volledige_naam": "Volledige naam",
+        "aangemaakt_op": "Aangemaakt op"
+    }
+
+    df = df.rename(columns=rename_map)
+
+    # --- Column order ---
+    ordered_cols = [
+        "Rol", "Email", "Wachtwoord",
+        "Mobiel nummer", "Address",
+        "Beschikbare dagen", "Vervoer",
+        "Categorie", "Ervarion ecologie", "Ervarion it",
+        "Volledige naam", "Aangemaakt op"
+    ]
+
+    # Keep only columns that exist
+    ordered_cols = [c for c in ordered_cols if c in df.columns]
+    df = df[ordered_cols]
 
     # --- Filters ---
+    st.markdown("### 🔍 Filters")
+
     rol_filter = st.multiselect("Filter op rol", ROLLEN)
     categorie_filter = st.multiselect("Filter op categorie", CATEGORIEËN)
     ecologie_filter = st.multiselect("Filter op ecologie", ERVARION_ECOLOGIE)
     it_filter = st.multiselect("Filter op IT", ERVARION_IT)
     vervoer_filter = st.multiselect("Filter op vervoer", VERVOER)
 
-    # --- Apply filters ---
     filtered_df = df.copy()
 
     if rol_filter:
-        filtered_df = filtered_df[filtered_df["rol"].isin(rol_filter)]
+        filtered_df = filtered_df[filtered_df["Rol"].isin(rol_filter)]
 
     if categorie_filter:
-        filtered_df = filtered_df[filtered_df["categorie"].isin(categorie_filter)]
+        filtered_df = filtered_df[filtered_df["Categorie"].isin(categorie_filter)]
 
     if ecologie_filter:
         filtered_df = filtered_df[
-            filtered_df["ervarion_ecologie"].apply(
-                lambda x: any(item in x for item in ecologie_filter) if isinstance(x, list) else False
+            filtered_df["Ervarion ecologie"].apply(
+                lambda x: any(item in x for item in ecologie_filter) if isinstance(x, str) else False
             )
         ]
 
     if it_filter:
         filtered_df = filtered_df[
-            filtered_df["ervarion_it"].apply(
-                lambda x: any(item in x for item in it_filter) if isinstance(x, list) else False
+            filtered_df["Ervarion it"].apply(
+                lambda x: any(item in x for item in it_filter) if isinstance(x, str) else False
             )
         ]
 
     if vervoer_filter:
         filtered_df = filtered_df[
-            filtered_df["vervoer"].apply(
-                lambda x: any(item in x for item in vervoer_filter) if isinstance(x, list) else False
+            filtered_df["Vervoer"].apply(
+                lambda x: any(item in x for item in vervoer_filter) if isinstance(x, str) else False
             )
         ]
 
+    # --- Display table ---
     st.markdown("### 👥 Gefilterde medewerkers")
-    st.dataframe(filtered_df.drop(columns=["gebruiker_id"]), use_container_width=True, hide_index=True)
+    st.dataframe(filtered_df, use_container_width=True, hide_index=True)
 
+    # --- Detail buttons ---
     st.markdown("### 📌 Details per medewerker")
 
-    # --- Buttons for each medewerker ---
-    for _, row in filtered_df.iterrows():
-        naam = row["volledige_naam"]
+    for idx, row in filtered_df.iterrows():
+        naam = row["Volledige naam"]
 
         if st.button(f"Bekijk details van {naam}"):
             st.markdown(f"## 🧑 {naam}")
 
-            # Remove gebruiker_id from display
-            detail = row.drop(labels=["gebruiker_id"])
+            # Pretty card
+            for key, value in row.items():
+                st.markdown(
+                    f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
+                    unsafe_allow_html=True
+                )
 
-            # Pretty display
-            for key, value in detail.items():
-                st.write(f"**{key}:** {value}")
 
 
 # ============================================================
