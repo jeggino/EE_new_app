@@ -198,18 +198,22 @@ elif keuze == "Overzicht":
 
     # --- Detail buttons ---
     st.markdown("### 👥 Details per medewerker")
-
+    
     for idx, row in filtered_df.iterrows():
-        naam = row["Naam"]  # NOW THIS WORKS
-
+        naam = row["Naam"]  # werkt nu altijd
+    
         if st.button(f"👤 {naam}"):
             st.markdown(f"## {naam}")
+    
+            # Alleen de kolommen die jij wilt tonen
+            for key in ordered_cols:
+                value = row.get(key, None)
+                if value is not None:
+                    st.markdown(
+                        f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
+                        unsafe_allow_html=True
+                    )
 
-            for key, value in row.items():
-                st.markdown(
-                    f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
-                    unsafe_allow_html=True
-                )
 
 
 
