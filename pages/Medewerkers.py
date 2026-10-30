@@ -144,8 +144,6 @@ elif keuze == "Overzicht":
         "categorie": "Categorie",
         "ervarion_ecologie": "Ervarion ecologie",
         "ervarion_it": "Ervarion it",
-        "volledige_naam": "Volledige naam",
-        "aangemaakt_op": "Aangemaakt op"
     }
 
     df = df.rename(columns=rename_map)
@@ -155,9 +153,9 @@ elif keuze == "Overzicht":
         "Rol", "Email", "Wachtwoord",
         "Mobiel nummer", "Address",
         "Beschikbare dagen", "Vervoer",
-        "Categorie", "Ervarion ecologie", "Ervarion it",
-        "Volledige naam", "Aangemaakt op"
+        "Categorie", "Ervarion ecologie", "Ervarion it"
     ]
+
 
     # Keep only columns that exist
     ordered_cols = [c for c in ordered_cols if c in df.columns]
@@ -201,9 +199,7 @@ elif keuze == "Overzicht":
             )
         ]
 
-    # --- Display table ---
-    st.markdown("### 👥 Gefilterde medewerkers")
-    st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+
 
     # --- Detail buttons ---
     st.markdown("### 📌 Details per medewerker")
@@ -212,7 +208,7 @@ elif keuze == "Overzicht":
         naam = row["Volledige naam"]
 
         if st.button(f"Bekijk details van {naam}"):
-            st.markdown(f"## 🧑 {naam}")
+            st.markdown(f"## {naam}")
 
             # Pretty card
             for key, value in row.items():
