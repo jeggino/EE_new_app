@@ -2,6 +2,7 @@ import streamlit as st
 from utils.supabase_client import supabase, supabase_admin
 from utils.auth import check_password
 from utils.Medewerkers.employee_options import ERVARION_ECOLOGIE , ERVARION_IT , ROLLEN , CATEGORIEËN ,VERVOER 
+import pandas as pd
 
 
 
