@@ -149,16 +149,6 @@ elif keuze == "Overzicht":
 
     df = df.rename(columns=rename_map)
 
-    # --- Column order ---
-    ordered_cols = [
-        "Rol", "Email", "Wachtwoord",
-        "Mobiel nummer", "Address",
-        "Beschikbare dagen", "Vervoer",
-        "Categorie", "Ervarion ecologie", "Ervarion it"
-    ]
-
-    df = df[[c for c in ordered_cols if c in df.columns]]
-
     # --- Filters ---
     st.markdown("### 🔍 Filters")
 
@@ -168,7 +158,7 @@ elif keuze == "Overzicht":
     it_filter = st.multiselect("Filter op IT", ERVARION_IT)
     vervoer_filter = st.multiselect("Filter op vervoer", VERVOER)
 
-    filtered_df = df.copy()
+    filtered_df = df.copy()   # KEEP Naam here
 
     if rol_filter:
         filtered_df = filtered_df[filtered_df["Rol"].isin(rol_filter)]
@@ -197,15 +187,20 @@ elif keuze == "Overzicht":
             )
         ]
 
-    # --- Table ---
-    st.markdown("### 👥 Gefilterde medewerkers")
-    st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+    # --- Table (WITHOUT Naam) ---
+    ordered_cols = [
+        "Rol", "Email", "Wachtwoord",
+        "Mobiel nummer", "Address",
+        "Beschikbare dagen", "Vervoer",
+        "Categorie", "Ervarion ecologie", "Ervarion it"
+    ]
+
 
     # --- Detail buttons ---
-    st.markdown("### 📌 Details per medewerker")
+    st.markdown("### 👥 Details per medewerker")
 
     for idx, row in filtered_df.iterrows():
-        naam = row["Naam"]
+        naam = row["Naam"]  # NOW THIS WORKS
 
         if st.button(f"👤 {naam}"):
             st.markdown(f"## {naam}")
@@ -215,6 +210,7 @@ elif keuze == "Overzicht":
                     f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
                     unsafe_allow_html=True
                 )
+
 
 
 
