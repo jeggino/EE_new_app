@@ -134,6 +134,7 @@ elif keuze == "Overzicht":
 
     # --- Rename columns (capital + blue + no underscores) ---
     rename_map = {
+        "volledige_naam": "Naam",
         "rol": "Rol",
         "email": "Email",
         "wachtwoord": "Wachtwoord",
@@ -201,7 +202,7 @@ elif keuze == "Overzicht":
 
     # --- Detail buttons ---
     for idx, row in filtered_df.iterrows():
-        naam = row["volledige_naam"]  # of row["Rol"], wat jij wilt tonen
+        naam = row["Naam"]  # of row["Rol"], wat jij wilt tonen
     
         if st.button(f"Bekijk details van {naam}"):
             st.markdown(f"## {naam}")
