@@ -1,7 +1,9 @@
 import streamlit as st
 from utils.supabase_client import supabase, supabase_admin
 from utils.auth import check_password
-from config.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
+from utils.Medewerkers.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
+
+
 
 # --- Hide sidebar ---
 st.markdown("""
