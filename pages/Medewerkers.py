@@ -202,7 +202,7 @@ elif keuze == "Overzicht":
 
     # --- Detail buttons ---
     for idx, row in filtered_df.iterrows():
-        naam = row["Naam"]  # of row["Rol"], wat jij wilt tonen
+        naam = row["Email"]  # of row["Rol"], wat jij wilt tonen
     
         if st.button(f"Bekijk details van {naam}"):
             st.markdown(f"## {naam}")
