@@ -134,6 +134,7 @@ elif keuze == "Overzicht":
 
     # --- Rename columns (capital + blue + no underscores) ---
     rename_map = {
+        "volledige_naam": "Naam",
         "rol": "Rol",
         "email": "Email",
         "wachtwoord": "Wachtwoord",
@@ -145,6 +146,7 @@ elif keuze == "Overzicht":
         "ervarion_ecologie": "Ervarion ecologie",
         "ervarion_it": "Ervarion it"
     }
+
     
     df = df.rename(columns=rename_map)
     
