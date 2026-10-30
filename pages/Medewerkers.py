@@ -143,11 +143,11 @@ elif keuze == "Overzicht":
         "vervoer": "Vervoer",
         "categorie": "Categorie",
         "ervarion_ecologie": "Ervarion ecologie",
-        "ervarion_it": "Ervarion it",
+        "ervarion_it": "Ervarion it"
     }
-
+    
     df = df.rename(columns=rename_map)
-
+    
     # --- Column order ---
     ordered_cols = [
         "Rol", "Email", "Wachtwoord",
@@ -155,11 +155,9 @@ elif keuze == "Overzicht":
         "Beschikbare dagen", "Vervoer",
         "Categorie", "Ervarion ecologie", "Ervarion it"
     ]
-
-
-    # Keep only columns that exist
-    ordered_cols = [c for c in ordered_cols if c in df.columns]
-    df = df[ordered_cols]
+    
+    df = df[[c for c in ordered_cols if c in df.columns]]
+    
 
     # --- Filters ---
     st.markdown("### 🔍 Filters")
@@ -202,16 +200,16 @@ elif keuze == "Overzicht":
 
 
     # --- Detail buttons ---
-    st.markdown("### 📌 Details per medewerker")
-
     for idx, row in filtered_df.iterrows():
-        naam = row["Volledige naam"]
-
+        naam = row["Email"]  # of row["Rol"], wat jij wilt tonen
+    
         if st.button(f"Bekijk details van {naam}"):
             st.markdown(f"## {naam}")
-
-            # Pretty card
+    
             for key, value in row.items():
+                if key in ["Volledige naam", "Aangemaakt op"]:
+                    continue
+    
                 st.markdown(
                     f"<span style='color:#1E88E5; font-weight:600;'>{key}</span>: {value}",
                     unsafe_allow_html=True
