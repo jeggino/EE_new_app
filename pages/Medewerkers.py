@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.supabase_client import supabase, supabase_admin
 from utils.auth import check_password
-from utils.Medewerkers.employee_options import ERVARINGSNIVEAU, ROLLEN, CATEGORIEËN
+from utils.Medewerkers.employee_options import ERVARION_ECOLOGIE , ERVARION_IT , ROLLEN , CATEGORIEËN ,VERVOER 
 
 
 
@@ -26,6 +26,69 @@ keuze = st.pills(
     default="Gebruiker + Medewerker aanmaken",
 )
 
+# # ============================================================
+# # 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
+# # ============================================================
+# if keuze == "Gebruiker + Medewerker aanmaken":
+#     st.subheader("Nieuwe gebruiker + medewerker aanmaken")
+
+#     with st.form("create_user_employee_form"):
+#         st.markdown("### Gebruiker")
+#         email = st.text_input("Email")
+
+#         password = st.text_input("Wachtwoord", type="password")
+#         password_confirm = st.text_input("Bevestig wachtwoord", type="password")
+
+#         st.markdown("### Medewerkergegevens")
+#         volledige_naam = st.text_input("Volledige naam")
+#         mobiel_nummer = st.text_input("Mobiel nummer")
+#         beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7)
+
+#         ervaringsniveau = st.selectbox("Ervaringsniveau", ERVARINGSNIVEAU)
+#         rol = st.selectbox("Rol", ROLLEN)
+#         categorie = st.selectbox("Categorie", CATEGORIEËN)
+
+#         submit = st.form_submit_button("Aanmaken")
+
+#     if submit:
+#         # --- Check wachtwoorden ---
+#         if password != password_confirm:
+#             st.error("De wachtwoorden komen niet overeen.")
+#             st.stop()
+
+#         try:
+#             # 1. Create Supabase Auth user (Admin API)
+#             res = supabase_admin.auth.admin.create_user({
+#                 "email": email,
+#                 "password": password,
+#                 "email_confirm": True,
+#                 "user_metadata": {
+#                     "volledige_naam": volledige_naam,
+#                     "rol": rol,
+#                     "categorie": categorie
+#                 }
+#             })
+
+#             user_id = res.user.id
+
+#             # 2. Create employee record
+#             supabase.table("new_app_employees").insert({
+#                 "gebruiker_id": user_id,
+#                 "volledige_naam": volledige_naam,
+#                 "email": email,
+#                 "mobiel_nummer": mobiel_nummer,
+#                 "beschikbare_dagen": beschikbare_dagen,
+#                 "ervaringsniveau": ervaringsniveau,
+#                 "rol": rol,
+#                 "categorie": categorie,
+#                 "wachtwoord":password
+#             }).execute()
+
+#             st.success("Gebruiker + medewerker succesvol aangemaakt.")
+
+#         except Exception as e:
+#             st.error(f"Fout bij aanmaken: {e}")
+
 # ============================================================
 # 1️⃣ GEBRUIKER + MEDEWERKER AANMAKEN
 # ============================================================
@@ -44,9 +107,19 @@ if keuze == "Gebruiker + Medewerker aanmaken":
         mobiel_nummer = st.text_input("Mobiel nummer")
         beschikbare_dagen = st.number_input("Beschikbare dagen", min_value=0, max_value=7)
 
-        ervaringsniveau = st.selectbox("Ervaringsniveau", ERVARINGSNIVEAU)
+        address = st.text_input("Adres")
+
         rol = st.selectbox("Rol", ROLLEN)
         categorie = st.selectbox("Categorie", CATEGORIEËN)
+
+        st.markdown("### Ecologie ervaring")
+        ervarion_ecologie = st.multiselect("Ecologische domeinen", ERVARION_ECOLOGIE)
+
+        st.markdown("### IT / Geo-informatie ervaring")
+        ervarion_it = st.multiselect("IT / GIS / Data domeinen", ERVARION_IT)
+
+        st.markdown("### Vervoer")
+        vervoer = st.multiselect("Vervoersopties", VERVOER)
 
         submit = st.form_submit_button("Aanmaken")
 
@@ -78,17 +151,19 @@ if keuze == "Gebruiker + Medewerker aanmaken":
                 "email": email,
                 "mobiel_nummer": mobiel_nummer,
                 "beschikbare_dagen": beschikbare_dagen,
-                "ervaringsniveau": ervaringsniveau,
                 "rol": rol,
                 "categorie": categorie,
-                "wachtwoord":password
+                "wachtwoord": password,
+                "address": address,
+                "ervarion_ecologie": ervarion_ecologie,
+                "ervarion_it": ervarion_it,
+                "vervoer": vervoer
             }).execute()
 
             st.success("Gebruiker + medewerker succesvol aangemaakt.")
 
         except Exception as e:
             st.error(f"Fout bij aanmaken: {e}")
-
 
 # ============================================================
 # 2️⃣ OVERZICHT
