@@ -27,340 +27,1110 @@ col1, col2 = st.columns([2, 1])
 if col2.button("⬅️ Terug naar menu"):
     st.switch_page("Home.py")
     
-pagina = st.pills(
-    "Navigatie",
-    ["Plan een survey", "Agenda"],
-    default="Plan een survey",
-    # icons=["calendar_add_on", "calendar_month"]
+import streamlit as st
+import pandas as pd
+
+from database.supabase import get_supabase
+from utils.protocol_loader import load_protocols
+from planner.optimizer import get_survey_demand 
+
+from datetime import date, timedelta, datetime
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(
+    page_title="Project Overview",
+    layout="wide"
 )
 
 
+def pretty_date(mmdd):
+    try:
+        return datetime.strptime(
+            mmdd,
+            "%m-%d"
+        ).strftime("%b %d")
+    except:
+        return mmdd
 
-if pagina == "Plan een survey":
-    # ---------------------------------------------------------
-    # 1. Laad actieve projecten
-    # ---------------------------------------------------------
-    projecten = supabase.table("new_app_inventarisatie") \
-        .select("id, project_naam, aangemaakt_op, survey_informatie, gebruikers") \
-        .eq("actief", True) \
-        .execute().data
+st.title("🧠 Project Overview")
 
-    if not projecten:
-        st.info("Er zijn geen actieve projecten om te plannen.")
-        st.stop()
+st.caption(
+    """
+    Select a project to open its planning dashboard. After choosing a project, three sections will appear below. The first section shows all species and ecological functions that must be surveyed, together with their survey windows and protocol requirements. The second section provides an overview of the optimized survey periods, helping you understand when fieldwork can be planned most efficiently. The third section allows you to schedule individual survey rounds by selecting a period, survey type, and date. This planning information enables project managers and ecologists to monitor survey progress and track the status of the research throughout the season.
+    """
+)
 
-    # ---------------------------------------------------------
-    # 1b. Laad alle medewerkers
-    # ---------------------------------------------------------
-    employees = supabase.table("new_app_employees") \
-        .select("email, volledige_naam") \
-        .execute().data
+# --------------------------------------------------
+# LOAD DATA
+# --------------------------------------------------
 
-    if not employees:
-        st.error("Er zijn geen medewerkers beschikbaar.")
-        st.stop()
+supabase = get_supabase()
+PROTOCOLS = load_protocols()
 
-    # naam → email mapping
-    name_to_email = {e["volledige_naam"]: e["email"] for e in employees}
-    alle_namen = list(name_to_email.keys())
+projects = (
+    supabase
+    .table("planning_projects")
+    .select("*")
+    .execute()
+)
 
-    # ---------------------------------------------------------
-    # 2. Kies project
-    # ---------------------------------------------------------
-    keuze = st.selectbox(
-        "Kies een project:",
-        options=projecten,
-        format_func=lambda p: f"{p['project_naam']} ({p['aangemaakt_op'][:10]})"
+if not projects.data:
+    st.warning("No projects found.")
+    st.stop()
+
+# --------------------------------------------------
+# PROJECT SELECTOR
+# --------------------------------------------------
+
+project_names = [
+    p["project_name"]
+    for p in projects.data
+]
+
+selected_project_name = st.selectbox(
+    "Select Project",
+    project_names
+)
+
+project = next(
+    p
+    for p in projects.data
+    if p["project_name"] == selected_project_name
+)
+
+# --------------------------------------------------
+# BUILD PROTOCOL TABLE
+# --------------------------------------------------
+
+overview = []
+
+total_evening = 0
+total_morning = 0
+total_free = 0
+
+starts = []
+ends = []
+min_days = []
+
+for item in project["protocols"]:
+
+    species = item["species"]
+    function = item["function"]
+
+    protocol = PROTOCOLS[species][function]
+
+    rounds = protocol["rounds"]
+
+    evening = rounds["mandatory_evening"]
+    morning = rounds["mandatory_morning"]
+    free = rounds["free_rounds"]
+
+    start = protocol["survey_period"]["start"]
+    end = protocol["survey_period"]["end"]
+
+    min_days_between = protocol["min_days_between"]
+
+    starts.append(start)
+    ends.append(end)
+    min_days.append(min_days_between)
+
+    total_evening += evening
+    total_morning += morning
+    total_free += free
+
+    overview.append(
+        {
+            "Species": species,
+            "Function": function,
+            "Survey Start": start,
+            "Survey End": end,
+            "Evening": evening,
+            "Morning": morning,
+            "Free": free,
+            "Min Days": min_days_between
+        }
     )
 
-    project_id = keuze["id"]
-    survey_info = keuze["survey_informatie"]
+df = pd.DataFrame(overview)
 
-    # ---------------------------------------------------------
-    # 3. Kies soort + surveytype
-    # ---------------------------------------------------------
-    soorten = [s for s, v in survey_info.items() if v is not None]
-    gekozen_soort = st.selectbox("Soort:", soorten)
 
-    value = survey_info[gekozen_soort]
+result = get_survey_demand(
+    project,
+    PROTOCOLS
+)
 
-    # Detecteer subtypes
-    heeft_subtypes = isinstance(value, dict) and any(
-        isinstance(v, dict) for v in value.values()
+
+    
+# --------------------------------------------------
+# PROTOCOL TIMELINE
+# --------------------------------------------------
+
+st.divider()
+
+timeline_rows = []
+
+for p in result["protocols"]:
+
+    min_days = p.get("min_days")
+
+    try:
+        min_days = int(min_days)
+    except:
+        min_days = "N/A"
+
+    timing = p.get(
+        "timing",
+        {}
     )
 
-    if heeft_subtypes:
-        value = {k: v for k, v in value.items() if isinstance(v, dict)}
-        surveytypes = list(value.keys())
-        gekozen_surveytype = st.selectbox("Onderzoektype:", surveytypes)
-        survey_details = value[gekozen_surveytype]
-        subassignment = gekozen_surveytype
+    if timing:
+        timing_text = (
+            f"Start Rule: "
+            f"{timing.get('start_rule', '-')}"
+            f" | End Rule: "
+            f"{timing.get('end_rule', '-')}"
+        )
     else:
-        gekozen_surveytype = "algemeen"
-        survey_details = value
-        subassignment = ""
+        timing_text = "None"
 
-    aantal_personen = survey_details["aantal_personen"]
-    max_rondes = survey_details.get("aantal_rondes")
-
-    # ---------------------------------------------------------
-    # 4. Kies datum
-    # ---------------------------------------------------------
-    datum = st.date_input("Datum van de onderzoek")
-
-    # ---------------------------------------------------------
-    # 5. Kies veldwerkers (namen opslaan)
-    # ---------------------------------------------------------
-    geselecteerde_namen = st.multiselect(
-        "Kies veldwerkers:",
-        options=alle_namen
+    weather = p.get(
+        "weather",
+        {}
     )
 
-    geselecteerde_werkers = geselecteerde_namen  # <-- opslaan als namen
+    weather_text = (
+        f"Temp: {weather.get('temperature', '-')}"
+        f" | Wind: {weather.get('wind', '-')}"
+        f" | Rain: {weather.get('precipitation', '-')}"
+    )
 
-    if len(geselecteerde_werkers) != aantal_personen:
-        st.error(f"Je moet precies **{aantal_personen}** veldwerkers kiezen.")
-        st.stop()
+    timeline_rows.append(
+        {
+            "Protocol":
+                f"{p['species']} | {p['function']}",
 
-    # ---------------------------------------------------------
-    # 6. Protocolvalidatie
-    # ---------------------------------------------------------
-    eerdere_surveys = supabase.table("new_app_planning") \
-        .select("*") \
-        .eq("project_naam", keuze["project_naam"]) \
-        .eq("assignment", gekozen_soort) \
-        .execute().data
+            "Species":
+                p["species"],
 
-    regels = PROTOCOLS.get(gekozen_soort, {}).get(gekozen_surveytype, {})
+            "SurveyPeriod":
+                f"{p['start'].strftime('%d %b')}"
+                f" → "
+                f"{p['end'].strftime('%d %b')}",
 
-    min_dagen = regels.get("min_dagen")
-    derde_maand = regels.get("derde_survey_maand")
-    periode_start = regels.get("periode_start")
-    periode_eind = regels.get("periode_eind")
 
-    # ---------------------------------------------------------
-    # Toon toegestane periode
-    # ---------------------------------------------------------
-    if periode_start and periode_eind:
-        start = datetime.fromisoformat(periode_start).date()
-        eind = datetime.fromisoformat(periode_eind).date()
+            "Start": pd.to_datetime(
+                p["start"]
+            ),
+            
+            "End": pd.to_datetime(
+                p["end"]
+            ),
 
-        st.info(
-            f"Deze survey mag worden uitgevoerd tussen "
-            f"**{start.strftime('%d-%m-%Y')}** en **{eind.strftime('%d-%m-%Y')}**."
+            "Evening":
+                p["evening"],
+
+            "Morning":
+                p["morning"],
+
+            "Free":
+                p["free"],
+
+            "MinDays":
+                min_days,
+
+            "Timing":
+                timing_text,
+
+            "Weather":
+                weather_text
+        }
+    )
+
+timeline_df = pd.DataFrame(
+    timeline_rows
+)
+
+st.subheader(
+    "⚖️ Protocol Survey Periods"
+)
+
+st.caption(
+    """
+    This timeline displays the survey windows defined by the applicable protocols. Each bar represents a species-function combination and indicates the period in which surveys are allowed. Hover over a timeline item to view survey requirements, timing rules, weather conditions, and minimum intervals between survey rounds.
+    """
+)
+
+fig = px.timeline(
+    timeline_df,
+    x_start="Start",
+    x_end="End",
+    y="Protocol",
+    color="Species",
+    custom_data=[
+        "SurveyPeriod",
+        "Evening",
+        "Morning",
+        "Free",
+        "MinDays",
+        "Timing",
+        "Weather"
+    ]
+)
+
+fig.update_traces(
+    hovertemplate=
+        "<b>%{y}</b><br><br>"
+        "Survey Period: %{customdata[0]}<br><br>"
+        "🌙 Evening: %{customdata[1]}<br>"
+        "☀️ Morning: %{customdata[2]}<br>"
+        "🔄 Free: %{customdata[3]}<br>"
+        "⏱ Min Days: %{customdata[4]}<br><br>"
+        "<b>Timing</b><br>"
+        "%{customdata[5]}<br><br>"
+        "<b>Weather</b><br>"
+        "%{customdata[6]}"
+        "<extra></extra>"
+)
+
+fig.update_xaxes(
+    tickformat="%b"
+)
+
+fig.update_yaxes(
+    autorange="reversed"
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
+
+# --------------------------------------------------
+# OPTIMIZED SURVEY PERIODS
+# --------------------------------------------------
+
+optimized_periods = result["optimized_periods"]
+special_protocols = result["special_protocols"]
+
+period_rows = []
+
+for p in optimized_periods:
+
+    period_rows.append(
+        {
+            "Period": p["Period"],
+            "Start": p["Start"],
+            "End": p["End"],
+            "Days": p["Days"],
+            "Protocols": "<br>".join(
+                p["Protocols"]
+            ),
+            "Type": "Period"
+        }
+    )
+
+for p in special_protocols:
+
+    period_rows.append(
+        {
+            "Period":
+                "Meervleermuis | satelliet",
+
+            "Start":
+                p["start"],
+
+            "End":
+                p["end"],
+
+            "Days":
+                (
+                    p["end"] - p["start"]
+                ).days + 1,
+
+            "Score":
+                0,
+
+            "Protocols":
+                "meervleermuis | satelliet",
+
+            "Type":
+                "Special"
+        }
+    )
+
+periods_df = pd.DataFrame(
+    period_rows
+)
+
+# --------------------------------------------------
+# OPTIMIZED SURVEY PERIODS
+# --------------------------------------------------
+
+period_rows = []
+
+for period in result["optimized_periods"]:
+
+    for p in result["special_protocols"]:
+    
+        period_rows.append(
+            {
+                "Period": "Special",
+    
+                "Label":
+                    "Meervleermuis | satelliet",
+    
+                "Start":
+                    pd.to_datetime(
+                        p["start"]
+                    ),
+    
+                "End":
+                    pd.to_datetime(
+                        p["end"]
+                    ),
+    
+                "PeriodLabel":
+                    f"{p['start'].strftime('%d %b')} → "
+                    f"{p['end'].strftime('%d %b')}",
+    
+                "Days":
+                    (
+                        p["end"]
+                        - p["start"]
+                    ).days + 1,
+    
+                "Morning": 1,
+                "Evening": 0,
+                "Flexible": 0,    
+                "Protocols":
+                    "meervleermuis | satelliet"
+            }
         )
 
-    # ---------------------------------------------------------
-    # Maximum aantal rondes
-    # ---------------------------------------------------------
-    if max_rondes:
-        surveys_zelfde_type = [
-            s for s in eerdere_surveys
-            if s["assignment"] == gekozen_soort and s["subassignment"] == subassignment
+    info = period["SurveyInfo"]
+
+    period_rows.append(
+        {
+            "Period": period["Period"],
+
+            "Label":
+                f"{period['Period']} • "
+                f"{len(period['Protocols'])} protocols",
+
+            "Start":
+                pd.to_datetime(
+                    period["Start"]
+                ),
+
+            "End":
+                pd.to_datetime(
+                    period["End"]
+                ),
+
+            "PeriodLabel":
+                f"{period['Start'].strftime('%d %b')} → "
+                f"{period['End'].strftime('%d %b')}",
+
+            "Days":
+                period["Days"],
+
+            "Morning":
+                info["morning"],
+
+            "Evening":
+                info["evening"],
+
+            "Flexible":
+                info["extra"],
+
+            "Total":
+                info["total"],
+
+            "Protocols":
+                "<br>".join(
+                    period["Protocols"]
+                )
+        }
+    )
+
+periods_df = pd.DataFrame(
+    period_rows
+)
+
+if not periods_df.empty:
+
+    periods_df["ProtocolsTooltip"] = (
+        "• "
+        + periods_df["Protocols"].str.replace(
+            "<br>",
+            "<br>• "
+        )
+    )
+
+    period_fig = px.timeline(
+        periods_df,
+        x_start="Start",
+        x_end="End",
+        y="Label",
+        color="Period",
+        custom_data=[
+            "PeriodLabel",
+            "Days",
+            "Morning",
+            "Evening",
+            "Flexible",
+            "Total",
+            "ProtocolsTooltip"
         ]
+    )
 
-        if len(surveys_zelfde_type) >= max_rondes:
-            st.error(
-                f"Je kunt maximaal **{max_rondes} rondes** boeken voor "
-                f"{gekozen_soort} ({gekozen_surveytype})."
-            )
-            st.stop()
+    period_fig.update_traces(
+        width=0.25,
+        hovertemplate=
+            "<b>%{y}</b><br><br>"
 
-    # ---------------------------------------------------------
-    # Minimum dagen tussen surveys
-    # ---------------------------------------------------------
-    if min_dagen and eerdere_surveys:
-        laatste_datum = max([datetime.fromisoformat(s["datum"]) for s in eerdere_surveys])
-        verschil = (datum - laatste_datum.date()).days
+            "📅 %{customdata[0]}<br>"
+            "⏱ %{customdata[1]} days"
 
-        if verschil < min_dagen:
-            st.error(
-                f"Er moeten minimaal **{min_dagen} dagen** tussen twee surveys zitten."
-            )
-            st.stop()
+            "<br><br>"
 
-    # ---------------------------------------------------------
-    # Derde survey verplichte maand
-    # ---------------------------------------------------------
-    if derde_maand and len(eerdere_surveys) == 2:
-        if datum.month != derde_maand:
-            maandnaam = [
-                "januari","februari","maart","april","mei","juni",
-                "juli","augustus","september","oktober","november","december"
-            ][derde_maand - 1]
+            "<b>Survey Requirements</b><br>"
 
-            st.error(
-                f"De derde survey moet plaatsvinden in **{maandnaam}**."
-            )
-            st.stop()
+            "☀️ Morning: %{customdata[2]}<br>"
+            "🌙 Evening: %{customdata[3]}<br>"
+            "🔄 Flexible: %{customdata[4]}<br>"
 
-    # ---------------------------------------------------------
-    # 7. Opslaan
-    # ---------------------------------------------------------
-    if st.button("Survey plannen"):
-        user = st.session_state.get("user")
-        aangemaakt_door = user.user_metadata.get("volledige_naam", user.email)
+            "<br><br>"
 
-        supabase.table("new_app_planning").insert({
-            "project_naam": keuze["project_naam"],
-            "assignment": gekozen_soort,
-            "subassignment": subassignment,
-            "datum": str(datum),
-            "veldwerkers": geselecteerde_werkers,  # <-- namen
-            "aangemaakt_door": aangemaakt_door
-        }).execute()
+            "<b>Protocols</b><br>"
+            "%{customdata[6]}"
 
-        st.success("Survey succesvol gepland!")
+            "<extra></extra>"
+    )
 
-elif pagina == "Agenda":
-    st.header("Agenda-overzicht")
+    period_fig.update_xaxes(
+        tickformat="%b",
+        dtick="M1",
+    
+        range=[
+            datetime(2025, 1, 1),
+            datetime(2025, 12, 31)
+        ],
+    
+        ticks="outside",
+        ticklen=8,
+    
+        showgrid=True,
+        gridwidth=1,
+        gridcolor="rgba(180,180,180,0.25)",
+    
+        title=None
+    )
 
-    # Haal alle geplande surveys op
-    planning = supabase.table("new_app_planning") \
-        .select("*") \
-        .order("datum") \
-        .execute().data
+    period_fig.update_yaxes(
+        autorange="reversed",
+        title=None
+    )
 
-    if not planning:
-        st.info("Er zijn nog geen geplande surveys.")
-        st.stop()
+    period_fig.update_layout(
+        height=max(
+            400,
+            len(periods_df) * 110
+        ),
+        showlegend=False,
+        bargap=0.75,
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        margin=dict(
+            l=10,
+            r=10,
+            t=10,
+            b=10
+        ),
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=13
+        )
+    )
 
-    # ---------------------------------------------------------
-    # 1. Haal correcte naam van ingelogde gebruiker op
-    # ---------------------------------------------------------
-    user = st.session_state.get("user")
-    user_email = user.email
+    st.subheader(
+        "🎯 Optimized Survey Periods"
+    )
 
-    employee_record = supabase.table("new_app_employees") \
-        .select("volledige_naam") \
-        .eq("email", user_email) \
-        .single() \
-        .execute().data
+    st.caption(
+        """
+        The optimized periods combine overlapping protocol requirements into practical fieldwork windows. These periods help reduce the number of site visits by identifying opportunities to survey multiple species or functions during the same timeframe. Hover over a period to see the required number of morning, evening, and flexible surveys, together with the covered protocols.
+        """
+    )
 
-    if employee_record:
-        user_name = employee_record["volledige_naam"]
-    else:
-        user_name = user_email  # fallback
+    st.plotly_chart(
+        period_fig,
+        use_container_width=True
+    )
+# st.subheader(
+#     "🎯 Optimized Survey Periods"
+# )
 
-    # ---------------------------------------------------------
-    # 2. Filter alleen surveys waar deze gebruiker in zit
-    # ---------------------------------------------------------
-    planning_user = [p for p in planning if user_name in p["veldwerkers"]]
 
-    if not planning_user:
-        st.info("Je hebt geen geplande surveys.")
-        st.stop()
 
-    # ---------------------------------------------------------
-    # 3. Range slider voor maanden
-    # ---------------------------------------------------------
-    maanden = {
-        1: "Januari", 2: "Februari", 3: "Maart", 4: "April",
-        5: "Mei", 6: "Juni", 7: "Juli", 8: "Augustus",
-        9: "September", 10: "Oktober", 11: "November", 12: "December"
+# for period in result[
+#     "optimized_periods"
+# ]:
+
+#     info = period[
+#         "SurveyInfo"
+#     ]
+
+#     st.markdown(
+#         f"### {period['Period']}"
+#     )
+    
+#     col1, col2, col3 = (
+#         st.columns(3)
+#     )
+
+
+#     with col1:
+#         st.metric(
+#             "☀️ Morning",
+#             info["morning"]
+#         )
+
+#     with col2:
+#         st.metric(
+#             "🌙 Evening",
+#             info["evening"]
+#         )
+
+#     with col3:
+#         st.metric(
+#             "🔄 Flexible",
+#             info["extra"]
+#         )
+
+#     st.caption(
+#         f"📅 "
+#         f"{period['Start'].strftime('%d %b')} → "
+#         f"{period['End'].strftime('%d %b')}"
+#         f" • "
+#         f"{period['Days']} days"
+#     )
+
+#     st.markdown("---")
+
+
+# periods_df["Start"] = pd.to_datetime(
+#     periods_df["Start"]
+# )
+
+# periods_df["End"] = pd.to_datetime(
+#     periods_df["End"]
+# )
+
+
+# if periods_df.empty:
+
+#     st.warning(
+#         "No optimized periods found."
+#     )
+
+# else:
+
+#     periods_df["PeriodLabel"] = (
+#         periods_df["Start"].dt.strftime("%d %b")
+#         + " → "
+#         + periods_df["End"].dt.strftime("%d %b")
+#     )
+
+#     periods_df["Morning"] = periods_df.apply(
+#         lambda r: next(
+#             p["SurveyInfo"]["morning"]
+#             for p in result["optimized_periods"]
+#             if p["Period"] == r["Period"]
+#         ),
+#         axis=1
+#     )
+    
+#     periods_df["Evening"] = periods_df.apply(
+#         lambda r: next(
+#             p["SurveyInfo"]["evening"]
+#             for p in result["optimized_periods"]
+#             if p["Period"] == r["Period"]
+#         ),
+#         axis=1
+#     )
+    
+#     periods_df["Flexible"] = periods_df.apply(
+#         lambda r: next(
+#             p["SurveyInfo"]["extra"]
+#             for p in result["optimized_periods"]
+#             if p["Period"] == r["Period"]
+#         ),
+#         axis=1
+#     )
+    
+#     periods_df["Total"] = periods_df.apply(
+#         lambda r: next(
+#             p["SurveyInfo"]["total"]
+#             for p in result["optimized_periods"]
+#             if p["Period"] == r["Period"]
+#         ),
+#         axis=1
+#     )
+
+#     periods_df["Label"] = (
+#         periods_df["Period"]
+#         + " ("
+#         + periods_df["Total"].astype(str)
+#         + " surveys)"
+#     )
+    
+#     periods_df["ProtocolsTooltip"] = (
+#         periods_df["Protocols"]
+#         .str.replace("<br>", "<br>• ")
+#     )
+    
+#     periods_df["ProtocolsTooltip"] = (
+#         "• "
+#         + periods_df["ProtocolsTooltip"]
+#     )
+
+#     period_fig = px.timeline(
+#         periods_df,
+#         x_start="Start",
+#         x_end="End",
+#         y="Label",
+#         color="Period",
+#         custom_data=[
+#             "PeriodLabel",
+#             "Days",
+#             "Morning",
+#             "Evening",
+#             "Flexible",
+#             "Total",
+#             "ProtocolsTooltip"
+#         ]
+#     )
+    
+#     period_fig.update_traces(
+#         width=0.28,
+#         hovertemplate=
+#             "<b>%{y}</b><br><br>"
+    
+#             "📅 %{customdata[0]}<br>"
+#             "⏱ %{customdata[1]} days"
+    
+#             "<br><br>"
+    
+#             "<b>Survey Requirements</b><br>"
+#             "☀️ Morning: %{customdata[2]}<br>"
+#             "🌙 Evening: %{customdata[3]}<br>"
+#             "🔄 Flexible: %{customdata[4]}<br>"
+#             "🎯 Total: %{customdata[5]}"
+    
+#             "<br><br>"
+    
+#             "<b>Protocols</b><br>"
+#             "%{customdata[6]}"
+    
+#             "<extra></extra>"
+#     )
+    
+#     period_fig.update_xaxes(
+#         tickformat="%b",
+#         dtick="M1",
+#         ticks="outside",
+#         ticklen=8,
+#         showgrid=True,
+#         gridwidth=1,
+#         gridcolor="rgba(200,200,200,0.25)"
+#     )
+    
+#     period_fig.update_yaxes(
+#         autorange="reversed"
+#     )
+    
+#     period_fig.update_layout(
+#         height=250,
+#         showlegend=False,
+#         plot_bgcolor="white",
+#         paper_bgcolor="white",
+#         bargap=0.65,
+#         xaxis_title=None,
+#         yaxis_title=None,
+#         hoverlabel=dict(
+#             bgcolor="white",
+#             font_size=13,
+#             font_family="Arial"
+#         )
+#     )
+    
+#     st.plotly_chart(
+#         period_fig,
+#         use_container_width=True
+#     )
+
+# --------------------------------------------------
+# OPTIMIZED SURVEY PLAN
+# --------------------------------------------------
+
+# st.subheader(
+#     "🎯 Optimized Survey Plan"
+# )
+
+survey_rows = []
+
+for survey in result["survey_plan"]:
+
+    survey_rows.append(
+        {
+            "Date":
+                survey["date"],
+
+            "Type":
+                survey["type"].capitalize(),
+
+            "Protocols Covered":
+                len(
+                    survey["protocols"]
+                ),
+
+            "Protocols":
+                ", ".join(
+                    sorted(
+                        survey["protocols"]
+                    )
+                )
+        }
+    )
+
+survey_df = pd.DataFrame(
+    survey_rows
+)
+
+survey_df = survey_df.sort_values(
+    "Date"
+)
+
+
+edited_plan = survey_df
+
+
+
+# --------------------------------------------------
+# PERIOD DATA
+# --------------------------------------------------
+
+period_data = {}
+
+for period in result["optimized_periods"]:
+
+    info = period["SurveyInfo"]
+
+    period_data[period["Period"]] = {
+        "surveys":
+            [f"Morning {i+1}" for i in range(info["morning"])]
+            + [f"Evening {i+1}" for i in range(info["evening"])]
+            + [f"Flexible {i+1}" for i in range(info["extra"])],
+        "start": period["Start"],
+        "end": period["End"]
     }
 
-    st.markdown("### Filter op maanden")
+for special in result["special_protocols"]:
 
-    gekozen_maanden = st.select_slider(
-        "Kies een periode:",
-        options=list(maanden.keys()),
-        value=(1, 12),
-        format_func=lambda m: maanden[m]
+    period_data["Meervleermuis | satelliet"] = {
+        "surveys": ["Morning 1"],
+        "start": special["start"],
+        "end": special["end"]
+    }
+
+# --------------------------------------------------
+# LOAD SAVED SURVEYS
+# --------------------------------------------------
+
+saved_surveys = (
+    supabase.table("planning_surveys")
+    .select("*")
+    .eq("project", selected_project_name)
+    .execute()
+)
+
+timeline_df = pd.DataFrame(saved_surveys.data)
+
+# --------------------------------------------------
+# PLANNED SURVEY TIMELINE
+# --------------------------------------------------
+
+st.subheader("📅 Planned Survey Timeline")
+
+st.caption(
+    """
+    This timeline shows all planned surveys for the selected project. Survey visits are grouped by survey type and coloured according to their survey period, providing a clear overview of upcoming fieldwork and survey progress.
+    """
+)
+
+if not timeline_df.empty:
+
+    timeline_df["survey_date"] = pd.to_datetime(
+        timeline_df["survey_date"]
     )
 
-    maand_start, maand_eind = gekozen_maanden
+    timeline_df["survey_type"] = (
+        timeline_df["survey"]
+        .str.replace(
+            r"\s+\d+$",
+            "",
+            regex=True
+        )
+    )
 
-    planning_user = [
-        p for p in planning_user
-        if maand_start <= datetime.fromisoformat(p["datum"]).month <= maand_eind
-    ]
+    timeline_df["formatted_date"] = (
+        timeline_df["survey_date"]
+        .dt.strftime("%d %B %Y")
+    )
 
-    # ---------------------------------------------------------
-    # 4. Filter op project
-    # ---------------------------------------------------------
-    projecten = sorted(list({p["project_naam"] for p in planning_user}))
-    gekozen_project = st.selectbox("Filter op project:", ["Alle projecten"] + projecten)
+    fig = px.scatter(
+        timeline_df,
+        x="survey_date",
+        y="survey_type",
+        color="period",
+        custom_data=[
+            "formatted_date",
+            "username",
+            "period",
+            "survey"
+        ]
+    )
 
-    if gekozen_project != "Alle projecten":
-        planning_user = [p for p in planning_user if p["project_naam"] == gekozen_project]
+    fig.update_traces(
+        marker=dict(
+            size=18,
+            symbol="circle",
+            line=dict(
+                width=2,
+                color="white"
+            )
+        ),
+        hovertemplate=
+            "<b style='font-size:16px'>📅 %{customdata[0]}</b><br><br>"
+            "👤 Planned by: <b>%{customdata[1]}</b><br><br>"
+            "<b>Survey Details</b><br>"
+            "Round: %{customdata[3]}<br>"
+            "Period: %{customdata[2]}"
+            "<extra></extra>"
+    )
 
-    # ---------------------------------------------------------
-    # 5. Lijstweergave
-    # ---------------------------------------------------------
-    st.markdown("### 📅 Jouw geplande surveys")
+    fig.update_xaxes(
+        title=None,
+        tickformat="%d %b"
+    )
 
-    if not planning_user:
-        st.info("Geen surveys gevonden voor deze filters.")
-        st.stop()
+    fig.update_yaxes(
+        title=None,
+        categoryorder="array",
+        categoryarray=[
+            "Morning",
+            "Evening",
+            "Flexible"
+        ]
+    )
 
-    geselecteerd_event = None
+    fig.update_layout(
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        height=400
+    )
+    
+    fig.update_layout(
+        legend=dict(
+            title=None
+        )
+    )
 
-    for p in planning_user:
-        datum_str = datetime.fromisoformat(p["datum"]).strftime("%d-%m-%Y")
-        label = f"{datum_str} — {p['assignment']} ({p['subassignment'] or 'algemeen'}) — {p['project_naam']}"
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
 
-        if st.button(label):
-            geselecteerd_event = p
 
-    # ---------------------------------------------------------
-    # 6. Details + Edit + Delete
-    # ---------------------------------------------------------
-    if geselecteerd_event:
-        st.markdown("### 📌 Details van geselecteerde survey")
+
+else:
+
+    st.info(
+        "No surveys have been planned yet."
+    )
+
+# --------------------------------------------------
+# CREATE SURVEY
+# --------------------------------------------------
+
+with st.expander(
+    "➕ Plan New Survey"
+):
+
+    selected_period = st.selectbox(
+        "Period",
+        list(period_data.keys())
+    )
+
+    period_info = period_data[selected_period]
+
+    selected_survey = st.selectbox(
+        "Survey",
+        period_info["surveys"]
+    )
+
+    selected_date = st.date_input(
+        f"Date ({period_info['start'].strftime('%d %b')} → "
+        f"{period_info['end'].strftime('%d %b')})",
+        value=period_info["start"],
+        min_value=period_info["start"],
+        max_value=period_info["end"]
+    )
+
+    if st.button(
+        "💾 Save Survey Planning"
+    ):
+
+        existing = (
+            supabase.table("planning_surveys")
+            .select("id")
+            .eq("project", selected_project_name)
+            .eq("period", selected_period)
+            .eq("survey", selected_survey)
+            .execute()
+        )
+
+        if existing.data:
+
+            st.warning(
+                "Survey is already planned."
+            )
+
+        else:
+
+            supabase.table(
+                "planning_surveys"
+            ).insert(
+                {
+                    "project": selected_project_name,
+                    "period": selected_period,
+                    "survey": selected_survey,
+                    "survey_date": selected_date.isoformat(),
+                    "username": "unknown"
+                }
+            ).execute()
+
+            st.rerun()
+
+# --------------------------------------------------
+# MANAGE SURVEYS
+# --------------------------------------------------
+
+with st.expander(
+    "✏️ Manage Planned Surveys"
+):
+
+    if timeline_df.empty:
 
         st.info(
-            f"""
-            **Project:** {geselecteerd_event['project_naam']}  
-            **Soort:** {geselecteerd_event['assignment']}  
-            **Surveytype:** {geselecteerd_event['subassignment'] or 'algemeen'}  
-            **Datum:** {geselecteerd_event['datum']}  
-            **Veldwerkers:** {", ".join(geselecteerd_event['veldwerkers'])}  
-            **Aangemaakt door:** {geselecteerd_event['aangemaakt_door']}
-            """
+            "No planned surveys available."
         )
 
-        st.markdown("### ✏️ Bewerken")
+    else:
 
-        nieuwe_datum = st.date_input(
-            "Nieuwe datum",
-            datetime.fromisoformat(geselecteerd_event["datum"]).date()
+        timeline_df = timeline_df.sort_values(
+            "survey_date"
         )
 
-        employees = supabase.table("new_app_employees") \
-            .select("volledige_naam") \
-            .execute().data
+        options = []
 
-        alle_namen = [e["volledige_naam"] for e in employees]
+        for _, row in timeline_df.iterrows():
 
-        nieuwe_werkers = st.multiselect(
-            "Nieuwe veldwerkers:",
-            options=alle_namen,
-            default=geselecteerd_event["veldwerkers"]
+            options.append(
+                f"📅 {pd.to_datetime(row['survey_date']).strftime('%d %b %Y')} | "
+                f"{row['survey']} | "
+                f"{row['period']}"
+            )
+
+        selected_option = st.selectbox(
+            "Planned Survey",
+            options
         )
 
-        if st.button("Opslaan wijzigingen"):
-            supabase.table("new_app_planning") \
-                .update({
-                    "datum": str(nieuwe_datum),
-                    "veldwerkers": nieuwe_werkers
-                }) \
-                .eq("id", geselecteerd_event["id"]) \
-                .execute()
+        selected_row = timeline_df.iloc[
+            options.index(selected_option)
+        ]
 
-            st.success("Survey succesvol bijgewerkt!")
-            st.experimental_rerun()
+        tab_edit, tab_delete = st.tabs(
+            [
+                "✏️ Edit",
+                "🗑️ Delete"
+            ]
+        )
 
-        st.markdown("### 🗑️ Verwijderen")
+        with tab_edit:
 
-        if st.button("Verwijder deze survey"):
-            supabase.table("new_app_planning") \
-                .delete() \
-                .eq("id", geselecteerd_event["id"]) \
-                .execute()
+            period_name = selected_row["period"]
 
-            st.success("Survey verwijderd!")
-            st.experimental_rerun()
+            if period_name in period_data:
+
+                info = period_data[period_name]
+
+                edited_date = st.date_input(
+                    f"New Date ({info['start'].strftime('%d %b')} → "
+                    f"{info['end'].strftime('%d %b')})",
+                    value=pd.to_datetime(
+                        selected_row["survey_date"]
+                    ).date(),
+                    min_value=info["start"],
+                    max_value=info["end"]
+                )
+
+                if st.button(
+                    "💾 Save Changes"
+                ):
+
+                    supabase.table(
+                        "planning_surveys"
+                    ).update(
+                        {
+                            "survey_date":
+                                edited_date.isoformat()
+                        }
+                    ).eq(
+                        "id",
+                        int(selected_row["id"])
+                    ).execute()
+
+                    st.rerun()
+
+        with tab_delete:
+
+            st.warning(
+                f"""
+                Survey: {selected_row['survey']}
+
+                Period: {selected_row['period']}
+
+                Date: {pd.to_datetime(selected_row['survey_date']).strftime('%d %b %Y')}
+                """
+            )
+
+            if st.button(
+                "🗑️ Delete Survey",
+                type="primary"
+            ):
+
+                supabase.table(
+                    "planning_surveys"
+                ).delete().eq(
+                    "id",
+                    int(selected_row["id"])
+                ).execute()
+
+                st.rerun()
 
 
 
