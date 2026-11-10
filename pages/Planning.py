@@ -8,6 +8,15 @@ from utils.inventarisatie.helpers import get_full_name
 
 from streamlit_calendar import calendar
 
+import pandas as pd
+
+from utils.protocol_loader import load_protocols
+from planner.optimizer import get_survey_demand 
+
+from datetime import date, timedelta, datetime
+import pandas as pd
+import plotly.express as px
+
 
 # Verberg sidebar
 st.markdown("""
@@ -27,16 +36,7 @@ col1, col2 = st.columns([2, 1])
 if col2.button("⬅️ Terug naar menu"):
     st.switch_page("Home.py")
     
-import streamlit as st
-import pandas as pd
 
-from database.supabase import get_supabase
-from utils.protocol_loader import load_protocols
-from planner.optimizer import get_survey_demand 
-
-from datetime import date, timedelta, datetime
-import pandas as pd
-import plotly.express as px
 
 st.set_page_config(
     page_title="Project Overview",
@@ -53,7 +53,6 @@ def pretty_date(mmdd):
     except:
         return mmdd
 
-st.title("🧠 Project Overview")
 
 st.caption(
     """
@@ -65,7 +64,6 @@ st.caption(
 # LOAD DATA
 # --------------------------------------------------
 
-supabase = get_supabase()
 PROTOCOLS = load_protocols()
 
 projects = (
