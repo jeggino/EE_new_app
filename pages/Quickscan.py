@@ -90,7 +90,7 @@ if check_password():
     # --------------------------------------------------
     if menu == "Nieuwe Quickscan":
 
-        st.header("Nieuwe Quickscan",text_alignment="center",)
+        st.header("Nieuwe Quickscan",text_alignment="center", divider="blue")
         
         geojson = draw_geometry(
             key="project_map"
@@ -395,7 +395,7 @@ if check_password():
     
     if menu == "Veldbezoek uitvoeren":
     
-        st.header("Veldbezoek",text_alignment="center")
+        st.header("Veldbezoek",text_alignment="center",divider="blue")
     
         projects = (
             supabase.table("new_app_quickscan")
@@ -793,7 +793,7 @@ if check_password():
 
     if menu == "Quickscan bekijken":
     
-        st.header("Quickscan bekijken")
+        st.header("Quickscan bekijken",divider="blue")
     
         # ==================================================
         # STATUS FILTER
