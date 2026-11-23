@@ -48,6 +48,7 @@ def draw_geometry(key="map"):
 
     Fullscreen().add_to(m)
     Geocoder(add_marker=True).add_to(m)
+    folium.LayerControl().add_to(m)
 
     map_data = st_folium(m, height=500, use_container_width=True, key=key)
 
