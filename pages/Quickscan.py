@@ -1245,55 +1245,100 @@ if check_password():
             # ==================================================
             
             st.subheader("Quickscan rapport")
+            
+            with st.expander(
+                "Hoe werkt dit?",
+                expanded=False
+            ):
+            
+                st.markdown(
+                    """
+                    Met deze functie wordt een uitgebreide AI-prompt gegenereerd op basis van:
+            
+                    - Projectgegevens
+                    - Opdrachtgevergegevens
+                    - Veldbezoekinformatie
+                    - Habitatbeoordeling
+                    - Soortgeschiktheid
+                    - Foto's en beschrijvingen
+                    - Eindopmerking
+            
+                    De gegenereerde tekst kan worden ingevoerd in ChatGPT, Claude,
+                    Copilot of een andere AI-toepassing om automatisch een
+                    professioneel ecologisch quickscanrapport op te stellen.
+            
+                    Tevens bevat de prompt vaste instructies over:
+            
+                    - Structuur van het rapport
+                    - Schrijfstijl
+                    - Conclusies
+                    - Aanbevelingen
+                    - Wettelijk kader
+                    - Professionele ecologische rapportage
+                    """
+                )
 
-            rapporttekst = f"""
-            PROJECTGEGEVENS
-            
-            Project: {project.get('naam')}
-            Status: {project.get('status')}
-            
-            OPDRACHTGEVER
-            
-            Naam: {project.get('opdrachtgever_naam')}
-            Telefoon: {project.get('opdrachtgever_telefoon')}
-            Email: {project.get('opdrachtgever_email')}
-            
-            PROJECTOMSCHRIJVING
-            
-            {project.get('opmerking')}
-            
-            VELDGEGEVENS
-            
-            Datum: {project.get('datum')}
-            Veldwerker: {project.get('veldwerker')}
-            Starttijd: {project.get('starttijd')}
-            Eindtijd: {project.get('eindtijd')}
-            Temperatuur: {project.get('temperatuur')} °C
-            Windsnelheid: {project.get('windsnelheid')}
-            Regen: {project.get('regen')}
-            
-            SOORTGESCHIKTHEID
-            
-            {json.dumps(
-                project.get("soorten"),
-                indent=2,
-                ensure_ascii=False
-            )}
-            
-            EINDOPMERKING
-            
-            {project.get('eindopmerking')}
-            
-            Maak op basis van bovenstaande gegevens een volledig professioneel ecologisch quickscanrapport.
-            Beschrijf:
-            - projectgebied
-            - veldbezoek
-            - habitatkenmerken
-            - soortgroepen
-            - risico's
-            - aanbevelingen
-            - conclusie
-            """
+                rapporttekst = f"""
+                Je bent een senior ecologisch adviseur.
+                
+                Schrijf een professioneel ecologisch quickscanrapport in het Nederlands.
+                
+                BELANGRIJK:
+                
+                - Gebruik een zakelijke rapportstijl.
+                - Corrigeer spelfouten.
+                - Negeer onprofessionele of irrelevante opmerkingen.
+                - Verbeter onduidelijke tekst waar mogelijk.
+                - Trek geen conclusies die niet uit de data volgen.
+                - Vermeld onzekerheden indien informatie ontbreekt.
+                - Schrijf alsof het rapport wordt opgeleverd aan een opdrachtgever.
+                
+                Het rapport moet minimaal de volgende hoofdstukken bevatten:
+                
+                1. Samenvatting
+                2. Aanleiding en doel
+                3. Projectlocatie
+                4. Onderzoeksopzet
+                5. Veldbezoek
+                6. Habitatkenmerken
+                7. Beoordeling soortgroepen
+                8. Mogelijke risico's
+                9. Aanbevelingen
+                10. Conclusie
+                
+                PROJECTGEGEVENS
+                
+                Project: {project.get('naam')}
+                Status: {project.get('status')}
+                
+                OPDRACHTGEVER
+                
+                Naam: {project.get('opdrachtgever_naam')}
+                Telefoon: {project.get('opdrachtgever_telefoon')}
+                Email: {project.get('opdrachtgever_email')}
+                
+                PROJECTOMSCHRIJVING
+                
+                {project.get('opmerking')}
+                
+                VELDGEGEVENS
+                
+                Datum: {project.get('datum')}
+                Veldwerker: {project.get('veldwerker')}
+                Starttijd: {project.get('starttijd')}
+                Eindtijd: {project.get('eindtijd')}
+                Temperatuur: {project.get('temperatuur')}
+                Windsnelheid: {project.get('windsnelheid')}
+                Regen: {project.get('regen')}
+                
+                SOORTGESCHIKTHEID
+                
+                {json.dumps(project.get("soorten"), indent=2, ensure_ascii=False)}
+                
+                EINDOPMERKING
+                
+                {project.get('eindopmerking')}
+                """
             
             with st.expander(
                 "Rapporttekst bekijken",
@@ -1311,9 +1356,9 @@ if check_password():
                 with col1:
                 
                     st.download_button(
-                        "📄 Download rapporttekst",
+                        "📄 Download AI Prompt",
                         rapporttekst,
-                        file_name=f"{project['naam']}_rapport.txt",
+                        file_name=f"{project['naam']}_AI_prompt.txt",
                         mime="text/plain",
                         use_container_width=True
                     )
