@@ -17,6 +17,46 @@ WGS = "EPSG:4326"
 project_to_rd = pyproj.Transformer.from_crs(WGS, RD, always_xy=True).transform
 project_to_wgs = pyproj.Transformer.from_crs(RD, WGS, always_xy=True).transform
 
+import pandas as pd
+
+
+def analyse_intersections(project_geom, areas_gdf):
+
+    results = []
+
+    for _, row in areas_gdf.iterrows():
+
+        intersects = project_geom.intersects(
+            row.geometry
+        )
+
+        distance = project_geom.distance(
+            row.geometry
+        )
+
+        naam = (
+            row.get("naam")
+            or row.get("name")
+            or row.get("gebiedsnaam")
+            or "Onbekend"
+        )
+
+        results.append({
+            "Gebied": naam,
+            "Intersectie": intersects,
+            "Afstand (m)": round(distance, 1)
+        })
+
+    results_df = pd.DataFrame(results)
+
+    results_df = (
+        results_df
+        .sort_values("Afstand (m)")
+        .reset_index(drop=True)
+    )
+
+    return results_df
+
 
 def flatten_geometry(gdf):
     def flatten(geom):
@@ -108,6 +148,15 @@ def voer_gis_analyse_natura2000(qs):
 
     # Load cached Natura2000
     n2000 = load_n2000_cached()
+
+    qs_rd = qs_gdf.to_crs(RD)
+    
+    project_geom = qs_rd.geometry.iloc[0]
+    
+    results_df = analyse_intersections(
+        project_geom,
+        n2000
+    )    
 
     # Bounding box (10 km)
     bbox = Point(x_rd, y_rd).buffer(15000)
