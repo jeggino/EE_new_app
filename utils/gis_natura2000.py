@@ -165,22 +165,40 @@ def voer_gis_analyse_natura2000(qs):
     # Load cached Natura2000
     n2000 = load_n2000_cached()
 
+    st.write(
+        "Natura columns:",
+        n2000.columns.tolist()
+    )
+    
+    st.dataframe(
+        n2000.head(3)
+    )
+
     qs_rd = qs_gdf.to_crs(RD)
     
     project_geom = qs_rd.geometry.iloc[0]
     
+    
+    # Bounding box (15 km)
+    bbox = Point(x_rd, y_rd).buffer(15000)
+    
+    n2000_filtered = n2000[
+        n2000.intersects(bbox)
+    ]
+    
     results_df = (
         analyse_natura2000_intersections(
             project_geom,
-            n2000
+            n2000_filtered
         )
-    )    
+    )
 
-    # Bounding box (10 km)
-    bbox = Point(x_rd, y_rd).buffer(15000)
-    n2000_filtered = n2000[n2000.intersects(bbox)]
 
-    print("Aantal Natura2000 polygonen binnen 5 km:", len(n2000_filtered))
+    st.write(
+        "Aantal Natura2000 polygonen binnen 15 km:",
+        len(n2000_filtered)
+    )
+
 
     # Convert to WGS
     n2000_wgs = n2000_filtered.to_crs(WGS)
