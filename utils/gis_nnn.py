@@ -18,42 +18,67 @@ project_to_wgs = pyproj.Transformer.from_crs(RD, WGS, always_xy=True).transform
 import pandas as pd
 
 
-def analyse_intersections(project_geom, areas_gdf):
+import pandas as pd
 
-    results = []
 
-    for _, row in areas_gdf.iterrows():
+def analyse_nnn_intersections(
+    project_geom,
+    nnn
+):
 
-        intersects = project_geom.intersects(
-            row.geometry
-        )
+    intersections = []
+
+    nearest_row = None
+    nearest_distance = float("inf")
+
+    for _, row in nnn.iterrows():
 
         distance = project_geom.distance(
             row.geometry
         )
 
-        naam = (
-            row.get("naam")
-            or row.get("name")
-            or row.get("gebiedsnaam")
-            or "Onbekend"
+        if distance < nearest_distance:
+            nearest_distance = distance
+            nearest_row = row
+
+        if project_geom.intersects(
+            row.geometry
+        ):
+
+            intersections.append({
+
+                "Gebied": row.get(
+                    "gebiedsnaam",
+                    row.get(
+                        "naam",
+                        "NNN gebied"
+                    )
+                )
+
+            })
+
+    if intersections:
+
+        return pd.DataFrame(
+            intersections
         )
 
-        results.append({
-            "Gebied": naam,
-            "Intersectie": intersects,
-            "Afstand (m)": round(distance, 1)
-        })
+    return pd.DataFrame([{
 
-    results_df = pd.DataFrame(results)
+        "Gebied": nearest_row.get(
+            "gebiedsnaam",
+            nearest_row.get(
+                "naam",
+                "NNN gebied"
+            )
+        ),
 
-    results_df = (
-        results_df
-        .sort_values("Afstand (m)")
-        .reset_index(drop=True)
-    )
+        "Afstand (m)": round(
+            nearest_distance,
+            1
+        )
 
-    return results_df
+    }])
     
 def flatten_geometry(gdf):
     def flatten(geom):
@@ -121,9 +146,11 @@ def voer_gis_analyse_nnn(qs):
     
     project_geom = qs_rd.geometry.iloc[0]
     
-    results_df = analyse_intersections(
-        project_geom,
-        nnn
+    results_df = (
+        analyse_nnn_intersections(
+            project_geom,
+            nnn
+        )
     )
 
     # Bounding box (10 km)
