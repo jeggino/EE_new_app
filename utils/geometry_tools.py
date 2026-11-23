@@ -19,7 +19,7 @@ def draw_geometry(key="map"):
                          max_zoom=24,
         max_native_zoom=22,
         overlay=False,
-        control=False,name="OpenStreetMap").add_to(m)
+        control=True,name="OpenStreetMap").add_to(m)
     
     
     # Satellite
@@ -30,7 +30,7 @@ def draw_geometry(key="map"):
         max_native_zoom=21,
         max_zoom=21,
         overlay=False,
-        control=False
+        control=True
     ).add_to(m)
 
     Draw(
