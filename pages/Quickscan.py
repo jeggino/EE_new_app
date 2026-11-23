@@ -900,274 +900,274 @@ if check_password():
     
 
     
-    # # with tab_view:
-    # elif menu == "Quickscan bekijken":
-    #     # st.header("Quickscan bekijken",text_alignment="center",)
+    # with tab_view:
+    elif menu == "Quickscan bekijken":
+        # st.header("Quickscan bekijken",text_alignment="center",)
     
-    #     # Load all quickscans
-    #     all_qs = supabase.table("new_app_quickscan") \
-    #         .select("naam, datum") \
-    #         .order("datum", desc=True) \
-    #         .execute()
+        # Load all quickscans
+        all_qs = supabase.table("new_app_quickscan") \
+            .select("naam, datum") \
+            .order("datum", desc=True) \
+            .execute()
     
-    #     if not all_qs.data:
-    #         st.info("Nog geen Quickscans beschikbaar.")
-    #         st.stop()
+        if not all_qs.data:
+            st.info("Nog geen Quickscans beschikbaar.")
+            st.stop()
     
-    #     # Dropdown
-    #     qs_labels = [f"{qs['naam']} ({qs['datum']})" for qs in all_qs.data]
-    #     selected_label = st.selectbox("Kies een Quickscan:", qs_labels)
+        # Dropdown
+        qs_labels = [f"{qs['naam']} ({qs['datum']})" for qs in all_qs.data]
+        selected_label = st.selectbox("Kies een Quickscan:", qs_labels)
     
-    #     selected_name = selected_label.split(" (")[0]
+        selected_name = selected_label.split(" (")[0]
     
-    #     # Load selected Quickscan
-    #     qs = supabase.table("new_app_quickscan") \
-    #         .select("*") \
-    #         .eq("naam", selected_name) \
-    #         .single() \
-    #         .execute().data
+        # Load selected Quickscan
+        qs = supabase.table("new_app_quickscan") \
+            .select("*") \
+            .eq("naam", selected_name) \
+            .single() \
+            .execute().data
     
-    #     # Show info
-    #     st.subheader("Projectinformatie")
-    #     st.write(f"**Naam:** {qs['naam']}")
-    #     st.write(f"**Datum:** {qs['datum']}")
-    #     st.write(f"**Tijd:** {qs['starttijd']} - {qs['eindtijd']}")
-    #     st.write(f"**Veldwerker:** {qs['veldwerker']}")
-    #     st.write(f"**Beschrijving:** {qs['opmerking']}")
+        # Show info
+        st.subheader("Projectinformatie")
+        st.write(f"**Naam:** {qs['naam']}")
+        st.write(f"**Datum:** {qs['datum']}")
+        st.write(f"**Tijd:** {qs['starttijd']} - {qs['eindtijd']}")
+        st.write(f"**Veldwerker:** {qs['veldwerker']}")
+        st.write(f"**Beschrijving:** {qs['opmerking']}")
     
-    #     st.subheader("Weersomstandigheden")
-    #     st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
-    #     st.write(f"**Wind:** {qs['windsnelheid']} Bft")
-    #     st.write(f"**Regen:** {qs['regen']}")
+        st.subheader("Weersomstandigheden")
+        st.write(f"**Temperatuur:** {qs['temperatuur']} °C")
+        st.write(f"**Wind:** {qs['windsnelheid']} Bft")
+        st.write(f"**Regen:** {qs['regen']}")
         
-    #     "---"
-    #     st.subheader("Soortgeschiktheid")
+        "---"
+        st.subheader("Soortgeschiktheid")
         
-    #     soorten = qs["soorten"]
+        soorten = qs["soorten"]
         
-    #     rows = []
+        rows = []
         
-    #     for group, value in soorten.items():
+        for group, value in soorten.items():
         
-    #         display_group = group.replace("_", " ").capitalize()
+            display_group = group.replace("_", " ").capitalize()
         
-    #         # CASE 1: simple list of species
-    #         if isinstance(value, list) and len(value) > 0:
-    #             soorten_str = ", ".join([s.capitalize() for s in value])
-    #             rows.append([display_group, soorten_str])
+            # CASE 1: simple list of species
+            if isinstance(value, list) and len(value) > 0:
+                soorten_str = ", ".join([s.capitalize() for s in value])
+                rows.append([display_group, soorten_str])
         
-    #         # CASE 2: vogels with subcategories
-    #         elif isinstance(value, dict):
-    #             for subcat, subvalue in value.items():
+            # CASE 2: vogels with subcategories
+            elif isinstance(value, dict):
+                for subcat, subvalue in value.items():
         
-    #                 display_subcat = subcat.replace("_", " ").capitalize()
+                    display_subcat = subcat.replace("_", " ").capitalize()
         
-    #                 # Only show rows that actually have species
-    #                 if isinstance(subvalue, list) and len(subvalue) > 0:
-    #                     soorten_str = ", ".join([s.capitalize() for s in subvalue])
-    #                     rows.append([f"{display_group} – {display_subcat}", soorten_str])
+                    # Only show rows that actually have species
+                    if isinstance(subvalue, list) and len(subvalue) > 0:
+                        soorten_str = ", ".join([s.capitalize() for s in subvalue])
+                        rows.append([f"{display_group} – {display_subcat}", soorten_str])
         
-    #     # Build DataFrame
-    #     df = pd.DataFrame(rows, columns=["Soortgroep", "Soorten"])
+        # Build DataFrame
+        df = pd.DataFrame(rows, columns=["Soortgroep", "Soorten"])
         
-    #     # Pretty display
-    #     st.dataframe(
-    #         df.style.set_properties(**{
-    #             "text-align": "left",
-    #             "font-size": "15px"
-    #         }).hide(axis="index"),
-    #         use_container_width=True
-    #     )
+        # Pretty display
+        st.dataframe(
+            df.style.set_properties(**{
+                "text-align": "left",
+                "font-size": "15px"
+            }).hide(axis="index"),
+            use_container_width=True
+        )
     
-    #     "---"
-    #     st.subheader("Foto's")
-    #     fotos = supabase.table("new_app_quickscan_fotos") \
-    #         .select("*") \
-    #         .eq("quickscan_id", qs["id"]) \
-    #         .execute()
+        "---"
+        st.subheader("Foto's")
+        fotos = supabase.table("new_app_quickscan_fotos") \
+            .select("*") \
+            .eq("quickscan_id", qs["id"]) \
+            .execute()
         
-    #     if not fotos.data:
-    #         st.info("Geen foto's toegevoegd.")
-    #     else:
-    #         import ast
+        if not fotos.data:
+            st.info("Geen foto's toegevoegd.")
+        else:
+            import ast
         
-    #         for foto in fotos.data:
-    #             url = supabase.storage.from_("new_app").get_public_url(foto["foto_pad"])
-    #             st.image(url, caption=foto["beschrijving"])
+            for foto in fotos.data:
+                url = supabase.storage.from_("new_app").get_public_url(foto["foto_pad"])
+                st.image(url, caption=foto["beschrijving"])
         
-    #             soorten_list = foto["soortgroep"]
+                soorten_list = foto["soortgroep"]
         
-    #             # Convert JSON string → Python list
-    #             if isinstance(soorten_list, str):
-    #                 soorten_list = ast.literal_eval(soorten_list)
+                # Convert JSON string → Python list
+                if isinstance(soorten_list, str):
+                    soorten_list = ast.literal_eval(soorten_list)
         
-    #             st.write(f"**Potentieel geschikt voor:** {', '.join(soorten_list)}")
+                st.write(f"**Potentieel geschikt voor:** {', '.join(soorten_list)}")
                
 
-    #     "---"
-    #     st.markdown("""
-    #     ### Extra GIS‑analyse: NNN & Natura 2000
+        "---"
+        st.markdown("""
+        ### Extra GIS‑analyse: NNN & Natura 2000
         
-    #     Deze analyse toont twee kaarten die laten zien hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
+        Deze analyse toont twee kaarten die laten zien hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
         
-    #     Klik op de knop hieronder om beide kaarten te genereren.
-    #     """)
+        Klik op de knop hieronder om beide kaarten te genereren.
+        """)
         
-    #     run_analysis = st.toggle(
-    #         "Natuurgebieden rond het Quickscan‑gebied bekijken"
-    #     )
+        run_analysis = st.toggle(
+            "Natuurgebieden rond het Quickscan‑gebied bekijken"
+        )
         
-    #     if run_analysis:
-    #         with st.spinner("Bezig met het genereren van de kaarten..."):
+        if run_analysis:
+            with st.spinner("Bezig met het genereren van de kaarten..."):
         
-    #             st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
-    #             voer_gis_analyse_nnn(qs)
-    #             st.caption("Deze kaart toont alle NNN‑gebieden binnen 15 km, inclusief een 1 km buffer rond het centroid van het Quickscan‑gebied.")
+                st.markdown("### 🟩 Kaart 1 — Natuurnetwerk Nederland (NNN)")
+                voer_gis_analyse_nnn(qs)
+                st.caption("Deze kaart toont alle NNN‑gebieden binnen 15 km, inclusief een 1 km buffer rond het centroid van het Quickscan‑gebied.")
         
-    #             st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
-    #             voer_gis_analyse_natura2000(qs)
-    #             st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen 15 km, inclusief een 3 km buffer rond het centroid van het Quickscan‑gebied.")
+                st.markdown("### 🟥 Kaart 2 — Natura 2000‑gebieden")
+                voer_gis_analyse_natura2000(qs)
+                st.caption("Deze kaart toont alle Natura 2000‑gebieden binnen 15 km, inclusief een 3 km buffer rond het centroid van het Quickscan‑gebied.")
 
 
 
 
-    #     "---"
-    #     st.markdown("### Conclusie van de Quickscan")
+        "---"
+        st.markdown("### Conclusie van de Quickscan")
         
-    #     # 1. Vraag of gebruiker een conclusie wil schrijven
-    #     write_conclusion = st.toggle("Wil je een conclusie toevoegen of bewerken?")
+        # 1. Vraag of gebruiker een conclusie wil schrijven
+        write_conclusion = st.toggle("Wil je een conclusie toevoegen of bewerken?")
         
-    #     # Haal bestaande conclusie op (indien aanwezig)
-    #     existing = supabase.table("new_app_quickscan_conclusions") \
-    #         .select("*") \
-    #         .eq("project_naam", qs["id"]) \
-    #         .execute()
+        # Haal bestaande conclusie op (indien aanwezig)
+        existing = supabase.table("new_app_quickscan_conclusions") \
+            .select("*") \
+            .eq("project_naam", qs["id"]) \
+            .execute()
         
-    #     existing_text = None
-    #     existing_id = None
+        existing_text = None
+        existing_id = None
         
-    #     if existing.data:
-    #         existing_text = existing.data[0]["conclusie"]
-    #         existing_id = existing.data[0]["id"]
+        if existing.data:
+            existing_text = existing.data[0]["conclusie"]
+            existing_id = existing.data[0]["id"]
 
-    #     if write_conclusion:
+        if write_conclusion:
                 
-    #         st.markdown("#### Schrijf of bewerk de conclusie")
+            st.markdown("#### Schrijf of bewerk de conclusie")
         
-    #         # Tekstvak met bestaande tekst indien aanwezig
-    #         conclusion_text = st.text_area(
-    #             "Conclusie:",
-    #             value=existing_text if existing_text else "",
-    #             placeholder="..."
-    #         )
+            # Tekstvak met bestaande tekst indien aanwezig
+            conclusion_text = st.text_area(
+                "Conclusie:",
+                value=existing_text if existing_text else "",
+                placeholder="..."
+            )
         
-    #         # Als er al een conclusie bestaat → toon update-knop
-    #         if existing_id:
+            # Als er al een conclusie bestaat → toon update-knop
+            if existing_id:
         
-    #             st.info("Er is al een conclusie opgeslagen voor dit project.")
+                st.info("Er is al een conclusie opgeslagen voor dit project.")
         
-    #             col1, col2, col3 = st.columns(3)
+                col1, col2, col3 = st.columns(3)
         
-    #             # --- Bijwerken ---
-    #             with col1:
-    #                 if st.button("Conclusie bijwerken"):
-    #                     if conclusion_text.strip() == "":
-    #                         st.error("De conclusie mag niet leeg zijn.")
-    #                     else:
-    #                         supabase.table("new_app_quickscan_conclusions") \
-    #                             .update({"conclusie": conclusion_text}) \
-    #                             .eq("id", existing_id) \
-    #                             .execute()
+                # --- Bijwerken ---
+                with col1:
+                    if st.button("Conclusie bijwerken"):
+                        if conclusion_text.strip() == "":
+                            st.error("De conclusie mag niet leeg zijn.")
+                        else:
+                            supabase.table("new_app_quickscan_conclusions") \
+                                .update({"conclusie": conclusion_text}) \
+                                .eq("id", existing_id) \
+                                .execute()
         
-    #                         st.success("De conclusie is bijgewerkt.")
-    #                         st.rerun()   # 🔄 reload
+                            st.success("De conclusie is bijgewerkt.")
+                            st.rerun()   # 🔄 reload
         
-    #             # --- Verwijderen ---
-    #             with col2:
-    #                 if st.button("Conclusie verwijderen"):
-    #                     supabase.table("new_app_quickscan_conclusions") \
-    #                         .delete() \
-    #                         .eq("id", existing_id) \
-    #                         .execute()
+                # --- Verwijderen ---
+                with col2:
+                    if st.button("Conclusie verwijderen"):
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .delete() \
+                            .eq("id", existing_id) \
+                            .execute()
         
-    #                     st.warning("De conclusie is verwijderd.")
-    #                     st.rerun()   # 🔄 reload
+                        st.warning("De conclusie is verwijderd.")
+                        st.rerun()   # 🔄 reload
         
-    #             # --- Handmatige reload ---
-    #             with col3:
-    #                 if st.button("Vernieuwen"):
-    #                     st.rerun()   # 🔄 reload
+                # --- Handmatige reload ---
+                with col3:
+                    if st.button("Vernieuwen"):
+                        st.rerun()   # 🔄 reload
         
-    #         # Als er nog GEEN conclusie bestaat → toon opslaan-knop
-    #         else:
-    #             if st.button("Nieuwe conclusie opslaan"):
-    #                 if conclusion_text.strip() == "":
-    #                     st.error("De conclusie mag niet leeg zijn.")
-    #                 else:
-    #                     supabase.table("new_app_quickscan_conclusions") \
-    #                         .insert({
-    #                             "project_naam": qs["id"],
-    #                             "conclusie": conclusion_text
-    #                         }).execute()
+            # Als er nog GEEN conclusie bestaat → toon opslaan-knop
+            else:
+                if st.button("Nieuwe conclusie opslaan"):
+                    if conclusion_text.strip() == "":
+                        st.error("De conclusie mag niet leeg zijn.")
+                    else:
+                        supabase.table("new_app_quickscan_conclusions") \
+                            .insert({
+                                "project_naam": qs["id"],
+                                "conclusie": conclusion_text
+                            }).execute()
         
-    #                     st.success("De conclusie is succesvol opgeslagen.")
-    #                     st.rerun()   # 🔄 reload
+                        st.success("De conclusie is succesvol opgeslagen.")
+                        st.rerun()   # 🔄 reload
 
  
-    #     "---"
-    #     from docx import Document
-    #     from docx.shared import Inches
-    #     import io
+        "---"
+        from docx import Document
+        from docx.shared import Inches
+        import io
         
-    #     st.subheader("Download Quickscan Rapport (.docx)")
+        st.subheader("Download Quickscan Rapport (.docx)")
         
-    #     # Haal conclusie op
-    #     conclusion_data = supabase.table("new_app_quickscan_conclusions") \
-    #         .select("*") \
-    #         .eq("project_naam", qs["naam"]) \
-    #         .execute()
+        # Haal conclusie op
+        conclusion_data = supabase.table("new_app_quickscan_conclusions") \
+            .select("*") \
+            .eq("project_naam", qs["naam"]) \
+            .execute()
         
-    #     conclusion_text = (
-    #         conclusion_data.data[0]["conclusie"]
-    #         if conclusion_data.data else "Geen conclusie opgeslagen."
-    #     )
+        conclusion_text = (
+            conclusion_data.data[0]["conclusie"]
+            if conclusion_data.data else "Geen conclusie opgeslagen."
+        )
         
-    #     # Maak Word-document
-    #     doc = Document()
+        # Maak Word-document
+        doc = Document()
         
-    #     doc.add_heading("Quickscan Rapport", level=1)
+        doc.add_heading("Quickscan Rapport", level=1)
         
-    #     doc.add_heading("Projectinformatie", level=2)
-    #     doc.add_paragraph(f"Naam: {qs['naam']}")
-    #     doc.add_paragraph(f"Datum: {qs['datum']}")
-    #     doc.add_paragraph(f"Veldwerker: {qs['veldwerker']}")
-    #     doc.add_paragraph(f"Opmerking: {qs['opmerking']}")
+        doc.add_heading("Projectinformatie", level=2)
+        doc.add_paragraph(f"Naam: {qs['naam']}")
+        doc.add_paragraph(f"Datum: {qs['datum']}")
+        doc.add_paragraph(f"Veldwerker: {qs['veldwerker']}")
+        doc.add_paragraph(f"Opmerking: {qs['opmerking']}")
         
-    #     doc.add_heading("Weersomstandigheden", level=2)
-    #     doc.add_paragraph(f"Temperatuur: {qs['temperatuur']} °C")
-    #     doc.add_paragraph(f"Wind: {qs['windsnelheid']} Bft")
-    #     doc.add_paragraph(f"Regen: {qs['regen']}")
+        doc.add_heading("Weersomstandigheden", level=2)
+        doc.add_paragraph(f"Temperatuur: {qs['temperatuur']} °C")
+        doc.add_paragraph(f"Wind: {qs['windsnelheid']} Bft")
+        doc.add_paragraph(f"Regen: {qs['regen']}")
         
 
         
-    #     # Voeg foto toe (als aanwezig)
-    #     if "foto_path" in qs:
-    #         img_bytes = supabase.storage.from_("new_app").download(qs["foto_path"])
-    #         doc.add_heading("Foto", level=2)
-    #         doc.add_picture(io.BytesIO(img_bytes), width=Inches(4))
+        # Voeg foto toe (als aanwezig)
+        if "foto_path" in qs:
+            img_bytes = supabase.storage.from_("new_app").download(qs["foto_path"])
+            doc.add_heading("Foto", level=2)
+            doc.add_picture(io.BytesIO(img_bytes), width=Inches(4))
         
-    #     # Document in geheugen opslaan
-    #     buffer = io.BytesIO()
-    #     doc.save(buffer)
-    #     buffer.seek(0)
+        # Document in geheugen opslaan
+        buffer = io.BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
         
-    #     # Download-knop
-    #     st.download_button(
-    #         "Download Quickscan Rapport (.docx)",
-    #         buffer,
-    #         file_name=f"{qs['naam']}_quickscan.docx",
-    #         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    #     )
+        # Download-knop
+        st.download_button(
+            "Download Quickscan Rapport (.docx)",
+            buffer,
+            file_name=f"{qs['naam']}_quickscan.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
 
 
