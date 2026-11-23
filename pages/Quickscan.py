@@ -313,13 +313,19 @@ if check_password():
                 supabase.table(
                     "new_app_quickscan"
                 ).update({
-    
+                
                     "nnn_html_path":
                         nnn_html_path,
-    
+                
                     "natura2000_html_path":
-                        natura_html_path
-    
+                        natura_html_path,
+                
+                    "nnn_data":
+                        nnn_table.to_dict(orient="records"),
+                
+                    "natura2000_data":
+                        natura_table.to_dict(orient="records")
+                
                 }).eq(
                     "id",
                     qs_id
@@ -989,7 +995,6 @@ if check_password():
         # NNN / NATURA2000
         # ==================================================
     
-        st.subheader("Analyses")
     
         import streamlit.components.v1 as components
         
@@ -1015,6 +1020,11 @@ if check_password():
                     html_content,
                     height=800,
                     scrolling=True
+                )
+
+                st.dataframe(
+                    pd.DataFrame(project["nnn_data"]),
+                    use_container_width=True
                 )
         
             except Exception as e:
@@ -1047,6 +1057,11 @@ if check_password():
                     html_content,
                     height=800,
                     scrolling=True
+                )
+
+                st.dataframe(
+                    pd.DataFrame(project["natura2000_data"]),
+                    use_container_width=True
                 )
         
             except Exception as e:
