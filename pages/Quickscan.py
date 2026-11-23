@@ -291,33 +291,51 @@ if check_password():
             # RESULTATEN TONEN
             # ======================================
     
-            st.markdown(
-                "## 🟥 Natura 2000"
-            )
-    
+            st.markdown("## 🟥 Natura 2000")
+            
             st_folium(
                 natura_map,
                 height=650,
-                width=None,
                 returned_objects=[]
             )
-    
+            
+            if "Afstand (m)" in natura_table.columns:
+            
+                st.info(
+                    "Geen Natura 2000-gebieden snijden het projectgebied. Hieronder staat het dichtstbijzijnde gebied."
+                )
+            
+            else:
+            
+                st.success(
+                    f"{len(natura_table)} Natura 2000-gebied(en) snijden het projectgebied."
+                )
+            
             st.dataframe(
                 natura_table,
                 use_container_width=True
             )
     
-            st.markdown(
-                "## 🟩 Natuurnetwerk Nederland"
-            )
-    
+            st.markdown("## 🟩 Natuurnetwerk Nederland")
+            
             st_folium(
                 nnn_map,
                 height=650,
-                width=None,
                 returned_objects=[]
             )
-    
+            
+            if "Afstand (m)" in nnn_table.columns:
+            
+                st.info(
+                    "Geen NNN-gebieden snijden het projectgebied. Hieronder staat het dichtstbijzijnde gebied."
+                )
+            
+            else:
+            
+                st.success(
+                    f"{len(nnn_table)} NNN-gebied(en) snijden het projectgebied."
+                )
+            
             st.dataframe(
                 nnn_table,
                 use_container_width=True
