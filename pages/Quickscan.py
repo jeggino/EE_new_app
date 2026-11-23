@@ -1107,16 +1107,49 @@ if check_password():
             st.subheader("Soortgeschiktheid")
         
             soorten = project.get("soorten")
-        
-            if soorten:
-        
-                st.json(soorten)
-        
+            
+            if not soorten:
+                st.info("Geen soortgegevens beschikbaar.")
+            
             else:
-        
-                st.info(
-                    "Geen soortgegevens beschikbaar."
-                )
+            
+                for groep, waarde in soorten.items():
+            
+                    if waarde is False:
+                        continue
+            
+                    with st.expander(
+                        groep.replace("_", " ").title(),
+                        expanded=True
+                    ):
+            
+                        if isinstance(waarde, list):
+            
+                            for soort in waarde:
+                                st.write(f"• {soort}")
+            
+                        elif isinstance(waarde, dict):
+            
+                            for subgroep, soortenlijst in waarde.items():
+            
+                                if soortenlijst is False:
+                                    continue
+            
+                                st.markdown(
+                                    f"**{subgroep.replace('_', ' ').title()}**"
+                                )
+            
+                                if isinstance(soortenlijst, list):
+            
+                                    for soort in soortenlijst:
+                                        st.write(f"• {soort}")
+            
+                                else:
+                                    st.write("Aanwezig")
+            
+                        else:
+            
+                            st.write("Geschikt habitat aanwezig")
         
             st.divider()
         
@@ -1185,11 +1218,121 @@ if check_password():
                         st.warning(
                             f"Foto kon niet worden geladen: {e}"
                         )
+
+            st.divider()
+            
+            # ==================================================
+            # EINDOPMERKING
+            # ==================================================
+            
+            st.subheader("Eindopmerking")
+            
+            if project.get("eindopmerking"):
+            
+                st.info(project["eindopmerking"])
+            
+            else:
+            
+                st.info(
+                    "Geen eindopmerking beschikbaar."
+                )
+
+            st.divider()
+            
+            # ==================================================
+            # RAPPORT EXPORT
+            # ==================================================
+            
+            st.subheader("Quickscan rapport")
+
+            rapporttekst = f"""
+            PROJECTGEGEVENS
+            
+            Project: {project.get('naam')}
+            Status: {project.get('status')}
+            
+            OPDRACHTGEVER
+            
+            Naam: {project.get('opdrachtgever_naam')}
+            Telefoon: {project.get('opdrachtgever_telefoon')}
+            Email: {project.get('opdrachtgever_email')}
+            
+            PROJECTOMSCHRIJVING
+            
+            {project.get('opmerking')}
+            
+            VELDGEGEVENS
+            
+            Datum: {project.get('datum')}
+            Veldwerker: {project.get('veldwerker')}
+            Starttijd: {project.get('starttijd')}
+            Eindtijd: {project.get('eindtijd')}
+            Temperatuur: {project.get('temperatuur')} °C
+            Windsnelheid: {project.get('windsnelheid')}
+            Regen: {project.get('regen')}
+            
+            SOORTGESCHIKTHEID
+            
+            {json.dumps(
+                project.get("soorten"),
+                indent=2,
+                ensure_ascii=False
+            )}
+            
+            EINDOPMERKING
+            
+            {project.get('eindopmerking')}
+            
+            Maak op basis van bovenstaande gegevens een volledig professioneel ecologisch quickscanrapport.
+            Beschrijf:
+            - projectgebied
+            - veldbezoek
+            - habitatkenmerken
+            - soortgroepen
+            - risico's
+            - aanbevelingen
+            - conclusie
+            """
+            
+            with st.expander(
+                "Rapporttekst bekijken",
+                expanded=False
+            ):
+            
+                st.text_area(
+                    "AI rapporttekst",
+                    rapporttekst,
+                    height=500
+                )
+
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                
+                    st.download_button(
+                        "📄 Download rapporttekst",
+                        rapporttekst,
+                        file_name=f"{project['naam']}_rapport.txt",
+                        mime="text/plain",
+                        use_container_width=True
+                    )
+                
+                with col2:
+                
+                    st.button(
+                        "🤖 Genereer rapport",
+                        use_container_width=True
+                    )
+
+
+
         else:
         
             st.info(
                 "Voor dit project is nog geen veldbezoek uitgevoerd."
             )
+
+
             
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
