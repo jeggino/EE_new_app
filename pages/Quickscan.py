@@ -42,17 +42,49 @@ if check_password():
     if col2.button("⬅️ Terug naar menu"):
         st.switch_page("Home.py")
 
-    menu = st.pills(
-        "Kies een onderdeel",
-        default="Nieuwe Quickscan",
-        selection_mode="single",
-        options={
-            "Nieuwe Quickscan": ":material/add_circle:",
-            "Veldbezoek uitvoeren": ":material/forest:",
-            "Quickscan bewerken": ":material/edit:",
-            "Quickscan bekijken": ":material/visibility:"
-        }
-    )
+    # menu = st.pills(
+    #     "Kies een onderdeel",
+    #     default="Nieuwe Quickscan",
+    #     selection_mode="single",
+    #     options={
+    #         "Nieuwe Quickscan": ":material/add_circle:",
+    #         "Veldbezoek uitvoeren": ":material/forest:",
+    #         "Quickscan bewerken": ":material/edit:",
+    #         "Quickscan bekijken": ":material/visibility:"
+    #     }
+    # )
+
+    col1, col2 = st.columns(2)
+    
+    with col1:
+    
+        if st.button(
+            "➕\nNieuwe Quickscan",
+            use_container_width=True
+        ):
+            st.session_state.menu = "nieuw"
+    
+        if st.button(
+            "✏️\nQuickscan Bewerken",
+            use_container_width=True
+        ):
+            st.session_state.menu = "bewerken"
+    
+    with col2:
+    
+        if st.button(
+            "🌳\nVeldbezoek",
+            use_container_width=True
+        ):
+            st.session_state.menu = "veld"
+    
+        if st.button(
+            "👁️\nQuickscan Bekijken",
+            use_container_width=True
+        ):
+            st.session_state.menu = "bekijken"
+    
+    menu = st.session_state.get("menu", "nieuw")    
     # --------------------------------------------------
     # PROJECT
     # --------------------------------------------------
