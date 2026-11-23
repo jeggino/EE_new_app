@@ -20,42 +20,79 @@ project_to_wgs = pyproj.Transformer.from_crs(RD, WGS, always_xy=True).transform
 import pandas as pd
 
 
-def analyse_intersections(project_geom, areas_gdf):
+def analyse_natura2000_intersections(
+    project_geom,
+    n2000
+):
 
-    results = []
+    intersections = []
 
-    for _, row in areas_gdf.iterrows():
+    nearest_row = None
+    nearest_distance = float("inf")
 
-        intersects = project_geom.intersects(
-            row.geometry
-        )
+    for _, row in n2000.iterrows():
 
         distance = project_geom.distance(
             row.geometry
         )
 
-        naam = (
-            row.get("naam")
-            or row.get("name")
-            or row.get("gebiedsnaam")
-            or "Onbekend"
+        if distance < nearest_distance:
+            nearest_distance = distance
+            nearest_row = row
+
+        if project_geom.intersects(
+            row.geometry
+        ):
+
+            intersections.append({
+
+                "Gebied": row.get(
+                    "naam",
+                    "Onbekend"
+                ),
+
+                "Code": row.get(
+                    "gebiedcode",
+                    "-"
+                ),
+
+                "Type": row.get(
+                    "beschermin",
+                    "-"
+                )
+
+            })
+
+    # Intersections found
+    if intersections:
+        return pd.DataFrame(
+            intersections
         )
 
-        results.append({
-            "Gebied": naam,
-            "Intersectie": intersects,
-            "Afstand (m)": round(distance, 1)
-        })
+    # Otherwise nearest Natura2000
+    return pd.DataFrame([{
 
-    results_df = pd.DataFrame(results)
+        "Gebied": nearest_row.get(
+            "naam",
+            "Onbekend"
+        ),
 
-    results_df = (
-        results_df
-        .sort_values("Afstand (m)")
-        .reset_index(drop=True)
-    )
+        "Code": nearest_row.get(
+            "gebiedcode",
+            "-"
+        ),
 
-    return results_df
+        "Type": nearest_row.get(
+            "beschermin",
+            "-"
+        ),
+
+        "Afstand (m)": round(
+            nearest_distance,
+            1
+        )
+
+    }])
 
 
 def flatten_geometry(gdf):
@@ -153,9 +190,11 @@ def voer_gis_analyse_natura2000(qs):
     
     project_geom = qs_rd.geometry.iloc[0]
     
-    results_df = analyse_intersections(
-        project_geom,
-        n2000
+    results_df = (
+        analyse_natura2000_intersections(
+            project_geom,
+            n2000
+        )
     )    
 
     # Bounding box (10 km)
