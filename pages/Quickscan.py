@@ -62,13 +62,13 @@ if check_password():
             "➕\nNieuwe Quickscan",
             use_container_width=True
         ):
-            st.session_state.menu = "nieuw"
+            st.session_state.menu = "Nieuwe Quickscan"
     
         if st.button(
             "✏️\nQuickscan Bewerken",
             use_container_width=True
         ):
-            st.session_state.menu = "bewerken"
+            st.session_state.menu = "Veldbezoek uitvoeren"
     
     with col2:
     
