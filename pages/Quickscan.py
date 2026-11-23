@@ -90,7 +90,15 @@ if check_password():
     # --------------------------------------------------
     if menu == "Nieuwe Quickscan":
 
-        st.title("Nieuwe Quickscan",text_alignment="center", divider="blue")
+        # st.title("Nieuwe Quickscan",text_alignment="center", divider="blue")
+
+        st.markdown(
+            """
+            <h1 style="text-align:center;">Veldbezoek</h1>
+            <hr style="border:2px solid #0078D4;">
+            """,
+            unsafe_allow_html=True,
+        )
         
         geojson = draw_geometry(
             key="project_map"
