@@ -990,136 +990,141 @@ if check_password():
                 st.warning("Natura2000 analyse niet beschikbaar")
     
         st.divider()
-    
-        # ==================================================
-        # VELDGEGEVENS
-        # ==================================================
-    
-        st.subheader("Veldgegevens")
-    
-        col1, col2, col3 = st.columns(3)
-    
-        with col1:
-    
-            st.write(
-                f"**Datum:** {project.get('datum') or '-'}"
+        if project_status == "completed":
+            # ==================================================
+            # VELDGEGEVENS
+            # ==================================================
+        
+            st.subheader("Veldgegevens")
+        
+            col1, col2, col3 = st.columns(3)
+        
+            with col1:
+        
+                st.write(
+                    f"**Datum:** {project.get('datum') or '-'}"
+                )
+        
+                st.write(
+                    f"**Veldwerker:** {project.get('veldwerker') or '-'}"
+                )
+        
+            with col2:
+        
+                st.write(
+                    f"**Starttijd:** {project.get('starttijd') or '-'}"
+                )
+        
+                st.write(
+                    f"**Eindtijd:** {project.get('eindtijd') or '-'}"
+                )
+        
+            with col3:
+        
+                st.write(
+                    f"**Temperatuur:** {project.get('temperatuur') or '-'} °C"
+                )
+        
+                st.write(
+                    f"**Windsnelheid:** {project.get('windsnelheid') or '-'}"
+                )
+        
+                st.write(
+                    f"**Regen:** {project.get('regen') or '-'}"
+                )
+        
+            st.divider()
+        
+            # ==================================================
+            # SOORTEN
+            # ==================================================
+        
+            st.subheader("Soortgeschiktheid")
+        
+            soorten = project.get("soorten")
+        
+            if soorten:
+        
+                st.json(soorten)
+        
+            else:
+        
+                st.info(
+                    "Geen soortgegevens beschikbaar."
+                )
+        
+            st.divider()
+        
+            # ==================================================
+            # FOTO'S
+            # ==================================================
+        
+            st.subheader("Foto's")
+        
+            fotos = (
+                supabase.table(
+                    "new_app_quickscan_fotos"
+                )
+                .select("*")
+                .eq(
+                    "quickscan_id",
+                    project_id
+                )
+                .order(
+                    "aangemaakt_op"
+                )
+                .execute()
             )
-    
-            st.write(
-                f"**Veldwerker:** {project.get('veldwerker') or '-'}"
-            )
-    
-        with col2:
-    
-            st.write(
-                f"**Starttijd:** {project.get('starttijd') or '-'}"
-            )
-    
-            st.write(
-                f"**Eindtijd:** {project.get('eindtijd') or '-'}"
-            )
-    
-        with col3:
-    
-            st.write(
-                f"**Temperatuur:** {project.get('temperatuur') or '-'} °C"
-            )
-    
-            st.write(
-                f"**Windsnelheid:** {project.get('windsnelheid') or '-'}"
-            )
-    
-            st.write(
-                f"**Regen:** {project.get('regen') or '-'}"
-            )
-    
-        st.divider()
-    
-        # ==================================================
-        # SOORTEN
-        # ==================================================
-    
-        st.subheader("Soortgeschiktheid")
-    
-        soorten = project.get("soorten")
-    
-        if soorten:
-    
-            st.json(soorten)
-    
+        
+            if not fotos.data:
+        
+                st.info(
+                    "Geen foto's gevonden."
+                )
+        
+            else:
+        
+                for foto in fotos.data:
+        
+                    try:
+        
+                        image_bytes = (
+                            supabase.storage
+                            .from_("new_app")
+                            .download(
+                                foto["foto_pad"]
+                            )
+                        )
+        
+                        st.image(
+                            image_bytes,
+                            use_container_width=True
+                        )
+        
+                        if foto.get("beschrijving"):
+        
+                            st.write(
+                                f"**Beschrijving:** {foto['beschrijving']}"
+                            )
+        
+                        if foto.get("soortgroep"):
+        
+                            st.write(
+                                f"**Soortgroep(en):** {foto['soortgroep']}"
+                            )
+        
+                        st.divider()
+        
+                    except Exception as e:
+        
+                        st.warning(
+                            f"Foto kon niet worden geladen: {e}"
+                        )
         else:
-    
+        
             st.info(
-                "Geen soortgegevens beschikbaar."
+                "Voor dit project is nog geen veldbezoek uitgevoerd."
             )
-    
-        st.divider()
-    
-        # ==================================================
-        # FOTO'S
-        # ==================================================
-    
-        st.subheader("Foto's")
-    
-        fotos = (
-            supabase.table(
-                "new_app_quickscan_fotos"
-            )
-            .select("*")
-            .eq(
-                "quickscan_id",
-                project_id
-            )
-            .order(
-                "aangemaakt_op"
-            )
-            .execute()
-        )
-    
-        if not fotos.data:
-    
-            st.info(
-                "Geen foto's gevonden."
-            )
-    
-        else:
-    
-            for foto in fotos.data:
-    
-                try:
-    
-                    image_bytes = (
-                        supabase.storage
-                        .from_("new_app")
-                        .download(
-                            foto["foto_pad"]
-                        )
-                    )
-    
-                    st.image(
-                        image_bytes,
-                        use_container_width=True
-                    )
-    
-                    if foto.get("beschrijving"):
-    
-                        st.write(
-                            f"**Beschrijving:** {foto['beschrijving']}"
-                        )
-    
-                    if foto.get("soortgroep"):
-    
-                        st.write(
-                            f"**Soortgroep(en):** {foto['soortgroep']}"
-                        )
-    
-                    st.divider()
-    
-                except Exception as e:
-    
-                    st.warning(
-                        f"Foto kon niet worden geladen: {e}"
-                    )
             
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
