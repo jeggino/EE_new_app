@@ -255,5 +255,5 @@ def voer_gis_analyse_natura2000(qs):
     html = m.get_root().render()
 
     # Display in Streamlit
-    return return m, html
+    return m, html
 
