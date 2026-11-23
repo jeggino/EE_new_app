@@ -59,15 +59,21 @@ if check_password():
     
         st.subheader("Nieuw project")
     
-        geojson = draw_geometry(key="project_map")
+        geojson = draw_geometry(
+            key="project_map"
+        )
     
-        naam = st.text_input("Projectnaam")
+        naam = st.text_input(
+            "Projectnaam"
+        )
     
         opmerking = st.text_area(
             "Beschrijving"
         )
     
-        st.subheader("Opdrachtgever")
+        st.subheader(
+            "Opdrachtgever"
+        )
     
         opdrachtgever_naam = st.text_input(
             "Naam opdrachtgever"
@@ -81,94 +87,6 @@ if check_password():
             "E-mail"
         )
     
-        st.markdown("""
-        ### Extra GIS‑analyse: NNN & Natura 2000
-    
-        Deze analyse toont twee kaarten die laten zien hoe het Quickscan‑gebied zich verhoudt tot belangrijke natuurgebieden in Nederland.
-    
-        Klik op de knop hieronder om beide kaarten te genereren.
-        """)
-    
-        nnn_html = None
-        natura_html = None
-    
-        if "nnn_html" not in st.session_state:
-            st.session_state.nnn_html = None
-    
-        if "natura_html" not in st.session_state:
-            st.session_state.natura_html = None
-    
-        if st.button(
-            "🗺️ GIS-analyse uitvoeren",
-            use_container_width=True
-        ):
-    
-            if not geojson:
-                st.error(
-                    "Teken eerst een gebied."
-                )
-            else:
-    
-                with st.spinner(
-                    "GIS-analyse uitvoeren..."
-                ):
-    
-                    try:
-    
-                        # NNN
-                        nnn_map = voer_gis_analyse_nnn(
-                            geojson
-                        )
-    
-                        st.markdown(
-                            "### 🟩 Natuurnetwerk Nederland"
-                        )
-    
-                        st_folium(
-                            nnn_map,
-                            width=700,
-                            height=500,
-                            returned_objects=[]
-                        )
-    
-                        st.session_state.nnn_html = (
-                            nnn_map.get_root().render()
-                        )
-    
-                        # Natura2000
-                        natura_map = (
-                            voer_gis_analyse_natura2000(
-                                geojson
-                            )
-                        )
-    
-                        st.markdown(
-                            "### 🟥 Natura 2000"
-                        )
-    
-                        st_folium(
-                            natura_map,
-                            width=700,
-                            height=500,
-                            returned_objects=[]
-                        )
-    
-                        st.session_state.natura_html = (
-                            natura_map
-                            .get_root()
-                            .render()
-                        )
-    
-                        st.success(
-                            "GIS-analyse voltooid."
-                        )
-    
-                    except Exception as e:
-    
-                        st.error(
-                            f"Fout tijdens GIS-analyse: {e}"
-                        )
-    
         st.divider()
     
         if st.button(
@@ -179,7 +97,7 @@ if check_password():
     
             if not geojson:
                 st.error(
-                    "Teken eerst een geometrie."
+                    "Teken eerst een gebied."
                 )
                 st.stop()
     
@@ -204,8 +122,12 @@ if check_password():
                 st.stop()
     
             with st.spinner(
-                "Project wordt opgeslagen..."
+                "Project opslaan en GIS-analyse uitvoeren..."
             ):
+    
+                # --------------------------------------
+                # Project opslaan
+                # --------------------------------------
     
                 resp = (
                     supabase
@@ -230,9 +152,10 @@ if check_password():
     
                 qs_id = resp.data[0]["id"]
     
-                # ----------------------------------
-                # Geometry
-                # ----------------------------------
+                # --------------------------------------
+                # Geometry opslaan
+                # --------------------------------------
+    
                 geometry_path = (
                     f"quickscan/geometries/"
                     f"{qs_id}.geojson"
@@ -247,75 +170,113 @@ if check_password():
                         ).encode("utf-8"),
                         file_options={
                             "content-type":
-                            "application/geo+json",
-                            "x-upsert": "true"
+                                "application/geo+json",
+                            "x-upsert":
+                                "true"
                         }
                     )
     
-                # ----------------------------------
-                # NNN HTML
-                # ----------------------------------
-                nnn_path = None
+                qs = {
+                    "id": qs_id
+                }
     
-                if st.session_state.nnn_html:
+                # --------------------------------------
+                # NATURA2000
+                # --------------------------------------
     
-                    nnn_path = (
-                        f"quickscan/html/"
-                        f"{qs_id}_nnn.html"
+                natura_result = (
+                    voer_gis_analyse_natura2000(
+                        qs
+                    )
+                )
+    
+                natura_map = (
+                    natura_result["map"]
+                )
+    
+                natura_html = (
+                    natura_result["html"]
+                )
+    
+                natura_table = (
+                    natura_result["table"]
+                )
+    
+                natura_html_path = (
+                    f"quickscan/html/"
+                    f"{qs_id}_natura2000.html"
+                )
+    
+                supabase.storage \
+                    .from_("new_app") \
+                    .upload(
+                        natura_html_path,
+                        natura_html.encode(
+                            "utf-8"
+                        ),
+                        file_options={
+                            "content-type":
+                                "text/html",
+                            "x-upsert":
+                                "true"
+                        }
                     )
     
-                    supabase.storage \
-                        .from_("new_app") \
-                        .upload(
-                            nnn_path,
-                            st.session_state
-                            .nnn_html
-                            .encode("utf-8"),
-                            file_options={
-                                "content-type":
+                # --------------------------------------
+                # NNN
+                # --------------------------------------
+    
+                nnn_result = (
+                    voer_gis_analyse_nnn(
+                        qs
+                    )
+                )
+    
+                nnn_map = (
+                    nnn_result["map"]
+                )
+    
+                nnn_html = (
+                    nnn_result["html"]
+                )
+    
+                nnn_table = (
+                    nnn_result["table"]
+                )
+    
+                nnn_html_path = (
+                    f"quickscan/html/"
+                    f"{qs_id}_nnn.html"
+                )
+    
+                supabase.storage \
+                    .from_("new_app") \
+                    .upload(
+                        nnn_html_path,
+                        nnn_html.encode(
+                            "utf-8"
+                        ),
+                        file_options={
+                            "content-type":
                                 "text/html",
-                                "x-upsert": "true"
-                            }
-                        )
-    
-                # ----------------------------------
-                # Natura HTML
-                # ----------------------------------
-                natura_path = None
-    
-                if st.session_state.natura_html:
-    
-                    natura_path = (
-                        f"quickscan/html/"
-                        f"{qs_id}_natura2000.html"
+                            "x-upsert":
+                                "true"
+                        }
                     )
     
-                    supabase.storage \
-                        .from_("new_app") \
-                        .upload(
-                            natura_path,
-                            st.session_state
-                            .natura_html
-                            .encode("utf-8"),
-                            file_options={
-                                "content-type":
-                                "text/html",
-                                "x-upsert": "true"
-                            }
-                        )
+                # --------------------------------------
+                # Update paden
+                # --------------------------------------
     
-                # ----------------------------------
-                # Update HTML paths
-                # ----------------------------------
                 supabase.table(
                     "new_app_quickscan"
                 ).update({
     
                     "nnn_html_path":
-                        nnn_path,
+                        nnn_html_path,
     
                     "natura2000_html_path":
-                        natura_path
+                        natura_html_path
     
                 }).eq(
                     "id",
@@ -324,7 +285,43 @@ if check_password():
     
             st.success(
                 "Project succesvol opgeslagen."
-            )    
+            )
+    
+            # ======================================
+            # RESULTATEN TONEN
+            # ======================================
+    
+            st.markdown(
+                "## 🟥 Natura 2000"
+            )
+    
+            st_folium(
+                natura_map,
+                height=650,
+                width=None,
+                returned_objects=[]
+            )
+    
+            st.dataframe(
+                natura_table,
+                use_container_width=True
+            )
+    
+            st.markdown(
+                "## 🟩 Natuurnetwerk Nederland"
+            )
+    
+            st_folium(
+                nnn_map,
+                height=650,
+                width=None,
+                returned_objects=[]
+            )
+    
+            st.dataframe(
+                nnn_table,
+                use_container_width=True
+            )  
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
