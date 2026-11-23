@@ -296,6 +296,7 @@ if check_password():
             st_folium(
                 natura_map,
                 height=650,
+                width=None,
                 returned_objects=[]
             )
             
@@ -327,6 +328,7 @@ if check_password():
             
             st_folium(
                 nnn_map,
+                width=None,
                 height=650,
                 returned_objects=[]
             )
