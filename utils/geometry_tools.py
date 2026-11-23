@@ -11,7 +11,7 @@ def draw_geometry(key="map"):
     if "confirm_multipolygon" not in st.session_state:
         st.session_state.confirm_multipolygon = False
 
-    m = folium.Map(location=[52.37, 4.90], zoom_start=12,zoom_control=False)
+    m = folium.Map(location=[52.37, 4.90], zoom_start=12,zoom_control=False, tiles=None)
 
     tiles = 'https://api.mapbox.com/styles/v1/jeggino/cmn7ms1u3001f01pl691k0eyu/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiamVnZ2lubyIsImEiOiJjbHdscmRkZHAxMTl1MmlyeTJpb3Z2eHdzIn0.N9TRN7xxTikk235dVs1YeQ'
     folium.TileLayer(tiles=tiles,
