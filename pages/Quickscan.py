@@ -144,7 +144,7 @@ if check_password():
                         "opdrachtgever_email":
                             opdrachtgever_email,
     
-                        "status": "project"
+                        "status": "created"
                     })
                     .execute()
                 )
@@ -352,11 +352,17 @@ if check_password():
                     hide_index=True
                 )
 
+    import json
+    import folium
+    from shapely.geometry import shape
+    from streamlit_folium import st_folium
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    
     if menu == "Veldbezoek uitvoeren":
     
         st.header("Veldbezoek")
     
-        # Load projects that are ready for fieldwork
         projects = (
             supabase.table("new_app_quickscan")
             .select("*")
@@ -379,26 +385,63 @@ if check_password():
             if p["naam"] == selected_project_name
         )
     
+        project_id = project["id"]
+    
         st.divider()
     
         st.subheader(project["naam"])
     
-        st.info(
-            project.get("opmerking", "Geen aanvullende informatie beschikbaar.")
-        )
+        if project.get("opmerking"):
+            st.info(project["opmerking"])
     
-        # ------------------------------------
-        # Kaart tonen
-        # ------------------------------------
+        # ====================================
+        # GEOJSON OPHALEN UIT STORAGE
+        # ====================================
     
-        if project.get("geometry"):
+        try:
+    
+            geojson_path = (
+                f"quickscan/geometries/{project_id}.geojson"
+            )
+    
+            geojson_bytes = (
+                supabase.storage
+                .from_("new_app")
+                .download(geojson_path)
+            )
+    
+            geojson = json.loads(
+                geojson_bytes.decode("utf-8")
+            )
+    
+            geometry = shape(
+                geojson["features"][0]["geometry"]
+            )
+    
+            centroid = geometry.centroid
+    
+            lat = centroid.y
+            lon = centroid.x
     
             st.subheader("Projectgebied")
     
-            m = folium.Map()
+            m = folium.Map(
+                location=[lat, lon],
+                zoom_start=15
+            )
     
             folium.GeoJson(
-                project["geometry"]
+                geojson,
+                style_function=lambda x: {
+                    "color": "#ff0000",
+                    "weight": 3,
+                    "fillOpacity": 0.20
+                }
+            ).add_to(m)
+    
+            folium.Marker(
+                [lat, lon],
+                tooltip="Projectlocatie"
             ).add_to(m)
     
             st_folium(
@@ -407,27 +450,21 @@ if check_password():
                 use_container_width=True
             )
     
-            try:
+            google_maps_url = (
+                f"https://www.google.com/maps/dir/?api=1&destination={lat},{lon}"
+            )
     
-                from shapely.geometry import shape
+            st.link_button(
+                "📍 Navigeer naar projectlocatie",
+                google_maps_url,
+                use_container_width=True
+            )
     
-                polygon = shape(project["geometry"])
-                centroid = polygon.centroid
+        except Exception as e:
     
-                lat = centroid.y
-                lon = centroid.x
-    
-                google_maps_url = (
-                    f"https://www.google.com/maps/search/?api=1&query={lat},{lon}"
-                )
-    
-                st.link_button(
-                    "📍 Navigeer via Google Maps",
-                    google_maps_url
-                )
-    
-            except Exception:
-                st.warning("Locatiepunt kon niet worden bepaald.")
+            st.warning(
+                f"GeoJSON kon niet worden geladen: {e}"
+            )
     
         st.divider()
     
@@ -437,14 +474,14 @@ if check_password():
         Bekijk eerst het projectgebied.
     
         Beoordeel vervolgens welke soortgroepen potentieel aanwezig zijn.
-        Maak indien relevant één of meerdere habitatfoto's en voeg daar een
-        beschrijving aan toe.
     
-        Vul ten slotte de weersomstandigheden in en sla het veldbezoek op.
+        Maak indien relevant habitatfoto's.
+    
+        Vul daarna de veldgegevens in en sla het veldbezoek op.
         """)
     
         # ====================================
-        # Veldgegevens
+        # VELDGEGEVENS
         # ====================================
     
         st.subheader("Veldgegevens")
@@ -495,7 +532,7 @@ if check_password():
         )
     
         # ====================================
-        # Soortgeschiktheid
+        # SOORTGESCHIKTHEID
         # ====================================
     
         st.subheader("Soortgeschiktheid")
@@ -554,6 +591,48 @@ if check_password():
                         group_results[subcat] = False
     
                 soorten_results[group] = group_results
+    
+        # ====================================
+        # OPSLAAN
+        # ====================================
+    
+        if st.button(
+            "💾 Veldbezoek opslaan",
+            use_container_width=True
+        ):
+    
+            try:
+    
+                supabase.table(
+                    "new_app_quickscan"
+                ).update(
+                    {
+                        "datum": str(datum),
+                        "veldwerker": veldwerker,
+                        "starttijd": str(starttijd),
+                        "eindtijd": str(eindtijd),
+                        "temperatuur": temperatuur,
+                        "windsnelheid": windsnelheid,
+                        "regen": regen,
+                        "soorten": soorten_results,
+                        "status": "completed"
+                    }
+                ).eq(
+                    "id",
+                    project_id
+                ).execute()
+    
+                st.success(
+                    "✅ Veldbezoek succesvol opgeslagen."
+                )
+    
+                st.rerun()
+    
+            except Exception as e:
+    
+                st.error(
+                    f"Fout bij opslaan: {e}"
+                )
             
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
