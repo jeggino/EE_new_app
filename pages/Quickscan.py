@@ -48,6 +48,7 @@ if check_password():
         selection_mode="single",
         options={
             "Nieuwe Quickscan": ":material/add_circle:",
+            "Veldbezoek uitvoeren": ":material/forest:",
             "Quickscan bewerken": ":material/edit:",
             "Quickscan bekijken": ":material/visibility:"
         }
