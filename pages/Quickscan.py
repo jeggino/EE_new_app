@@ -299,22 +299,29 @@ if check_password():
                 returned_objects=[]
             )
             
-            if "Afstand (m)" in natura_table.columns:
+            if natura_table.empty:
             
                 st.info(
-                    "Geen Natura 2000-gebieden snijden het projectgebied. Hieronder staat het dichtstbijzijnde gebied."
+                    "Geen Natura 2000-gebieden binnen 3 km gevonden."
                 )
             
             else:
             
                 st.success(
-                    f"{len(natura_table)} Natura 2000-gebied(en) snijden het projectgebied."
+                    f"{len(natura_table)} Natura 2000-gebied(en) gevonden."
                 )
             
-            st.dataframe(
-                natura_table,
-                use_container_width=True
-            )
+                st.dataframe(
+                    natura_table[
+                        [
+                            "Gebied",
+                            "Type",
+                            "Afstand (m)"
+                        ]
+                    ],
+                    use_container_width=True,
+                    hide_index=True
+                )
     
             st.markdown("## 🟩 Natuurnetwerk Nederland")
             
