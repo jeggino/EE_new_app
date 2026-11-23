@@ -142,20 +142,30 @@ def voer_gis_analyse_nnn(qs):
     # Load NNN from Supabase
     nnn = load_nnn_cached()
 
+    st.write("NNN columns:")
+    st.write(nnn.columns.tolist())
+    
+    st.dataframe(
+        nnn.head(3)
+    )
+
     qs_rd = qs_gdf.to_crs(RD)
     
     project_geom = qs_rd.geometry.iloc[0]
     
+    # Bounding box (15 km)
+    bbox = Point(x_rd, y_rd).buffer(15000)
+    
+    nnn_filtered = nnn[
+        nnn.intersects(bbox)
+    ]
+    
     results_df = (
         analyse_nnn_intersections(
             project_geom,
-            nnn
+            nnn_filtered
         )
     )
-
-    # Bounding box (10 km)
-    bbox = Point(x_rd, y_rd).buffer(15000)
-    nnn_filtered = nnn[nnn.intersects(bbox)]
 
     # Convert to WGS
     nnn_wgs = nnn_filtered.to_crs(WGS)
