@@ -26,10 +26,7 @@ def analyse_nnn_intersections(
     nnn
 ):
 
-    intersections = []
-
-    nearest_row = None
-    nearest_distance = float("inf")
+    results = []
 
     for _, row in nnn.iterrows():
 
@@ -37,48 +34,36 @@ def analyse_nnn_intersections(
             row.geometry
         )
 
-        if distance < nearest_distance:
-            nearest_distance = distance
-            nearest_row = row
+        if distance <= 1000:
 
-        if project_geom.intersects(
-            row.geometry
-        ):
-
-            intersections.append({
+            results.append({
 
                 "Gebied": row.get(
-                    "gebiedsnaam",
-                    row.get(
-                        "naam",
-                        "NNN gebied"
-                    )
+                    "namespace",
+                    "NNN gebied"
+                ),
+
+                "Afstand (m)": round(
+                    distance,
+                    1
                 )
 
             })
 
-    if intersections:
+    results_df = pd.DataFrame(results)
 
-        return pd.DataFrame(
-            intersections
-        )
+    if not results_df.empty:
 
-    return pd.DataFrame([{
-
-        "Gebied": nearest_row.get(
-            "gebiedsnaam",
-            nearest_row.get(
-                "naam",
-                "NNN gebied"
+        results_df = (
+            results_df
+            .sort_values(
+                "Afstand (m)"
             )
-        ),
-
-        "Afstand (m)": round(
-            nearest_distance,
-            1
+            .reset_index(drop=True)
         )
 
-    }])
+    return results_df
+
     
 def flatten_geometry(gdf):
     def flatten(geom):
@@ -141,13 +126,6 @@ def voer_gis_analyse_nnn(qs):
 
     # Load NNN from Supabase
     nnn = load_nnn_cached()
-
-    st.write("NNN columns:")
-    st.write(nnn.columns.tolist())
-    
-    st.dataframe(
-        nnn.head(3)
-    )
 
     qs_rd = qs_gdf.to_crs(RD)
     
