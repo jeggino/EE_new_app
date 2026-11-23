@@ -949,45 +949,69 @@ if check_password():
     
         st.subheader("Analyses")
     
+        import streamlit.components.v1 as components
+        
         if project.get("nnn_html_path"):
-    
+        
             try:
-    
-                nnn_url = (
+        
+                html_bytes = (
                     supabase.storage
                     .from_("new_app")
-                    .get_public_url(
+                    .download(
                         project["nnn_html_path"]
                     )
                 )
-    
-                st.link_button(
-                    "🌿 Open NNN analyse",
-                    nnn_url
+        
+                html_content = html_bytes.decode(
+                    "utf-8"
+                )
+        
+                st.subheader("NNN Analyse")
+        
+                components.html(
+                    html_content,
+                    height=800,
+                    scrolling=True
+                )
+        
+            except Exception as e:
+        
+                st.warning(
+                    f"NNN analyse kon niet worden geladen: {e}"
                 )
     
-            except Exception:
-                st.warning("NNN analyse niet beschikbaar")
-    
         if project.get("natura2000_html_path"):
-    
+        
             try:
-    
-                natura_url = (
+        
+                html_bytes = (
                     supabase.storage
                     .from_("new_app")
-                    .get_public_url(
+                    .download(
                         project["natura2000_html_path"]
                     )
                 )
-    
-                st.link_button(
-                    "🦋 Open Natura2000 analyse",
-                    natura_url
+        
+                html_content = html_bytes.decode(
+                    "utf-8"
                 )
-    
-            except Exception:
-                st.warning("Natura2000 analyse niet beschikbaar")
+        
+                st.subheader(
+                    "Natura2000 Analyse"
+                )
+        
+                components.html(
+                    html_content,
+                    height=800,
+                    scrolling=True
+                )
+        
+            except Exception as e:
+        
+                st.warning(
+                    f"Natura2000 analyse kon niet worden geladen: {e}"
+                )
     
         st.divider()
         if project_status == "completed":
