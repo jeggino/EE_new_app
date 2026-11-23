@@ -22,8 +22,7 @@ import pandas as pd
 
 def analyse_natura2000_intersections(
     project_geom,
-    n2000,
-    search_distance=3000
+    n2000
 ):
 
     results = []
@@ -34,18 +33,13 @@ def analyse_natura2000_intersections(
             row.geometry
         )
 
-        if distance <= search_distance:
+        if distance <= 3000:
 
             results.append({
 
                 "Gebied": row.get(
-                    "naam",
+                    "naam_n2k",
                     "Onbekend"
-                ),
-
-                "Code": row.get(
-                    "gebiedcode",
-                    "-"
                 ),
 
                 "Type": row.get(
@@ -164,15 +158,6 @@ def voer_gis_analyse_natura2000(qs):
 
     # Load cached Natura2000
     n2000 = load_n2000_cached()
-
-    st.write(
-        "Natura columns:",
-        n2000.columns.tolist()
-    )
-    
-    st.dataframe(
-        n2000.head(3)
-    )
 
     qs_rd = qs_gdf.to_crs(RD)
     
