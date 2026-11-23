@@ -351,6 +351,209 @@ if check_password():
                     use_container_width=True,
                     hide_index=True
                 )
+
+    if menu == "Veldbezoek uitvoeren":
+    
+        st.header("Veldbezoek")
+    
+        # Load projects that are ready for fieldwork
+        projects = (
+            supabase.table("new_app_quickscan")
+            .select("*")
+            .eq("status", "created")
+            .order("naam")
+            .execute()
+        )
+    
+        if not projects.data:
+            st.info("Er zijn momenteel geen projecten beschikbaar.")
+            st.stop()
+    
+        selected_project_name = st.selectbox(
+            "Selecteer een project",
+            [p["naam"] for p in projects.data]
+        )
+    
+        project = next(
+            p for p in projects.data
+            if p["naam"] == selected_project_name
+        )
+    
+        st.divider()
+    
+        st.subheader(project["naam"])
+    
+        st.info(
+            project.get("opmerking", "Geen aanvullende informatie beschikbaar.")
+        )
+    
+        # ------------------------------------
+        # Kaart tonen
+        # ------------------------------------
+    
+        if project.get("geometry"):
+    
+            st.subheader("Projectgebied")
+    
+            m = folium.Map()
+    
+            folium.GeoJson(
+                project["geometry"]
+            ).add_to(m)
+    
+            st_folium(
+                m,
+                height=500,
+                use_container_width=True
+            )
+    
+            try:
+    
+                from shapely.geometry import shape
+    
+                polygon = shape(project["geometry"])
+                centroid = polygon.centroid
+    
+                lat = centroid.y
+                lon = centroid.x
+    
+                google_maps_url = (
+                    f"https://www.google.com/maps/search/?api=1&query={lat},{lon}"
+                )
+    
+                st.link_button(
+                    "📍 Navigeer via Google Maps",
+                    google_maps_url
+                )
+    
+            except Exception:
+                st.warning("Locatiepunt kon niet worden bepaald.")
+    
+        st.divider()
+    
+        st.markdown("""
+        ### Instructie
+    
+        Bekijk eerst het projectgebied.
+    
+        Beoordeel vervolgens welke soortgroepen potentieel aanwezig zijn.
+        Maak indien relevant één of meerdere habitatfoto's en voeg daar een
+        beschrijving aan toe.
+    
+        Vul ten slotte de weersomstandigheden in en sla het veldbezoek op.
+        """)
+    
+        # ====================================
+        # Veldgegevens
+        # ====================================
+    
+        st.subheader("Veldgegevens")
+    
+        datum = st.date_input("Datum")
+    
+        veldwerker = st.text_input("Veldwerker")
+    
+        now_local = datetime.now(
+            ZoneInfo("Europe/Amsterdam")
+        ).time()
+    
+        starttijd = st.time_input(
+            "Starttijd",
+            value=now_local
+        )
+    
+        eindtijd = st.time_input(
+            "Eindtijd",
+            value=now_local
+        )
+    
+        temperatuur = st.number_input(
+            "Temperatuur (°C)",
+            step=0.1
+        )
+    
+        windsnelheid = st.selectbox(
+            "Windsnelheid",
+            [
+                "0 - Stil",
+                "1 - Zwak",
+                "2 - Matig",
+                "3 - Vrij krachtig",
+                "4 - Sterk",
+                "5 - Storm"
+            ]
+        )
+    
+        regen = st.selectbox(
+            "Regen",
+            [
+                "Geen",
+                "Licht",
+                "Matig",
+                "Hevig"
+            ]
+        )
+    
+        # ====================================
+        # Soortgeschiktheid
+        # ====================================
+    
+        st.subheader("Soortgeschiktheid")
+    
+        soorten_results = {}
+    
+        for group, species_data in SPECIES_GROUPS.items():
+    
+            suitable = st.toggle(
+                f"Is het gebied geschikt voor {group}?"
+            )
+    
+            if not suitable:
+                soorten_results[group] = False
+                continue
+    
+            if isinstance(species_data, list):
+    
+                if species_data:
+    
+                    selected = st.multiselect(
+                        f"Welke soorten binnen {group}?",
+                        species_data,
+                        key=f"species_{group}"
+                    )
+    
+                    soorten_results[group] = selected
+    
+                else:
+    
+                    soorten_results[group] = True
+    
+            elif isinstance(species_data, dict):
+    
+                group_results = {}
+    
+                for subcat, species_list in species_data.items():
+    
+                    sub_suitable = st.toggle(
+                        subcat,
+                        key=f"toggle_{group}_{subcat}"
+                    )
+    
+                    if sub_suitable:
+    
+                        selected = st.multiselect(
+                            f"Welke soorten binnen {subcat}?",
+                            species_list,
+                            key=f"species_{group}_{subcat}"
+                        )
+    
+                        group_results[subcat] = selected
+    
+                    else:
+    
+                        group_results[subcat] = False
+    
+                soorten_results[group] = group_results
             
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
