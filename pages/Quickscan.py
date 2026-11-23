@@ -56,9 +56,7 @@ if check_password():
     # PROJECT
     # --------------------------------------------------
     if menu == "Nieuwe Quickscan":
-    
-        st.subheader("Nieuw project")
-    
+        
         geojson = draw_geometry(
             key="project_map"
         )
@@ -324,31 +322,35 @@ if check_password():
                     hide_index=True
                 )
     
-            st.markdown("## 🟩 Natuurnetwerk Nederland")
+            st.markdown(
+                "## 🟩 Natuurnetwerk Nederland"
+            )
             
             st_folium(
                 nnn_map,
-                width=None,
-                height=650,
+                width=1200,
+                height=500,
                 returned_objects=[]
             )
             
-            if "Afstand (m)" in nnn_table.columns:
+            if nnn_table.empty:
             
                 st.info(
-                    "Geen NNN-gebieden snijden het projectgebied. Hieronder staat het dichtstbijzijnde gebied."
+                    "Geen NNN-gebieden binnen 1 km gevonden."
                 )
             
             else:
             
                 st.success(
-                    f"{len(nnn_table)} NNN-gebied(en) snijden het projectgebied."
+                    f"{len(nnn_table)} NNN-gebied(en) binnen 1 km gevonden."
                 )
             
-            st.dataframe(
-                nnn_table,
-                use_container_width=True
-            )  
+                st.dataframe(
+                    nnn_table,
+                    use_container_width=True,
+                    hide_index=True
+                )
+            
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
 
