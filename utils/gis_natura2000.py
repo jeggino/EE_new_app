@@ -252,6 +252,8 @@ def voer_gis_analyse_natura2000(qs):
     """
     m.get_root().html.add_child(Element(logo_html))
 
+    html = m.get_root().render()
+
     # Display in Streamlit
-    st_folium(m, width=700, height=500, returned_objects=[])
+    return st_folium(m, width=700, height=500, returned_objects=[]), html
 
