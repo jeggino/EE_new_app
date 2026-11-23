@@ -311,6 +311,14 @@ if check_password():
                 # --------------------------------------
     
                 try:
+
+                    nnn_json = nnn_table.to_dict(
+                        orient="records"
+                    )
+                    
+                    natura_json = natura_table.to_dict(
+                        orient="records"
+                    )
                 
                     supabase.table(
                         "new_app_quickscan"
