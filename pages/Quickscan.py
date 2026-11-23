@@ -82,7 +82,7 @@ if check_password():
             "👁️\nQuickscan Bekijken",
             use_container_width=True
         ):
-            st.session_state.menu = "bekijken"
+            st.session_state.menu = "Quickscan bekijken"
     
     menu = st.session_state.get("menu", "nieuw")    
     # --------------------------------------------------
@@ -788,6 +788,338 @@ if check_password():
                 st.error(
                     f"Fout bij opslaan: {e}"
                 )
+
+    if menu == "Quickscan bekijken":
+    
+        st.header("Quickscan bekijken")
+    
+        # ==================================================
+        # STATUS FILTER
+        # ==================================================
+    
+        selected_status = st.selectbox(
+            "Status",
+            [
+                "created",
+                "completed"
+            ]
+        )
+    
+        projects = (
+            supabase.table("new_app_quickscan")
+            .select("*")
+            .eq("status", selected_status)
+            .order("naam")
+            .execute()
+        )
+    
+        if not projects.data:
+            st.info("Geen projecten gevonden.")
+            st.stop()
+    
+        # ==================================================
+        # PROJECT SELECTIE
+        # ==================================================
+    
+        selected_project_name = st.selectbox(
+            "Project",
+            [p["naam"] for p in projects.data]
+        )
+    
+        project = next(
+            p for p in projects.data
+            if p["naam"] == selected_project_name
+        )
+    
+        project_id = project["id"]
+    
+        st.divider()
+    
+        # ==================================================
+        # PROJECT INFO
+        # ==================================================
+    
+        st.subheader(project["naam"])
+    
+        col1, col2 = st.columns(2)
+    
+        with col1:
+    
+            st.markdown("### Projectinformatie")
+    
+            st.write(
+                f"**Status:** {project.get('status', '-')}"
+            )
+    
+            if project.get("opmerking"):
+    
+                st.info(project["opmerking"])
+    
+        with col2:
+    
+            st.markdown("### Opdrachtgever")
+    
+            st.write(
+                f"**Naam:** {project.get('opdrachtgever_naam') or '-'}"
+            )
+    
+            st.write(
+                f"**Telefoon:** {project.get('opdrachtgever_telefoon') or '-'}"
+            )
+    
+            st.write(
+                f"**E-mail:** {project.get('opdrachtgever_email') or '-'}"
+            )
+    
+        st.divider()
+    
+        # ==================================================
+        # KAART
+        # ==================================================
+    
+        try:
+    
+            geojson_path = (
+                f"quickscan/geometries/{project_id}.geojson"
+            )
+    
+            geojson_bytes = (
+                supabase.storage
+                .from_("new_app")
+                .download(geojson_path)
+            )
+    
+            geojson = json.loads(
+                geojson_bytes.decode("utf-8")
+            )
+    
+            geometry = shape(
+                geojson["geometry"]
+            )
+    
+            centroid = geometry.centroid
+    
+            lat = centroid.y
+            lon = centroid.x
+    
+            st.subheader("Projectgebied")
+    
+            m = folium.Map(
+                location=[lat, lon],
+                zoom_start=17
+            )
+    
+            folium.GeoJson(
+                geojson,
+                style_function=lambda x: {
+                    "color": "#ff0000",
+                    "weight": 3,
+                    "fillColor": "#ff0000",
+                    "fillOpacity": 0.20
+                }
+            ).add_to(m)
+    
+            folium.Marker(
+                [lat, lon]
+            ).add_to(m)
+    
+            st_folium(
+                m,
+                height=600,
+                use_container_width=True
+            )
+    
+            st.link_button(
+                "📍 Open in Google Maps",
+                f"https://www.google.com/maps/dir/?api=1&destination={lat},{lon}",
+                use_container_width=True
+            )
+    
+        except Exception as e:
+    
+            st.warning(
+                f"Kon kaart niet laden: {e}"
+            )
+    
+        st.divider()
+    
+        # ==================================================
+        # NNN / NATURA2000
+        # ==================================================
+    
+        st.subheader("Analyses")
+    
+        if project.get("nnn_html_path"):
+    
+            try:
+    
+                nnn_url = (
+                    supabase.storage
+                    .from_("new_app")
+                    .get_public_url(
+                        project["nnn_html_path"]
+                    )
+                )
+    
+                st.link_button(
+                    "🌿 Open NNN analyse",
+                    nnn_url
+                )
+    
+            except Exception:
+                st.warning("NNN analyse niet beschikbaar")
+    
+        if project.get("natura2000_html_path"):
+    
+            try:
+    
+                natura_url = (
+                    supabase.storage
+                    .from_("new_app")
+                    .get_public_url(
+                        project["natura2000_html_path"]
+                    )
+                )
+    
+                st.link_button(
+                    "🦋 Open Natura2000 analyse",
+                    natura_url
+                )
+    
+            except Exception:
+                st.warning("Natura2000 analyse niet beschikbaar")
+    
+        st.divider()
+    
+        # ==================================================
+        # VELDGEGEVENS
+        # ==================================================
+    
+        st.subheader("Veldgegevens")
+    
+        col1, col2, col3 = st.columns(3)
+    
+        with col1:
+    
+            st.write(
+                f"**Datum:** {project.get('datum') or '-'}"
+            )
+    
+            st.write(
+                f"**Veldwerker:** {project.get('veldwerker') or '-'}"
+            )
+    
+        with col2:
+    
+            st.write(
+                f"**Starttijd:** {project.get('starttijd') or '-'}"
+            )
+    
+            st.write(
+                f"**Eindtijd:** {project.get('eindtijd') or '-'}"
+            )
+    
+        with col3:
+    
+            st.write(
+                f"**Temperatuur:** {project.get('temperatuur') or '-'} °C"
+            )
+    
+            st.write(
+                f"**Windsnelheid:** {project.get('windsnelheid') or '-'}"
+            )
+    
+            st.write(
+                f"**Regen:** {project.get('regen') or '-'}"
+            )
+    
+        st.divider()
+    
+        # ==================================================
+        # SOORTEN
+        # ==================================================
+    
+        st.subheader("Soortgeschiktheid")
+    
+        soorten = project.get("soorten")
+    
+        if soorten:
+    
+            st.json(soorten)
+    
+        else:
+    
+            st.info(
+                "Geen soortgegevens beschikbaar."
+            )
+    
+        st.divider()
+    
+        # ==================================================
+        # FOTO'S
+        # ==================================================
+    
+        st.subheader("Foto's")
+    
+        fotos = (
+            supabase.table(
+                "new_app_quickscan_fotos"
+            )
+            .select("*")
+            .eq(
+                "quickscan_id",
+                project_id
+            )
+            .order(
+                "aangemaakt_op"
+            )
+            .execute()
+        )
+    
+        if not fotos.data:
+    
+            st.info(
+                "Geen foto's gevonden."
+            )
+    
+        else:
+    
+            for foto in fotos.data:
+    
+                try:
+    
+                    image_bytes = (
+                        supabase.storage
+                        .from_("new_app")
+                        .download(
+                            foto["foto_pad"]
+                        )
+                    )
+    
+                    st.image(
+                        image_bytes,
+                        use_container_width=True
+                    )
+    
+                    if foto.get("beschrijving"):
+    
+                        st.write(
+                            f"**Beschrijving:** {foto['beschrijving']}"
+                        )
+    
+                    if foto.get("soortgroep"):
+    
+                        st.write(
+                            f"**Soortgroep(en):** {foto['soortgroep']}"
+                        )
+    
+                    st.divider()
+    
+                except Exception as e:
+    
+                    st.warning(
+                        f"Foto kon niet worden geladen: {e}"
+                    )
             
     # if menu == "Nieuwe Quickscan":
     #     # st.subheader("Nieuwe Quickscan",text_alignment="center",)
