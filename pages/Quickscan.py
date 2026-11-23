@@ -403,7 +403,15 @@ if check_password():
     
     if menu == "Veldbezoek uitvoeren":
     
-        st.title("Veldbezoek",text_alignment="center",divider="blue")
+        # st.title("Veldbezoek",text_alignment="center",divider="blue")
+
+        st.markdown(
+            """
+            <h1 style="text-align:center;">Veldbezoek</h1>
+            <hr style="border:2px solid #0078D4;">
+            """,
+            unsafe_allow_html=True,
+        )
     
         projects = (
             supabase.table("new_app_quickscan")
@@ -801,7 +809,15 @@ if check_password():
 
     if menu == "Quickscan bekijken":
     
-        st.title("Quickscan bekijken",divider="blue",text_alignment="center")
+        # st.title("Quickscan bekijken",divider="blue",text_alignment="center")
+
+        st.markdown(
+            """
+            <h1 style="text-align:center;">Quickscan bekijken</h1>
+            <hr style="border:2px solid #0078D4;">
+            """,
+            unsafe_allow_html=True,
+        )
     
         # ==================================================
         # STATUS FILTER
