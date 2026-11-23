@@ -253,7 +253,10 @@ def voer_gis_analyse_natura2000(qs):
     m.get_root().html.add_child(Element(logo_html))
 
     html = m.get_root().render()
-
-    # Display in Streamlit
-    return m, html
+    
+    return {
+        "map": m,
+        "html": html,
+        "table": results_df
+    }
 
