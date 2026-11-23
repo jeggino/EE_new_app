@@ -633,6 +633,79 @@ if check_password():
                         group_results[subcat] = False
     
                 soorten_results[group] = group_results
+
+        # ====================================
+        # FOTO'S
+        # ====================================
+        
+        beschikbare_soortgroepen = []
+        
+        for group, value in soorten_results.items():
+        
+            if value is True:
+        
+                beschikbare_soortgroepen.append(group)
+        
+            elif isinstance(value, list):
+        
+                for species in value:
+                    beschikbare_soortgroepen.append(species)
+        
+            elif isinstance(value, dict):
+        
+                for subcat, subvalue in value.items():
+        
+                    if isinstance(subvalue, list):
+        
+                        for species in subvalue:
+                            beschikbare_soortgroepen.append(species)
+        
+        st.subheader("Foto's")
+        
+        photos_to_upload = []
+        
+        add_photo = st.toggle(
+            "Wil je een foto toevoegen?",
+            key="add_photo_first"
+        )
+        
+        while add_photo:
+        
+            index = len(photos_to_upload)
+        
+            photo = st.file_uploader(
+                "Upload een foto",
+                type=["jpg", "jpeg", "png"],
+                key=f"photo_{index}"
+            )
+        
+            if photo:
+        
+                beschrijving = st.text_area(
+                    "Beschrijving van de foto",
+                    key=f"beschrijving_{index}"
+                )
+        
+                soortgroepen_foto = st.multiselect(
+                    "Voor welke soortgroepen is dit habitat geschikt?",
+                    beschikbare_soortgroepen,
+                    key=f"soortgroepen_{index}"
+                )
+        
+                photos_to_upload.append(
+                    {
+                        "file": photo,
+                        "beschrijving": beschrijving,
+                        "soortgroepen": soortgroepen_foto
+                    }
+                )
+        
+                st.success("Foto toegevoegd")
+        
+            add_photo = st.toggle(
+                "Nog een foto toevoegen?",
+                key=f"add_photo_{index}"
+            )
     
         # ==================================================
         # OPSLAAN
@@ -665,6 +738,13 @@ if check_password():
                     .execute()
                 )
     
+                if photos_to_upload:
+                
+                    save_photos(
+                        project_id,
+                        photos_to_upload
+                    )
+                
                 st.success(
                     "✅ Veldbezoek succesvol opgeslagen."
                 )
