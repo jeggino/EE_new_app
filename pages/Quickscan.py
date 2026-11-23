@@ -76,7 +76,7 @@ if check_password():
             "🌳\nVeldbezoek",
             use_container_width=True
         ):
-            st.session_state.menu = "veld"
+            st.session_state.menu = "Veldbezoek uitvoeren"
     
         if st.button(
             "👁️\nQuickscan Bekijken",
