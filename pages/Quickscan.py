@@ -310,26 +310,27 @@ if check_password():
                 # Update paden
                 # --------------------------------------
     
-                supabase.table(
-                    "new_app_quickscan"
-                ).update({
+                try:
                 
-                    "nnn_html_path":
-                        nnn_html_path,
+                    supabase.table(
+                        "new_app_quickscan"
+                    ).update({
                 
-                    "natura2000_html_path":
-                        natura_html_path,
+                        "nnn_html_path": nnn_html_path,
+                        "natura2000_html_path": natura_html_path,
+                        "nnn_data": nnn_json,
+                        "natura2000_data": natura_json
                 
-                    "nnn_data":
-                        nnn_table.to_dict(orient="records"),
+                    }).eq(
+                        "id",
+                        qs_id
+                    ).execute()
                 
-                    "natura2000_data":
-                        natura_table.to_dict(orient="records")
+                except Exception as e:
                 
-                }).eq(
-                    "id",
-                    qs_id
-                ).execute()
+                    st.error(str(e))
+                    st.exception(e)
+
     
             st.success(
                 "Project succesvol opgeslagen."
