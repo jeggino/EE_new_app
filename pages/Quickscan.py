@@ -89,6 +89,8 @@ if check_password():
     # PROJECT
     # --------------------------------------------------
     if menu == "Nieuwe Quickscan":
+
+        st.subheader("Nieuwe Quickscan",text_alignment="center",)
         
         geojson = draw_geometry(
             key="project_map"
