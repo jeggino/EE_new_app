@@ -1014,7 +1014,7 @@ if check_password():
                 )
     
         st.divider()
-        if project_status == "completed":
+        if selected_status == "completed":
             # ==================================================
             # VELDGEGEVENS
             # ==================================================
