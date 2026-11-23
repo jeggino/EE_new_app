@@ -90,7 +90,7 @@ if check_password():
     # --------------------------------------------------
     if menu == "Nieuwe Quickscan":
 
-        st.subheader("Nieuwe Quickscan",text_alignment="center",)
+        st.header("Nieuwe Quickscan",text_alignment="center",)
         
         geojson = draw_geometry(
             key="project_map"
@@ -395,7 +395,7 @@ if check_password():
     
     if menu == "Veldbezoek uitvoeren":
     
-        st.header("Veldbezoek")
+        st.header("Veldbezoek",text_alignment="center")
     
         projects = (
             supabase.table("new_app_quickscan")
@@ -694,7 +694,7 @@ if check_password():
                         for species in subvalue:
                             beschikbare_soortgroepen.append(species)
         
-        st.subheader("Foto's")
+        st.subheader("Foto's",text_alignment="center")
         
         photos_to_upload = []
         
