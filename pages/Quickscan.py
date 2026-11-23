@@ -22,6 +22,7 @@ from utils.gis_natura2000 import voer_gis_analyse_natura2000
 from utils.gis_nnn import voer_gis_analyse_nnn
 from utils.buttons import image_button
 from utils.delete_quickscan import verwijder_quickscan
+from utils.dialogs import money_dialog
 
 
 
@@ -1319,10 +1320,11 @@ if check_password():
                 
                 with col2:
                 
-                    st.button(
+                    if st.button(
                         "🤖 Genereer rapport",
                         use_container_width=True
-                    )
+                    ):
+                        money_dialog()
 
 
 
