@@ -756,6 +756,20 @@ if check_password():
                 "Nog een foto toevoegen?",
                 key=f"add_photo_{index}"
             )
+
+        # ====================================
+        # EINDOPMERKING
+        # ====================================
+        
+        st.divider()
+        
+        st.subheader("Eindopmerking")
+        
+        eindopmerking = st.text_area(
+            "Beschrijf de bevindingen van het veldbezoek",
+            height=200,
+            placeholder="Voer hier de eindopmerking van het veldbezoek in..."
+        )
     
         # ==================================================
         # OPSLAAN
@@ -781,6 +795,7 @@ if check_password():
                             "windsnelheid": windsnelheid,
                             "regen": regen,
                             "soorten": soorten_results,
+                            "eindopmerking": eindopmerking,
                             "status": "completed"
                         }
                     )
