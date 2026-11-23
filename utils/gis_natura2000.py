@@ -179,12 +179,6 @@ def voer_gis_analyse_natura2000(qs):
     )
 
 
-    st.write(
-        "Aantal Natura2000 polygonen binnen 15 km:",
-        len(n2000_filtered)
-    )
-
-
     # Convert to WGS
     n2000_wgs = n2000_filtered.to_crs(WGS)
 
