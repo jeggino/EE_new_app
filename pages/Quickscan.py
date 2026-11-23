@@ -391,12 +391,52 @@ if check_password():
     
         st.subheader(project["naam"])
     
-        if project.get("opmerking"):
-            st.info(project["opmerking"])
+        # ==================================================
+        # PROJECT INFO
+        # ==================================================
     
-        # ====================================
-        # GEOJSON OPHALEN UIT STORAGE
-        # ====================================
+        col1, col2 = st.columns(2)
+    
+        with col1:
+    
+            if project.get("opmerking"):
+                st.info(project["opmerking"])
+    
+        with col2:
+    
+            st.markdown("### Opdrachtgever")
+    
+            st.write(
+                f"**Naam:** {project.get('opdrachtgever_naam') or '-'}"
+            )
+    
+            st.write(
+                f"**Telefoon:** {project.get('opdrachtgever_telefoon') or '-'}"
+            )
+    
+            st.write(
+                f"**E-mail:** {project.get('opdrachtgever_email') or '-'}"
+            )
+    
+            if project.get("opdrachtgever_telefoon"):
+    
+                st.link_button(
+                    "📞 Bel opdrachtgever",
+                    f"tel:{project['opdrachtgever_telefoon']}"
+                )
+    
+            if project.get("opdrachtgever_email"):
+    
+                st.link_button(
+                    "✉️ Mail opdrachtgever",
+                    f"mailto:{project['opdrachtgever_email']}"
+                )
+    
+        st.divider()
+    
+        # ==================================================
+        # GEOJSON
+        # ==================================================
     
         try:
     
@@ -414,8 +454,9 @@ if check_password():
                 geojson_bytes.decode("utf-8")
             )
     
+            # YOUR FILE IS A SINGLE FEATURE
             geometry = shape(
-                geojson["features"][0]["geometry"]
+                geojson["geometry"]
             )
     
             centroid = geometry.centroid
@@ -427,7 +468,7 @@ if check_password():
     
             m = folium.Map(
                 location=[lat, lon],
-                zoom_start=15
+                zoom_start=17
             )
     
             folium.GeoJson(
@@ -435,6 +476,7 @@ if check_password():
                 style_function=lambda x: {
                     "color": "#ff0000",
                     "weight": 3,
+                    "fillColor": "#ff0000",
                     "fillOpacity": 0.20
                 }
             ).add_to(m)
@@ -446,7 +488,7 @@ if check_password():
     
             st_folium(
                 m,
-                height=500,
+                height=600,
                 use_container_width=True
             )
     
@@ -480,9 +522,9 @@ if check_password():
         Vul daarna de veldgegevens in en sla het veldbezoek op.
         """)
     
-        # ====================================
+        # ==================================================
         # VELDGEGEVENS
-        # ====================================
+        # ==================================================
     
         st.subheader("Veldgegevens")
     
@@ -531,9 +573,9 @@ if check_password():
             ]
         )
     
-        # ====================================
+        # ==================================================
         # SOORTGESCHIKTHEID
-        # ====================================
+        # ==================================================
     
         st.subheader("Soortgeschiktheid")
     
@@ -592,9 +634,9 @@ if check_password():
     
                 soorten_results[group] = group_results
     
-        # ====================================
+        # ==================================================
         # OPSLAAN
-        # ====================================
+        # ==================================================
     
         if st.button(
             "💾 Veldbezoek opslaan",
@@ -603,24 +645,25 @@ if check_password():
     
             try:
     
-                supabase.table(
-                    "new_app_quickscan"
-                ).update(
-                    {
-                        "datum": str(datum),
-                        "veldwerker": veldwerker,
-                        "starttijd": str(starttijd),
-                        "eindtijd": str(eindtijd),
-                        "temperatuur": temperatuur,
-                        "windsnelheid": windsnelheid,
-                        "regen": regen,
-                        "soorten": soorten_results,
-                        "status": "completed"
-                    }
-                ).eq(
-                    "id",
-                    project_id
-                ).execute()
+                (
+                    supabase
+                    .table("new_app_quickscan")
+                    .update(
+                        {
+                            "datum": str(datum),
+                            "veldwerker": veldwerker,
+                            "starttijd": str(starttijd),
+                            "eindtijd": str(eindtijd),
+                            "temperatuur": temperatuur,
+                            "windsnelheid": windsnelheid,
+                            "regen": regen,
+                            "soorten": soorten_results,
+                            "status": "completed"
+                        }
+                    )
+                    .eq("id", project_id)
+                    .execute()
+                )
     
                 st.success(
                     "✅ Veldbezoek succesvol opgeslagen."
