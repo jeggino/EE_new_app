@@ -793,7 +793,7 @@ if check_password():
 
     if menu == "Quickscan bekijken":
     
-        st.header("Quickscan bekijken",divider="blue")
+        st.header("Quickscan bekijken",divider="blue",text_alignment="center")
     
         # ==================================================
         # STATUS FILTER
