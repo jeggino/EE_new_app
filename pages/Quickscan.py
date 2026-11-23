@@ -94,7 +94,7 @@ if check_password():
 
         st.markdown(
             """
-            <h1 style="text-align:center;">Veldbezoek</h1>
+            <h1 style="text-align:center;">Nieuwe Quickscan</h1>
             <hr style="border:2px solid #0078D4;">
             """,
             unsafe_allow_html=True,
