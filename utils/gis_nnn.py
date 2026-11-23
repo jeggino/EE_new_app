@@ -203,7 +203,10 @@ def voer_gis_analyse_nnn(qs):
 
     html = m.get_root().render()
     
-    # Display in Streamlit
-    return m, html
+    return {
+        "map": m,
+        "html": html,
+        "table": results_df
+    }
 
 
