@@ -22,13 +22,11 @@ import pandas as pd
 
 def analyse_natura2000_intersections(
     project_geom,
-    n2000
+    n2000,
+    search_distance=3000
 ):
 
-    intersections = []
-
-    nearest_row = None
-    nearest_distance = float("inf")
+    results = []
 
     for _, row in n2000.iterrows():
 
@@ -36,15 +34,9 @@ def analyse_natura2000_intersections(
             row.geometry
         )
 
-        if distance < nearest_distance:
-            nearest_distance = distance
-            nearest_row = row
+        if distance <= search_distance:
 
-        if project_geom.intersects(
-            row.geometry
-        ):
-
-            intersections.append({
+            results.append({
 
                 "Gebied": row.get(
                     "naam",
@@ -59,40 +51,27 @@ def analyse_natura2000_intersections(
                 "Type": row.get(
                     "beschermin",
                     "-"
-                )
+                ),
 
+                "Afstand (m)": round(
+                    distance,
+                    1
+                )
             })
 
-    # Intersections found
-    if intersections:
-        return pd.DataFrame(
-            intersections
+    results_df = pd.DataFrame(results)
+
+    if not results_df.empty:
+
+        results_df = (
+            results_df
+            .sort_values(
+                "Afstand (m)"
+            )
+            .reset_index(drop=True)
         )
 
-    # Otherwise nearest Natura2000
-    return pd.DataFrame([{
-
-        "Gebied": nearest_row.get(
-            "naam",
-            "Onbekend"
-        ),
-
-        "Code": nearest_row.get(
-            "gebiedcode",
-            "-"
-        ),
-
-        "Type": nearest_row.get(
-            "beschermin",
-            "-"
-        ),
-
-        "Afstand (m)": round(
-            nearest_distance,
-            1
-        )
-
-    }])
+    return results_df
 
 
 def flatten_geometry(gdf):
