@@ -549,11 +549,6 @@ if check_password():
                 overlay=False,
                 control=True,name="OpenStreetMap").add_to(m)
             
-            
-        
-        
-            folium.LayerControl().add_to(m)
-
 
 
             folium.GeoJson(
@@ -566,10 +561,10 @@ if check_password():
                 }
             ).add_to(m)
     
-            folium.Marker(
-                [lat, lon],
-                tooltip="Projectlocatie"
-            ).add_to(m)
+            # folium.Marker(
+            #     [lat, lon],
+            #     tooltip="Projectlocatie"
+            # ).add_to(m)
     
             st_folium(
                 m,
