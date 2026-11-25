@@ -24,6 +24,8 @@ from utils.buttons import image_button
 from utils.delete_quickscan import verwijder_quickscan
 from utils.dialogs import money_dialog
 
+import base64
+
 
 
 
