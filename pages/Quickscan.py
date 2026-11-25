@@ -1395,9 +1395,9 @@ if check_password():
                     ):
                         money_dialog()
 
-            # =========================
+            # ==================================================
             # PDF FOTOBIJLAGE
-            # =========================
+            # ==================================================
             
             from reportlab.platypus import (
                 SimpleDocTemplate,
@@ -1407,122 +1407,189 @@ if check_password():
                 Image
             )
             from reportlab.lib.styles import getSampleStyleSheet
+            from reportlab.lib import utils
             import tempfile
             import io
             import ast
             
-            st.subheader("Download fotobijlage")
+            st.subheader("📄 Download Fotobijlage")
             
             try:
             
-                pdf_buffer = io.BytesIO()
+                if not fotos.data:
             
-                doc_pdf = SimpleDocTemplate(pdf_buffer)
+                    st.info("Geen foto's beschikbaar voor de PDF.")
             
-                styles = getSampleStyleSheet()
+                else:
             
-                elements = []
+                    pdf_buffer = io.BytesIO()
             
-                elements.append(
-                    Paragraph(
-                        f"Fotobijlage Quickscan - {qs['naam']}",
-                        styles["Title"]
+                    doc_pdf = SimpleDocTemplate(pdf_buffer)
+            
+                    styles = getSampleStyleSheet()
+            
+                    elements = []
+            
+                    elements.append(
+                        Paragraph(
+                            f"Fotobijlage Quickscan - {project['naam']}",
+                            styles["Title"]
+                        )
                     )
-                )
             
-                elements.append(Spacer(1, 20))
+                    elements.append(Spacer(1, 20))
             
-                for i, foto in enumerate(fotos.data, start=1):
+                    for i, foto in enumerate(fotos.data, start=1):
             
-                    try:
+                        try:
             
-                        # download rechtstreeks uit Supabase
-                        img_bytes = supabase.storage.from_("new_app").download(
-                            foto["foto_pad"]
-                        )
+                            # ============================
+                            # FOTO DOWNLOADEN
+                            # ============================
             
-                        # tijdelijke file maken
-                        with tempfile.NamedTemporaryFile(
-                            delete=False,
-                            suffix=".jpg"
-                        ) as tmp:
-            
-                            tmp.write(img_bytes)
-            
-                            image_path = tmp.name
-            
-                        # foto toevoegen
-                        elements.append(
-                            Paragraph(
-                                f"Figuur {i}",
-                                styles["Heading2"]
+                            img_bytes = (
+                                supabase.storage
+                                .from_("new_app")
+                                .download(foto["foto_pad"])
                             )
-                        )
             
-                        elements.append(
-                            Image(
-                                image_path,
-                                width=400,
-                                height=300
+                            with tempfile.NamedTemporaryFile(
+                                delete=False,
+                                suffix=".jpg"
+                            ) as tmp:
+            
+                                tmp.write(img_bytes)
+            
+                                image_path = tmp.name
+            
+                            # ============================
+                            # AFBEELDING PASSEND SCHALEN
+                            # ============================
+            
+                            img = utils.ImageReader(image_path)
+            
+                            width, height = img.getSize()
+            
+                            max_width = 450
+                            max_height = 350
+            
+                            ratio = min(
+                                max_width / width,
+                                max_height / height
                             )
-                        )
             
-                        elements.append(Spacer(1, 10))
+                            width *= ratio
+                            height *= ratio
             
-                        # beschrijving
-                        beschrijving = foto.get(
-                            "beschrijving",
-                            "Geen beschrijving"
-                        )
-            
-                        elements.append(
-                            Paragraph(
-                                f"<b>Beschrijving:</b> {beschrijving}",
-                                styles["BodyText"]
+                            elements.append(
+                                Paragraph(
+                                    f"Figuur {i}",
+                                    styles["Heading2"]
+                                )
                             )
-                        )
             
-                        # soortgroep
-                        soorten = foto.get("soortgroep", [])
-            
-                        if isinstance(soorten, str):
-                            soorten = ast.literal_eval(soorten)
-            
-                        elements.append(
-                            Paragraph(
-                                f"<b>Potentieel geschikt voor:</b> {', '.join(soorten)}",
-                                styles["BodyText"]
+                            elements.append(
+                                Image(
+                                    image_path,
+                                    width=width,
+                                    height=height
+                                )
                             )
-                        )
             
-                        elements.append(Spacer(1, 15))
-            
-                        if i < len(fotos.data):
-                            elements.append(PageBreak())
-            
-                    except Exception as foto_error:
-            
-                        elements.append(
-                            Paragraph(
-                                f"Foto kon niet worden geladen: {foto_error}",
-                                styles["BodyText"]
+                            elements.append(
+                                Spacer(1, 10)
                             )
-                        )
             
-                doc_pdf.build(elements)
+                            # ============================
+                            # BESCHRIJVING
+                            # ============================
             
-                pdf_buffer.seek(0)
+                            beschrijving = (
+                                foto.get("beschrijving")
+                                or "Geen beschrijving beschikbaar."
+                            )
             
-                st.download_button(
-                    label="📄 Download Fotobijlage PDF",
-                    data=pdf_buffer,
-                    file_name=f"{qs['naam']}_fotobijlage.pdf",
-                    mime="application/pdf"
-                )
+                            elements.append(
+                                Paragraph(
+                                    f"<b>Beschrijving:</b><br/>{beschrijving}",
+                                    styles["BodyText"]
+                                )
+                            )
+            
+                            elements.append(
+                                Spacer(1, 5)
+                            )
+            
+                            # ============================
+                            # SOORTGROEP
+                            # ============================
+            
+                            soorten = foto.get("soortgroep")
+            
+                            if soorten:
+            
+                                try:
+            
+                                    if isinstance(soorten, str):
+            
+                                        try:
+                                            soorten = ast.literal_eval(soorten)
+                                        except:
+                                            soorten = [soorten]
+            
+                                    if not isinstance(soorten, list):
+                                        soorten = [str(soorten)]
+            
+                                except Exception:
+                                    soorten = [str(soorten)]
+            
+                                elements.append(
+                                    Paragraph(
+                                        f"<b>Potentieel geschikt voor:</b><br/>{', '.join(soorten)}",
+                                        styles["BodyText"]
+                                    )
+                                )
+            
+                            elements.append(
+                                Spacer(1, 20)
+                            )
+            
+                            if i < len(fotos.data):
+            
+                                elements.append(
+                                    PageBreak()
+                                )
+            
+                        except Exception as foto_error:
+            
+                            elements.append(
+                                Paragraph(
+                                    f"Foto kon niet worden toegevoegd: {foto_error}",
+                                    styles["BodyText"]
+                                )
+                            )
+            
+                    # ============================
+                    # PDF BOUWEN
+                    # ============================
+            
+                    doc_pdf.build(elements)
+            
+                    pdf_buffer.seek(0)
+            
+                    st.download_button(
+                        label="📄 Download Fotobijlage PDF",
+                        data=pdf_buffer,
+                        file_name=f"{project['naam']}_fotobijlage.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
             
             except Exception as e:
             
-                st.error(f"PDF generatie mislukt: {e}")
+                st.error(
+                    f"PDF generatie mislukt: {e}"
+                )
 
 
 
