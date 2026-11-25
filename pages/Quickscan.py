@@ -1028,16 +1028,6 @@ if check_password():
                 max_zoom=24
             ).add_to(m)
             
-            # Satellite
-            folium.TileLayer(
-                tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                attr="Esri",
-                name="Luchtfoto",
-                overlay=False,
-                control=True
-            ).add_to(m)
-            
-            folium.LayerControl().add_to(m)
 
 
             # Logo
