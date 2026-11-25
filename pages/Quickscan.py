@@ -2250,9 +2250,98 @@ if check_password():
         )
 
 
-
-
-
-
-
-
+        from reportlab.platypus import (
+            SimpleDocTemplate,
+            Paragraph,
+            Spacer,
+            PageBreak,
+            Image
+        )
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.lib import colors
+        import tempfile
+        import requests
+        import io
+        
+        # -----------------------
+        # PDF GENEREREN
+        # -----------------------
+        
+        pdf_buffer = io.BytesIO()
+        
+        doc_pdf = SimpleDocTemplate(pdf_buffer)
+        
+        styles = getSampleStyleSheet()
+        
+        elements = []
+        
+        elements.append(
+            Paragraph(f"<b>Quickscan Rapport - {qs['naam']}</b>", styles["Title"])
+        )
+        
+        elements.append(Spacer(1, 12))
+        
+        elements.append(
+            Paragraph("<b>Fotobijlage</b>", styles["Heading1"])
+        )
+        
+        for foto in fotos.data:
+        
+            # Foto URL ophalen
+            url = supabase.storage.from_("new_app").get_public_url(
+                foto["foto_pad"]
+            )
+        
+            # afbeelding downloaden
+            response = requests.get(url)
+        
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+                tmp.write(response.content)
+                image_path = tmp.name
+        
+            # voeg foto toe
+            elements.append(Image(image_path, width=400, height=300))
+            elements.append(Spacer(1, 10))
+        
+            # beschrijving
+            elements.append(
+                Paragraph(
+                    f"<b>Beschrijving:</b> {foto['beschrijving']}",
+                    styles["BodyText"]
+                )
+            )
+        
+            # soortgroep
+            soorten_list = foto["soortgroep"]
+        
+            if isinstance(soorten_list, str):
+                import ast
+                soorten_list = ast.literal_eval(soorten_list)
+        
+            elements.append(
+                Paragraph(
+                    f"<b>Soortgroep:</b> {', '.join(soorten_list)}",
+                    styles["BodyText"]
+                )
+            )
+        
+            elements.append(Spacer(1, 20))
+            elements.append(PageBreak())
+        
+        # PDF maken
+        doc_pdf.build(elements)
+        
+        pdf_buffer.seek(0)
+        
+        st.download_button(
+            label="Download Fotobijlage PDF",
+            data=pdf_buffer,
+            file_name=f"{qs['naam']}_fotobijlage.pdf",
+            mime="application/pdf"
+        )
+        
+        
+        
+        
+        
+        
