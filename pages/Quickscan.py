@@ -1411,8 +1411,9 @@ if check_password():
             import tempfile
             import io
             import ast
-            
-            st.subheader("📄 Download Fotobijlage")
+
+            "---"
+            st.subheader("Download Fotobijlage")
             
             try:
             
@@ -1600,9 +1601,7 @@ if check_password():
             import tempfile
             import io
             import ast
-            
-            st.subheader("📄 Download Fotobijlage Word")
-            
+                        
             try:
             
                 if not fotos.data:
