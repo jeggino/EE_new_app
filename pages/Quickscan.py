@@ -536,9 +536,9 @@ if check_password():
     
             m = folium.Map(
                 location=[lat, lon],
-                zoom_start=17,
+                zoom_start=15,
                 zoom_control=False,
-                control_scale=True
+                control_scale=False
             )
 
             tiles = 'https://api.mapbox.com/styles/v1/jeggino/cmn7ms1u3001f01pl691k0eyu/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiamVnZ2lubyIsImEiOiJjbHdscmRkZHAxMTl1MmlyeTJpb3Z2eHdzIn0.N9TRN7xxTikk235dVs1YeQ'
@@ -550,40 +550,10 @@ if check_password():
                 control=True,name="OpenStreetMap").add_to(m)
             
             
-            # Satellite
-            folium.TileLayer(
-                tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                attr="Esri",
-                name="Satellite",
-                max_native_zoom=21,
-                max_zoom=21,
-                overlay=False,
-                control=True
-            ).add_to(m)
         
         
             folium.LayerControl().add_to(m)
 
-            # Logo
-            logo_path = "utils/pictures/pngwing.com.png"
-            with open(logo_path, "rb") as f:
-                encoded = base64.b64encode(f.read()).decode()
-        
-            logo_html = f"""
-            <div id="map-logo" style="
-                position: fixed;
-                top: 15px;
-                right: 15px;
-                z-index: 999999;
-                background: rgba(255,255,255,0.7);
-                padding: 6px;
-                border-radius: 8px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-            ">
-                <img src="data:image/jpeg;base64,{encoded}" style="width:55px;">
-            </div>
-            """
-            m.get_root().html.add_child(Element(logo_html))
 
 
             folium.GeoJson(
