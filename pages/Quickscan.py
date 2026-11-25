@@ -1591,6 +1591,141 @@ if check_password():
                     f"PDF generatie mislukt: {e}"
                 )
 
+            # ==================================================
+            # WORD FOTOBIJLAGE
+            # ==================================================
+            
+            from docx import Document
+            from docx.shared import Inches
+            import tempfile
+            import io
+            import ast
+            
+            st.subheader("📄 Download Fotobijlage Word")
+            
+            try:
+            
+                if not fotos.data:
+            
+                    st.info("Geen foto's beschikbaar.")
+            
+                else:
+            
+                    doc = Document()
+            
+                    doc.add_heading(
+                        f"Fotobijlage Quickscan - {project['naam']}",
+                        level=1
+                    )
+            
+                    for i, foto in enumerate(fotos.data, start=1):
+            
+                        try:
+            
+                            # Foto downloaden uit Supabase
+                            img_bytes = (
+                                supabase.storage
+                                .from_("new_app")
+                                .download(
+                                    foto["foto_pad"]
+                                )
+                            )
+            
+                            # Tijdelijke file maken
+                            with tempfile.NamedTemporaryFile(
+                                delete=False,
+                                suffix=".jpg"
+                            ) as tmp:
+            
+                                tmp.write(img_bytes)
+            
+                                image_path = tmp.name
+            
+                            # Figuur titel
+                            doc.add_heading(
+                                f"Figuur {i}",
+                                level=2
+                            )
+            
+                            # Afbeelding toevoegen
+                            doc.add_picture(
+                                image_path,
+                                width=Inches(5.5)
+                            )
+            
+                            # Beschrijving
+                            beschrijving = (
+                                foto.get("beschrijving")
+                                or "Geen beschrijving beschikbaar."
+                            )
+            
+                            doc.add_paragraph(
+                                f"Beschrijving: {beschrijving}"
+                            )
+            
+                            # Soortgroep
+                            soorten = foto.get(
+                                "soortgroep",
+                                ""
+                            )
+            
+                            if isinstance(soorten, str):
+            
+                                try:
+                                    soorten = ast.literal_eval(
+                                        soorten
+                                    )
+                                except:
+                                    soorten = [soorten]
+            
+                            if isinstance(
+                                soorten,
+                                list
+                            ):
+                                soorten_text = ", ".join(
+                                    soorten
+                                )
+                            else:
+                                soorten_text = str(
+                                    soorten
+                                )
+            
+                            doc.add_paragraph(
+                                f"Potentieel geschikt voor: {soorten_text}"
+                            )
+            
+                            # Nieuwe pagina
+                            if i < len(fotos.data):
+            
+                                doc.add_page_break()
+            
+                        except Exception as foto_error:
+            
+                            doc.add_paragraph(
+                                f"Foto kon niet worden toegevoegd: {foto_error}"
+                            )
+            
+                    # Opslaan in memory
+                    word_buffer = io.BytesIO()
+            
+                    doc.save(word_buffer)
+            
+                    word_buffer.seek(0)
+            
+                    st.download_button(
+                        label="📄 Download Fotobijlage Word",
+                        data=word_buffer,
+                        file_name=f"{project['naam']}_fotobijlage.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        use_container_width=True
+                    )
+            
+            except Exception as e:
+            
+                st.error(
+                    f"Word-document kon niet worden gemaakt: {e}"
+                )
+
 
 
 
