@@ -1403,6 +1403,135 @@ if check_password():
                 "Voor dit project is nog geen veldbezoek uitgevoerd."
             )
 
+        # =========================
+        # PDF FOTOBIJLAGE
+        # =========================
+        
+        from reportlab.platypus import (
+            SimpleDocTemplate,
+            Paragraph,
+            Spacer,
+            PageBreak,
+            Image
+        )
+        from reportlab.lib.styles import getSampleStyleSheet
+        import tempfile
+        import io
+        import ast
+        
+        st.subheader("Download fotobijlage")
+        
+        try:
+        
+            pdf_buffer = io.BytesIO()
+        
+            doc_pdf = SimpleDocTemplate(pdf_buffer)
+        
+            styles = getSampleStyleSheet()
+        
+            elements = []
+        
+            elements.append(
+                Paragraph(
+                    f"Fotobijlage Quickscan - {qs['naam']}",
+                    styles["Title"]
+                )
+            )
+        
+            elements.append(Spacer(1, 20))
+        
+            for i, foto in enumerate(fotos.data, start=1):
+        
+                try:
+        
+                    # download rechtstreeks uit Supabase
+                    img_bytes = supabase.storage.from_("new_app").download(
+                        foto["foto_pad"]
+                    )
+        
+                    # tijdelijke file maken
+                    with tempfile.NamedTemporaryFile(
+                        delete=False,
+                        suffix=".jpg"
+                    ) as tmp:
+        
+                        tmp.write(img_bytes)
+        
+                        image_path = tmp.name
+        
+                    # foto toevoegen
+                    elements.append(
+                        Paragraph(
+                            f"Figuur {i}",
+                            styles["Heading2"]
+                        )
+                    )
+        
+                    elements.append(
+                        Image(
+                            image_path,
+                            width=400,
+                            height=300
+                        )
+                    )
+        
+                    elements.append(Spacer(1, 10))
+        
+                    # beschrijving
+                    beschrijving = foto.get(
+                        "beschrijving",
+                        "Geen beschrijving"
+                    )
+        
+                    elements.append(
+                        Paragraph(
+                            f"<b>Beschrijving:</b> {beschrijving}",
+                            styles["BodyText"]
+                        )
+                    )
+        
+                    # soortgroep
+                    soorten = foto.get("soortgroep", [])
+        
+                    if isinstance(soorten, str):
+                        soorten = ast.literal_eval(soorten)
+        
+                    elements.append(
+                        Paragraph(
+                            f"<b>Potentieel geschikt voor:</b> {', '.join(soorten)}",
+                            styles["BodyText"]
+                        )
+                    )
+        
+                    elements.append(Spacer(1, 15))
+        
+                    if i < len(fotos.data):
+                        elements.append(PageBreak())
+        
+                except Exception as foto_error:
+        
+                    elements.append(
+                        Paragraph(
+                            f"Foto kon niet worden geladen: {foto_error}",
+                            styles["BodyText"]
+                        )
+                    )
+        
+            doc_pdf.build(elements)
+        
+            pdf_buffer.seek(0)
+        
+            st.download_button(
+                label="📄 Download Fotobijlage PDF",
+                data=pdf_buffer,
+                file_name=f"{qs['naam']}_fotobijlage.pdf",
+                mime="application/pdf"
+            )
+        
+        except Exception as e:
+        
+            st.error(f"PDF generatie mislukt: {e}")
+
 
             
     # if menu == "Nieuwe Quickscan":
@@ -2251,131 +2380,4 @@ if check_password():
 
 
         
-        # =========================
-        # PDF FOTOBIJLAGE
-        # =========================
-        
-        from reportlab.platypus import (
-            SimpleDocTemplate,
-            Paragraph,
-            Spacer,
-            PageBreak,
-            Image
-        )
-        from reportlab.lib.styles import getSampleStyleSheet
-        import tempfile
-        import io
-        import ast
-        
-        st.subheader("Download fotobijlage")
-        
-        try:
-        
-            pdf_buffer = io.BytesIO()
-        
-            doc_pdf = SimpleDocTemplate(pdf_buffer)
-        
-            styles = getSampleStyleSheet()
-        
-            elements = []
-        
-            elements.append(
-                Paragraph(
-                    f"Fotobijlage Quickscan - {qs['naam']}",
-                    styles["Title"]
-                )
-            )
-        
-            elements.append(Spacer(1, 20))
-        
-            for i, foto in enumerate(fotos.data, start=1):
-        
-                try:
-        
-                    # download rechtstreeks uit Supabase
-                    img_bytes = supabase.storage.from_("new_app").download(
-                        foto["foto_pad"]
-                    )
-        
-                    # tijdelijke file maken
-                    with tempfile.NamedTemporaryFile(
-                        delete=False,
-                        suffix=".jpg"
-                    ) as tmp:
-        
-                        tmp.write(img_bytes)
-        
-                        image_path = tmp.name
-        
-                    # foto toevoegen
-                    elements.append(
-                        Paragraph(
-                            f"Figuur {i}",
-                            styles["Heading2"]
-                        )
-                    )
-        
-                    elements.append(
-                        Image(
-                            image_path,
-                            width=400,
-                            height=300
-                        )
-                    )
-        
-                    elements.append(Spacer(1, 10))
-        
-                    # beschrijving
-                    beschrijving = foto.get(
-                        "beschrijving",
-                        "Geen beschrijving"
-                    )
-        
-                    elements.append(
-                        Paragraph(
-                            f"<b>Beschrijving:</b> {beschrijving}",
-                            styles["BodyText"]
-                        )
-                    )
-        
-                    # soortgroep
-                    soorten = foto.get("soortgroep", [])
-        
-                    if isinstance(soorten, str):
-                        soorten = ast.literal_eval(soorten)
-        
-                    elements.append(
-                        Paragraph(
-                            f"<b>Potentieel geschikt voor:</b> {', '.join(soorten)}",
-                            styles["BodyText"]
-                        )
-                    )
-        
-                    elements.append(Spacer(1, 15))
-        
-                    if i < len(fotos.data):
-                        elements.append(PageBreak())
-        
-                except Exception as foto_error:
-        
-                    elements.append(
-                        Paragraph(
-                            f"Foto kon niet worden geladen: {foto_error}",
-                            styles["BodyText"]
-                        )
-                    )
-        
-            doc_pdf.build(elements)
-        
-            pdf_buffer.seek(0)
-        
-            st.download_button(
-                label="📄 Download Fotobijlage PDF",
-                data=pdf_buffer,
-                file_name=f"{qs['naam']}_fotobijlage.pdf",
-                mime="application/pdf"
-            )
-        
-        except Exception as e:
-        
-            st.error(f"PDF generatie mislukt: {e}")
+
