@@ -89,9 +89,8 @@ if check_password():
             st.session_state.menu = "Quickscan bekijken"
     
     menu = st.session_state.get("menu", "nieuw")    
-    # --------------------------------------------------
-    # PROJECT
-    # --------------------------------------------------
+
+    
     if menu == "Nieuwe Quickscan":
 
         # st.title("Nieuwe Quickscan",text_alignment="center", divider="blue")
@@ -1571,15 +1570,20 @@ if check_password():
             
             NNN ANALYSE
             
-            Gebruik onderstaande gegevens voor een locatiespecifieke beoordeling van gebiedsbescherming.
+            Onderstaande gegevens zijn afkomstig uit een GIS-analyse van het plangebied.
+            
+            Wanneer geen gebieden zijn opgenomen, betekent dit dat geen NNN-gebieden zijn aangetroffen binnen de onderzochte afstand.
             
             {json.dumps(project.get("nnn_data"), indent=2, ensure_ascii=False)}
             
             NATURA 2000 ANALYSE
             
-            Gebruik onderstaande gegevens voor een locatiespecifieke beoordeling van gebiedsbescherming.
+            Onderstaande gegevens zijn afkomstig uit een GIS-analyse van het plangebied.
+            
+            Wanneer geen gebieden zijn opgenomen, betekent dit dat geen Natura 2000-gebieden zijn aangetroffen binnen de onderzochte afstand.
             
             {json.dumps(project.get("natura2000_data"), indent=2, ensure_ascii=False)}
+
             
             EINDOPMERKING
             
