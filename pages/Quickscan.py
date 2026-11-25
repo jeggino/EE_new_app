@@ -25,6 +25,7 @@ from utils.delete_quickscan import verwijder_quickscan
 from utils.dialogs import money_dialog
 
 import base64
+from branca.element import Element
 
 
 
@@ -603,7 +604,7 @@ if check_password():
     
             st_folium(
                 m,
-                height=400,
+                height=450,
                 use_container_width=True
             )
     
@@ -1081,7 +1082,7 @@ if check_password():
     
             st_folium(
                 m,
-                height=400,
+                height=450,
                 use_container_width=True
             )
     
@@ -1121,7 +1122,7 @@ if check_password():
         
                 components.html(
                     html_content,
-                    height=400,
+                    height=450,
                     scrolling=True
                 )
 
@@ -1158,7 +1159,7 @@ if check_password():
         
                 components.html(
                     html_content,
-                    height=400,
+                    height=450,
                     scrolling=True
                 )
 
