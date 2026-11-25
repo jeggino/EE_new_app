@@ -1403,6 +1403,89 @@ if check_password():
             # ==================================================
             # AI PROMPT
             # ==================================================
+
+            # -----------------------------------
+            # NNN samenvatting
+            # -----------------------------------
+            
+            nnn_data = project.get("nnn_data") or []
+            
+            if nnn_data and len(nnn_data) > 0:
+            
+                afstanden = [
+                    item["Afstand (m)"]
+                    for item in nnn_data
+                    if "Afstand (m)" in item
+                ]
+            
+                gemiddelde_nnn = round(
+                    sum(afstanden) / len(afstanden),
+                    1
+                )
+            
+                dichtstbij_nnn = min(afstanden)
+            
+                nnn_conclusie = f"""
+                Uit de GIS-analyse blijkt dat meerdere NNN-gebieden aanwezig zijn in de omgeving van het plangebied.
+            
+                Het dichtstbijzijnde NNN-gebied bevindt zich op circa {dichtstbij_nnn} meter afstand.
+                De gemiddelde afstand tot de aangetroffen NNN-gebieden bedraagt circa {gemiddelde_nnn} meter.
+            
+                Gezien de relatief korte afstand tot het Natuurnetwerk Nederland dient beoordeeld te worden of de voorgenomen werkzaamheden negatieve effecten kunnen veroorzaken. Besteed in het rapport expliciet aandacht aan de aard van de werkzaamheden, de afstand tot het NNN en de vraag of negatieve effecten redelijkerwijs zijn uit te sluiten.
+                """
+            
+            else:
+            
+                nnn_conclusie = """
+                Uit de GIS-analyse blijkt dat geen NNN-gebieden zijn aangetroffen binnen de onderzochte afstand. Negatieve effecten op het Natuurnetwerk Nederland kunnen daarom redelijkerwijs worden uitgesloten.
+                """
+            
+            # -----------------------------------
+            # Natura 2000 samenvatting
+            # -----------------------------------
+            
+            natura_data = project.get("natura2000_data") or []
+            
+            if natura_data and len(natura_data) > 0:
+            
+                afstanden = [
+                    item["Afstand (m)"]
+                    for item in natura_data
+                    if "Afstand (m)" in item
+                ]
+            
+                gemiddelde_natura = round(
+                    sum(afstanden) / len(afstanden),
+                    1
+                )
+            
+                dichtstbij_natura = min(afstanden)
+            
+                gebieden = list(
+                    set(
+                        item["Gebied"]
+                        for item in natura_data
+                        if "Gebied" in item
+                    )
+                )
+            
+                natura_conclusie = f"""
+                Uit de GIS-analyse blijkt dat Natura 2000-gebieden aanwezig zijn in de omgeving van het plangebied.
+            
+                Het dichtstbijzijnde Natura 2000-gebied bevindt zich op circa {dichtstbij_natura} meter afstand.
+                De gemiddelde afstand tot de aangetroffen Natura 2000-gebieden bedraagt circa {gemiddelde_natura} meter.
+            
+                Betrokken Natura 2000-gebieden:
+                {", ".join(gebieden)}
+            
+                Gezien de korte afstand tot Natura 2000 dient in het rapport expliciet te worden beoordeeld of negatieve effecten, verstoring, externe werking of andere vormen van beïnvloeding van Natura 2000 redelijkerwijs kunnen optreden als gevolg van de voorgenomen werkzaamheden.
+                """
+            
+            else:
+            
+                natura_conclusie = """
+                Uit de GIS-analyse blijkt dat geen Natura 2000-gebieden zijn aangetroffen binnen de onderzochte afstand. Negatieve effecten op Natura 2000-gebieden kunnen daarom redelijkerwijs worden uitgesloten.
+                """
             
             rapporttekst = f"""
             Je bent een senior ecoloog werkzaam bij een Nederlands ecologisch adviesbureau.
@@ -1535,17 +1618,17 @@ if check_password():
             
             NNN ANALYSE
             
-            Onderstaande gegevens zijn afkomstig uit een GIS-analyse van het plangebied.
+            {nnn_conclusie}
             
-            Wanneer geen gebieden zijn opgenomen, betekent dit dat geen NNN-gebieden zijn aangetroffen binnen de onderzochte afstand.
+            Ruwe GIS-gegevens:
             
             {json.dumps(project.get("nnn_data"), indent=2, ensure_ascii=False)}
             
             NATURA 2000 ANALYSE
             
-            Onderstaande gegevens zijn afkomstig uit een GIS-analyse van het plangebied.
+            {natura_conclusie}
             
-            Wanneer geen gebieden zijn opgenomen, betekent dit dat geen Natura 2000-gebieden zijn aangetroffen binnen de onderzochte afstand.
+            Ruwe GIS-gegevens:
             
             {json.dumps(project.get("natura2000_data"), indent=2, ensure_ascii=False)}
 
