@@ -1027,7 +1027,36 @@ if check_password():
                                 control=True,name="OpenStreetMap").add_to(m)
             
 
-
+            #Legend
+            legend_html = """
+            <div style="
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 9999;
+                background-color: white;
+                border: 2px solid grey;
+                border-radius: 6px;
+                padding: 8px 10px;
+                font-size: 13px;
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            ">
+                <b>Legenda</b><br>
+                <div style="display:flex; align-items:center; margin-top:5px;">
+                    <div style="
+                        width:18px;
+                        height:18px;
+                        background:#ff9999;
+                        border:2px solid #cc0000;
+                        margin-right:8px;
+                    "></div>
+                    Onderzoeksgebied
+                </div>
+            </div>
+            """
+            
+            m.get_root().html.add_child(Element(legend_html))
+            
             # Logo
             logo_path = "utils/pictures/pngwing.com.png"
             with open(logo_path, "rb") as f:
