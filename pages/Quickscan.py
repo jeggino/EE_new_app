@@ -1390,89 +1390,205 @@ if check_password():
                     Met deze functie wordt een uitgebreide AI-prompt gegenereerd op basis van:
             
                     - Projectgegevens
-                    - Opdrachtgevergegevens
                     - Veldbezoekinformatie
                     - Habitatbeoordeling
                     - Soortgeschiktheid
                     - Foto's en beschrijvingen
+                    - NNN-analyse
+                    - Natura 2000-analyse
                     - Eindopmerking
             
-                    De gegenereerde tekst kan worden ingevoerd in ChatGPT, Claude,
-                    Copilot of een andere AI-toepassing om automatisch een
-                    professioneel ecologisch quickscanrapport op te stellen.
-            
-                    Tevens bevat de prompt vaste instructies over:
-            
-                    - Structuur van het rapport
-                    - Schrijfstijl
-                    - Conclusies
-                    - Aanbevelingen
-                    - Wettelijk kader
-                    - Professionele ecologische rapportage
+                    De prompt kan rechtstreeks worden gebruikt in ChatGPT, Claude,
+                    Copilot of een andere AI-toepassing om een professioneel
+                    ecologisch quickscanrapport op te stellen conform de Omgevingswet.
                     """
                 )
-
-                rapporttekst = f"""
-                Je bent een senior ecologisch adviseur.
-                
-                Schrijf een professioneel ecologisch quickscanrapport in het Nederlands.
-                
-                BELANGRIJK:
-                
-                - Gebruik een zakelijke rapportstijl.
-                - Corrigeer spelfouten.
-                - Negeer onprofessionele of irrelevante opmerkingen.
-                - Verbeter onduidelijke tekst waar mogelijk.
-                - Trek geen conclusies die niet uit de data volgen.
-                - Vermeld onzekerheden indien informatie ontbreekt.
-                - Schrijf alsof het rapport wordt opgeleverd aan een opdrachtgever.
-                
-                Het rapport moet minimaal de volgende hoofdstukken bevatten:
-                
-                1. Samenvatting
-                2. Aanleiding en doel
-                3. Projectlocatie
-                4. Onderzoeksopzet
-                5. Veldbezoek
-                6. Habitatkenmerken
-                7. Beoordeling soortgroepen
-                8. Mogelijke risico's
-                9. Aanbevelingen
-                10. Conclusie
-                
-                PROJECTGEGEVENS
-                
-                Project: {project.get('naam')}
-                Status: {project.get('status')}
-                
-                OPDRACHTGEVER
-                
-                Naam: {project.get('opdrachtgever_naam')}
-                Telefoon: {project.get('opdrachtgever_telefoon')}
-                Email: {project.get('opdrachtgever_email')}
-                
-                PROJECTOMSCHRIJVING
-                
-                {project.get('opmerking')}
-                
-                VELDGEGEVENS
-                
-                Datum: {project.get('datum')}
-                Veldwerker: {project.get('veldwerker')}
-                Starttijd: {project.get('starttijd')}
-                Eindtijd: {project.get('eindtijd')}
-                Temperatuur: {project.get('temperatuur')}
-                Windsnelheid: {project.get('windsnelheid')}
-                Regen: {project.get('regen')}
-                
-                SOORTGESCHIKTHEID
-                
-                {json.dumps(project.get("soorten"), indent=2, ensure_ascii=False)}
-                
-                EINDOPMERKING
-                
-                {project.get('eindopmerking')}
-                """
+            
+            # ==================================================
+            # FOTO DATA VERZAMELEN
+            # ==================================================
+            
+            foto_prompt = ""
+            
+            if fotos.data:
+            
+                for i, foto in enumerate(fotos.data, start=1):
+            
+                    beschrijving = foto.get(
+                        "beschrijving",
+                        "Geen beschrijving"
+                    )
+            
+                    soortgroep = foto.get(
+                        "soortgroep",
+                        "-"
+                    )
+            
+                    foto_prompt += f"""
+            
+            FOTO {i}
+            
+            Beschrijving:
+            {beschrijving}
+            
+            Potentieel geschikt voor:
+            {soortgroep}
+            
+            """
+            
+            # ==================================================
+            # AI PROMPT
+            # ==================================================
+            
+            rapporttekst = f"""
+            Je bent een senior ecoloog werkzaam bij een Nederlands ecologisch adviesbureau.
+            
+            Schrijf een professionele Quickscan Flora en Fauna conform de Omgevingswet.
+            
+            BELANGRIJKE INSTRUCTIES
+            
+            - Gebruik formeel, objectief en deskundig Nederlands.
+            - Schrijf in rapportvorm.
+            - Corrigeer taal- en spelfouten.
+            - Verbeter onduidelijke zinnen waar nodig.
+            - Trek uitsluitend conclusies die logisch volgen uit de aangeleverde gegevens.
+            - Vermeld onzekerheden indien informatie ontbreekt.
+            - Gebruik habitatkenmerken, foto's, soortgeschiktheid en gebiedsanalyses als basis van de beoordeling.
+            - Vermijd generieke teksten indien locatiespecifieke gegevens beschikbaar zijn.
+            - Schrijf het rapport alsof het wordt opgeleverd door een Nederlands ecologisch adviesbureau.
+            - Formuleer juridisch correct en conform de Omgevingswet.
+            
+            Gebruik waar relevant formuleringen zoals:
+            
+            - "Op basis van de fysieke kenmerken van het plangebied..."
+            - "Het plangebied wordt beschouwd als geschikt voor..."
+            - "De aanwezigheid van deze soort kan niet worden uitgesloten."
+            - "Negatieve effecten kunnen redelijkerwijs worden uitgesloten."
+            - "Aanvullend soortgericht onderzoek wordt noodzakelijk geacht."
+            - "Overtreding van verbodsbepalingen uit de Omgevingswet kan niet op voorhand worden uitgesloten."
+            
+            RAPPORTSTRUCTUUR
+            
+            # Samenvatting
+            
+            # 1 Aanleiding
+            ## 1.1 Doelstelling
+            ## 1.2 Literatuuronderzoek
+            ## 1.3 Veldbezoek
+            
+            # 2 Beschrijving plangebied en werkzaamheden
+            
+            # 3 Wettelijk kader
+            ## 3.1 Gebiedsbescherming
+            ### 3.1.1 Natuurnetwerk Nederland
+            ### 3.1.2 Natura 2000
+            
+            # 4 Soortbescherming
+            
+            ## 4.1 Vaatplanten
+            ## 4.2 Reptielen en amfibieën
+            ## 4.3 Vissen
+            ## 4.4 Vogels
+            ## 4.5 Vlinders
+            ## 4.6 Libellen
+            
+            ## 4.7 Zoogdieren
+            ### 4.7.1 Vleermuizen
+            ### 4.7.2 Marterachtigen
+            ### 4.7.3 Overige grondgebonden zoogdieren
+            
+            Voor iedere soortgroep behandelen:
+            
+            - Habitatanalyse
+            - Geschiktheidsbeoordeling
+            - Kans op voorkomen
+            - Effectanalyse
+            - Wettelijke toetsing
+            - Conclusie
+            - Eventuele noodzaak voor aanvullend onderzoek
+            
+            # 5 Gebiedsbescherming
+            ## 5.1 Natuurnetwerk Nederland
+            ## 5.2 Natura 2000
+            
+            # 6 Zorgplicht
+            
+            # 7 Conclusies en aanbevelingen
+            
+            PROJECTGEGEVENS
+            
+            Project:
+            {project.get('naam')}
+            
+            Status:
+            {project.get('status')}
+            
+            PROJECTOMSCHRIJVING
+            
+            {project.get('opmerking')}
+            
+            VELDBEZOEK
+            
+            Datum:
+            {project.get('datum')}
+            
+            Veldwerker:
+            {project.get('veldwerker')}
+            
+            Starttijd:
+            {project.get('starttijd')}
+            
+            Eindtijd:
+            {project.get('eindtijd')}
+            
+            Temperatuur:
+            {project.get('temperatuur')} °C
+            
+            Windsnelheid:
+            {project.get('windsnelheid')}
+            
+            Neerslag:
+            {project.get('regen')}
+            
+            SOORTGESCHIKTHEID
+            
+            {json.dumps(project.get("soorten"), indent=2, ensure_ascii=False)}
+            
+            FOTOANALYSE
+            
+            Analyseer iedere foto afzonderlijk.
+            
+            Voor iedere foto:
+            
+            - Beschrijf objectief wat zichtbaar is.
+            - Beschrijf aanwezige habitatkenmerken.
+            - Benoem welke ecologische functies aanwezig kunnen zijn.
+            - Gebruik de opgegeven soortgroep als minimale indicatie.
+            - Verwerk de observaties in de relevante hoofdstukken van het rapport.
+            - Verwijs waar nodig naar Foto 1, Foto 2, enzovoort.
+            
+            {foto_prompt}
+            
+            NNN ANALYSE
+            
+            Gebruik onderstaande gegevens voor een locatiespecifieke beoordeling van gebiedsbescherming.
+            
+            {json.dumps(project.get("nnn_data"), indent=2, ensure_ascii=False)}
+            
+            NATURA 2000 ANALYSE
+            
+            Gebruik onderstaande gegevens voor een locatiespecifieke beoordeling van gebiedsbescherming.
+            
+            {json.dumps(project.get("natura2000_data"), indent=2, ensure_ascii=False)}
+            
+            EINDOPMERKING
+            
+            {project.get('eindopmerking')}
+            
+            SLOTINSTRUCTIE
+            
+            Het eindresultaat moet lezen als een professionele Quickscan Flora en Fauna opgesteld door een Nederlands ecologisch adviesbureau en geschikt zijn voor vergunningverlening, ruimtelijke onderbouwing en toetsing aan de Omgevingswet.
+            """
             
             with st.expander(
                 "Rapporttekst bekijken",
@@ -1484,11 +1600,11 @@ if check_password():
                     rapporttekst,
                     height=500
                 )
-
+            
                 col1, col2 = st.columns(2)
-                
+            
                 with col1:
-                
+            
                     st.download_button(
                         "📄 Download AI Prompt",
                         rapporttekst,
@@ -1496,9 +1612,9 @@ if check_password():
                         mime="text/plain",
                         use_container_width=True
                     )
-                
+            
                 with col2:
-                
+            
                     if st.button(
                         "🤖 Genereer rapport",
                         use_container_width=True
