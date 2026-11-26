@@ -755,6 +755,7 @@ if check_password():
         
             photo = st.file_uploader(
                 "Upload een foto",
+                max_upload_size=3000,
                 type=["jpg", "jpeg", "png"],
                 key=f"photo_{index}"
             )
